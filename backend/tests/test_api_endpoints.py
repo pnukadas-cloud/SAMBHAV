@@ -197,6 +197,53 @@ class TestAPIEndpoints(unittest.TestCase):
         self.assertTrue("cx" in explanation_lower or "controlled" in explanation_lower or "cnot" in explanation_lower)
 
 
+    def test_ai_tutor_distinct_user_questions(self):
+        # 1. "What is a qubit?"
+        resp1 = self.client.post("/api/ai/explain", json={"question": "What is a qubit?"})
+        self.assertEqual(resp1.status_code, 200)
+        data1 = resp1.json()
+        text1 = data1["explanation"].lower()
+        self.assertTrue("qubit" in text1 and ("quantum bit" in text1 or "superposition" in text1 or "bloch" in text1 or "two-level" in text1))
+        self.assertNotIn("bell state", text1)
+
+        # 2. "Why does the Hadamard gate create superposition?"
+        resp2 = self.client.post("/api/ai/explain", json={"question": "Why does the Hadamard gate create superposition?"})
+        self.assertEqual(resp2.status_code, 200)
+        data2 = resp2.json()
+        text2 = data2["explanation"].lower()
+        self.assertTrue("hadamard" in text2 and ("superposition" in text2 or "basis" in text2 or "equal" in text2))
+
+        # 3. "Why is my circuit producing this measurement result?"
+        resp3 = self.client.post("/api/ai/explain", json={
+            "question": "Why is my circuit producing this measurement result?",
+            "simulation_result": {
+                "probabilities": {"0": 0.5, "1": 0.5},
+                "dirac": "0.707|0⟩ + 0.707|1⟩"
+            }
+        })
+        self.assertEqual(resp3.status_code, 200)
+        data3 = resp3.json()
+        text3 = data3["explanation"].lower()
+        self.assertTrue("measurement" in text3 or "born rule" in text3 or "probability" in text3 or "collapse" in text3)
+
+        # 4. "What does the CNOT gate do?"
+        resp4 = self.client.post("/api/ai/explain", json={"question": "What does the CNOT gate do?"})
+        self.assertEqual(resp4.status_code, 200)
+        data4 = resp4.json()
+        text4 = data4["explanation"].lower()
+        self.assertTrue(("cnot" in text4 or "cx" in text4 or "controlled-not" in text4) and ("target" in text4 or "control" in text4))
+
+        # 5. "Explain entanglement in simple terms."
+        resp5 = self.client.post("/api/ai/explain", json={"question": "Explain entanglement in simple terms."})
+        self.assertEqual(resp5.status_code, 200)
+        data5 = resp5.json()
+        text5 = data5["explanation"].lower()
+        self.assertTrue("entanglement" in text5 or "correlated" in text5 or "non-separable" in text5)
+
+        # Verify that all 5 responses are distinctly different texts
+        explanations = [data1["explanation"], data2["explanation"], data3["explanation"], data4["explanation"], data5["explanation"]]
+        self.assertEqual(len(set(explanations)), 5)
+
     def test_ai_generate_challenge_endpoint(self):
         payload = {
             "learnerLevel": "intermediate",

@@ -112,8 +112,6 @@ class OTPManager:
             "delivery_info": delivery_info,
             "expires_in": OTP_EXPIRY_SECONDS,
             "resend_cooldown": RESEND_COOLDOWN_SECONDS,
-            # For local demo/development testing when SMTP is not configured:
-            "dev_otp": otp_code if not email_service.is_configured else None,
         }
 
         return session_token, otp_code, metadata

@@ -52,7 +52,6 @@ export function LoginPage() {
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [otpExpiresIn, setOtpExpiresIn] = useState(300); // 5 mins
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [devOtp, setDevOtp] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState(false);
 
   const otpInputsRef = useRef<(HTMLInputElement | null)[]>([]);
@@ -88,14 +87,13 @@ export function LoginPage() {
       setSessionToken(res.session_token);
       setOtpExpiresIn(res.expires_in || 300);
       setResendCooldown(res.resend_cooldown || 45);
-      setDevOtp(res.dev_otp || null);
       setEmailSent(res.email_sent);
       setStep("otp");
 
       if (res.email_sent) {
         showToast(`Verification code sent to ${email}`, "success", "OTP Dispatched");
       } else {
-        showToast(`Development mode: Use code below or check server log`, "info", "Dev Auth");
+        showToast("Verification code generated. Please check your inbox (or server console in local dev).", "info", "Code Dispatched");
       }
     } catch (err: any) {
       const message = err?.message || "Invalid credentials. Please verify your email and password.";
@@ -176,7 +174,6 @@ export function LoginPage() {
       setSessionToken(res.session_token);
       setOtpExpiresIn(res.expires_in || 300);
       setResendCooldown(res.resend_cooldown || 45);
-      setDevOtp(res.dev_otp || null);
       setOtpDigits(["", "", "", "", "", ""]);
       showToast("A fresh verification code has been dispatched.", "success", "Code Resent");
     } catch (err: any) {
@@ -305,47 +302,6 @@ export function LoginPage() {
         {/* STEP 2: 6-DIGIT OTP VERIFICATION FORM */}
         {step === "otp" && (
           <form className="auth-form" onSubmit={handleVerifySubmit}>
-            {/* Dev helper pill if no SMTP is configured */}
-            {devOtp && (
-              <div
-                style={{
-                  background: "rgba(56, 189, 248, 0.1)",
-                  border: "1px solid rgba(56, 189, 248, 0.3)",
-                  borderRadius: "8px",
-                  padding: "10px 14px",
-                  marginBottom: "16px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  fontSize: "13px",
-                }}
-              >
-                <div>
-                  <span style={{ color: "#38bdf8", fontWeight: 600 }}>⚡ Dev Mode OTP: </span>
-                  <strong style={{ letterSpacing: "2px", color: "#f8fafc" }}>{devOtp}</strong>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const digits = devOtp.split("");
-                    setOtpDigits(digits);
-                    otpInputsRef.current[5]?.focus();
-                  }}
-                  style={{
-                    background: "rgba(56, 189, 248, 0.2)",
-                    border: "none",
-                    color: "#38bdf8",
-                    padding: "4px 8px",
-                    borderRadius: "4px",
-                    fontSize: "12px",
-                    cursor: "pointer",
-                    fontWeight: 600,
-                  }}
-                >
-                  Auto-fill
-                </button>
-              </div>
-            )}
 
             <div className="form-group" style={{ textAlign: "center" }}>
               <label style={{ marginBottom: "12px", display: "block" }}>

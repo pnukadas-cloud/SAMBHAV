@@ -184,35 +184,39 @@ def seed_database() -> None:
                             ),
                         )
 
-            # 5. Seed student initial progress
-            seed_progress = [
-                (student_id, "quantum-foundations", "qubit-basics", "completed", 100.0, 720),
-                (student_id, "quantum-foundations", "superposition", "completed", 100.0, 900),
-                (student_id, "quantum-foundations", "measurement", "completed", 95.0, 1100),
-                (student_id, "quantum-foundations", "bell-state", "in_progress", 80.0, 450),
-            ]
-            for u_id, c_id, l_id, stat, sc, ts in seed_progress:
+            # 5. Seed student initial progress (only for demo student)
+            cursor.execute("SELECT COUNT(*) as prog_count FROM progress WHERE user_id = ?", (student_id,))
+            if cursor.fetchone()["prog_count"] == 0:
+                seed_progress = [
+                    (student_id, "quantum-foundations", "qubit-basics", "completed", 100.0, 720),
+                    (student_id, "quantum-foundations", "superposition", "completed", 100.0, 900),
+                    (student_id, "quantum-foundations", "measurement", "completed", 95.0, 1100),
+                    (student_id, "quantum-foundations", "bell-state", "in_progress", 80.0, 450),
+                ]
+                for u_id, c_id, l_id, stat, sc, ts in seed_progress:
+                    cursor.execute(
+                        """
+                        INSERT INTO progress (id, user_id, course_id, lesson_id, status, score, time_spent_seconds)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (str(uuid.uuid4()), u_id, c_id, l_id, stat, sc, ts),
+                    )
+
+            # 6. Seed student saved circuits (only for demo student)
+            cursor.execute("SELECT COUNT(*) as circ_count FROM circuits WHERE owner_id = ?", (student_id,))
+            if cursor.fetchone()["circ_count"] == 0:
+                bell_ir_json = '{"qubits":2,"classicalBits":2,"operations":[{"gate":"h","targets":[0]},{"gate":"cx","controls":[0],"targets":[1]},{"gate":"measure","targets":[0,1],"classicalTargets":[0,1]}]}'
                 cursor.execute(
                     """
-                    INSERT INTO progress (id, user_id, course_id, lesson_id, status, score, time_spent_seconds)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO circuits (id, owner_id, title, description, circuit_ir_json, framework)
+                    VALUES (?, ?, ?, ?, ?, ?)
                     """,
-                    (str(uuid.uuid4()), u_id, c_id, l_id, stat, sc, ts),
+                    (
+                        str(uuid.uuid4()),
+                        student_id,
+                        "Maximally Entangled Bell State (|Φ⁺⟩)",
+                        "Standard 2-qubit Einstein-Podolsky-Rosen (EPR) pair.",
+                        bell_ir_json,
+                        "qiskit",
+                    ),
                 )
-
-            # 6. Seed student saved circuits
-            bell_ir_json = '{"qubits":2,"classicalBits":2,"operations":[{"gate":"h","targets":[0]},{"gate":"cx","controls":[0],"targets":[1]},{"gate":"measure","targets":[0,1],"classicalTargets":[0,1]}]}'
-            cursor.execute(
-                """
-                INSERT INTO circuits (id, owner_id, title, description, circuit_ir_json, framework)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    str(uuid.uuid4()),
-                    student_id,
-                    "Maximally Entangled Bell State (|Φ⁺⟩)",
-                    "Standard 2-qubit Einstein-Podolsky-Rosen (EPR) pair.",
-                    bell_ir_json,
-                    "qiskit",
-                ),
-            )

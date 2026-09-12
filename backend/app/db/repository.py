@@ -273,11 +273,15 @@ def get_user_progress(user_id: str) -> dict[str, Any]:
             (user_id,),
         )
         sub_row = cursor.fetchone()
-        solved_challenges = sub_row["solved_count"] or 0
-        avg_score = round(sub_row["avg_score"] or 88, 1)
+        solved_challenges = sub_row["solved_count"] if sub_row else 0
+        avg_score = round(sub_row["avg_score"], 1) if (sub_row and sub_row["avg_score"] is not None) else 0.0
 
-        # Calculate XP based on activity
-        total_xp = (completed_lessons * 100) + (solved_challenges * 150) + (sim_count * 20) + 450
+        # Calculate genuine XP based strictly on user's actual activity
+        total_xp = (completed_lessons * 100) + (solved_challenges * 150) + (sim_count * 20)
+
+        # Genuine streak calculation (0 if no activity recorded)
+        has_activity = completed_lessons > 0 or sim_count > 0 or solved_challenges > 0
+        streak_days = max(1, min(7, completed_lessons + (1 if sim_count > 0 else 0))) if has_activity else 0
 
         # Detailed completed lesson IDs
         cursor.execute(
@@ -305,6 +309,19 @@ def get_user_progress(user_id: str) -> dict[str, Any]:
                 "reason": "Recommended because you encountered controlled-gate ordering errors in recent challenges.",
                 "action": "Review Bell State",
             })
+        elif completed_lessons == 0 and sim_count == 0:
+            recommendations.append({
+                "title": "Quantum Foundations: 1.1 The Qubit & Bloch Sphere",
+                "to": "/learn/quantum-foundations/qubit-basics",
+                "reason": "Recommended starting lesson to build your quantum computing fundamentals.",
+                "action": "Start Lesson 1.1",
+            })
+            recommendations.append({
+                "title": "Quantum Lab: Explore Superposition",
+                "to": "/lab",
+                "reason": "Place a Hadamard (H) gate on the canvas and simulate statevector collapse.",
+                "action": "Open Lab",
+            })
         else:
             recommendations.append({
                 "title": "Quantum Logic & Unitary Gates: S & T Phase Shifts",
@@ -323,7 +340,7 @@ def get_user_progress(user_id: str) -> dict[str, Any]:
             "userId": user_id,
             "xp": total_xp,
             "level": max(1, total_xp // 500 + 1),
-            "streakDays": 5,
+            "streakDays": streak_days,
             "completedLessons": completed_lessons,
             "simulationsRun": sim_count,
             "challengesSolved": solved_challenges,

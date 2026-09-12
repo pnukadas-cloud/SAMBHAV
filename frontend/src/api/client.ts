@@ -99,7 +99,6 @@ export interface OtpInitiatedResponse {
   resend_cooldown: number;
   email_sent: boolean;
   delivery_info: string;
-  dev_otp?: string;
 }
 
 export interface AuthSuccessResponse {
@@ -206,7 +205,14 @@ export function evaluateChallenge(challengeId: string, circuit: CircuitIR): Prom
 }
 
 export function fetchProgress(): Promise<any> {
-  return request<any>("/api/progress/demo");
+  return request<any>("/api/progress/me");
+}
+
+export function recordLessonProgress(courseId: string, lessonId: string, score = 100.0, timeSpent = 120): Promise<any> {
+  return request<any>("/api/progress/record", {
+    method: "POST",
+    body: JSON.stringify({ course_id: courseId, lesson_id: lessonId, status: "completed", score, time_spent: timeSpent }),
+  });
 }
 
 export function saveCircuit(title: string, circuit: CircuitIR, description?: string): Promise<any> {

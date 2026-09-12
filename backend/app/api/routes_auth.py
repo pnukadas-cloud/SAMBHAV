@@ -39,7 +39,6 @@ class LoginInitiatedResponse(BaseModel):
     resend_cooldown: int
     email_sent: bool
     delivery_info: str
-    dev_otp: Optional[str] = None
 
 
 class AuthSuccessResponse(BaseModel):
@@ -83,7 +82,6 @@ def register(payload: RegisterRequest) -> LoginInitiatedResponse:
         resend_cooldown=meta["resend_cooldown"],
         email_sent=meta["email_sent"],
         delivery_info=meta["delivery_info"],
-        dev_otp=meta.get("dev_otp"),
     )
 
 
@@ -120,7 +118,6 @@ def login(payload: LoginRequest) -> LoginInitiatedResponse:
         resend_cooldown=meta["resend_cooldown"],
         email_sent=meta["email_sent"],
         delivery_info=meta["delivery_info"],
-        dev_otp=meta.get("dev_otp"),
     )
 
 
@@ -177,7 +174,6 @@ def resend_otp(payload: ResendOTPRequest) -> LoginInitiatedResponse:
         resend_cooldown=meta["resend_cooldown"],
         email_sent=meta["email_sent"],
         delivery_info=meta["delivery_info"],
-        dev_otp=meta.get("dev_otp"),
     )
 
 

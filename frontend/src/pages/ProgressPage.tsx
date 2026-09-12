@@ -11,35 +11,125 @@ import {
   Trophy,
   Zap,
 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { AppShell } from "../components/layout/AppShell";
 import { useAuth } from "../context/AuthContext";
+import { fetchProgress } from "../api/client";
 
 export function ProgressPage() {
   const { user } = useAuth();
+  const [progress, setProgress] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const xp = user?.xp || 480;
-  const streak = user?.streakDays || 4;
-  const level = user?.level || 3;
-  const nextLevelXP = 750;
-  const currentLevelBaseXP = 300;
-  const levelProgressPct = Math.round(((xp - currentLevelBaseXP) / (nextLevelXP - currentLevelBaseXP)) * 100);
+  useEffect(() => {
+    fetchProgress()
+      .then((data) => {
+        setProgress(data);
+      })
+      .catch((err) => {
+        console.error("Failed to load user progress:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  const xp = progress?.xp ?? user?.xp ?? 0;
+  const streak = progress?.streakDays ?? user?.streakDays ?? 0;
+  const level = progress?.level ?? user?.level ?? 1;
+  const completedLessons = progress?.completedLessons ?? 0;
+  const simulationsRun = progress?.simulationsRun ?? 0;
+  const challengesSolved = progress?.challengesSolved ?? 0;
+  const avgScore = progress?.averageScore ?? 0;
+
+  // Level Progression XP calculation (500 XP per level)
+  const currentLevelBaseXP = (level - 1) * 500;
+  const nextLevelXP = level * 500;
+  const levelProgressPct = Math.min(100, Math.max(0, Math.round(((xp - currentLevelBaseXP) / (nextLevelXP - currentLevelBaseXP)) * 100)));
+
+  // Calculate total time invested from recorded progress sessions
+  const records = progress?.records || [];
+  const totalSeconds = records.reduce((sum: number, r: any) => sum + (r.time_spent_seconds || 120), 0);
+  const totalHours = (totalSeconds / 3600).toFixed(1);
 
   const badges = [
-    { id: "b1", title: "First Circuit Run", desc: "Executed your first statevector simulation", icon: Zap, unlocked: true, date: "3 days ago" },
-    { id: "b2", title: "Superposition Master", desc: "Successfully applied Hadamard transformation", icon: Sparkles, unlocked: true, date: "2 days ago" },
-    { id: "b3", title: "Consistent Explorer", desc: "Maintained a 4-day learning streak", icon: Flame, unlocked: true, date: "Today" },
-    { id: "b4", title: "Entanglement Pioneer", desc: "Constructed standard Bell State |Φ⁺⟩", icon: BrainCircuit, unlocked: true, date: "Yesterday" },
-    { id: "b5", title: "Algorithm Architect", desc: "Executed a complete Grover or Teleportation circuit", icon: Award, unlocked: false },
-    { id: "b6", title: "Quantum Master", desc: "Complete all 3 foundational courses", icon: Trophy, unlocked: false },
+    {
+      id: "b1",
+      title: "First Circuit Run",
+      desc: "Executed your first statevector simulation",
+      icon: Zap,
+      unlocked: simulationsRun > 0,
+      date: "Active",
+    },
+    {
+      id: "b2",
+      title: "Superposition Master",
+      desc: "Successfully finished 2 quantum foundation lessons",
+      icon: Sparkles,
+      unlocked: completedLessons >= 2,
+      date: "Earned",
+    },
+    {
+      id: "b3",
+      title: "Consistent Explorer",
+      desc: "Maintained an active 4-day learning streak",
+      icon: Flame,
+      unlocked: streak >= 4,
+      date: "Active",
+    },
+    {
+      id: "b4",
+      title: "Entanglement Pioneer",
+      desc: "Completed Bell State and multi-qubit curriculum",
+      icon: BrainCircuit,
+      unlocked: completedLessons >= 4,
+      date: "Earned",
+    },
+    {
+      id: "b5",
+      title: "Challenge Champion",
+      desc: "Solved at least 3 algorithmic challenges",
+      icon: Award,
+      unlocked: challengesSolved >= 3,
+      date: "Earned",
+    },
+    {
+      id: "b6",
+      title: "Quantum Master",
+      desc: "Complete all 12 foundational lessons",
+      icon: Trophy,
+      unlocked: completedLessons >= 12,
+    },
   ];
 
   const skillBreakdown = [
-    { name: "Single-Qubit Gates (Pauli, H)", level: "Proficient", score: 92, color: "bg-teal" },
-    { name: "Entanglement & Multi-Qubit Operations", level: "Intermediate", score: 78, color: "bg-blue" },
-    { name: "Quantum Phase & Kickback", level: "Needs Practice", score: 54, color: "bg-amber" },
-    { name: "Quantum Algorithms (Grover, DJ)", level: "Exploring", score: 35, color: "bg-purple" },
+    {
+      name: "Single-Qubit Gates (Pauli, H)",
+      level: completedLessons >= 2 ? "Proficient" : completedLessons >= 1 ? "Learning" : "Not Started",
+      score: Math.min(100, completedLessons * 30),
+      color: "bg-teal",
+    },
+    {
+      name: "Entanglement & Multi-Qubit Operations",
+      level: completedLessons >= 4 ? "Proficient" : completedLessons >= 2 ? "Intermediate" : "Not Started",
+      score: Math.min(100, Math.max(0, (completedLessons - 1) * 25)),
+      color: "bg-blue",
+    },
+    {
+      name: "Quantum Phase & Kickback",
+      level: completedLessons >= 6 ? "Proficient" : completedLessons >= 3 ? "In Progress" : "Not Started",
+      score: Math.min(100, Math.max(0, (completedLessons - 2) * 20)),
+      color: "bg-amber",
+    },
+    {
+      name: "Quantum Algorithms (Grover, DJ)",
+      level: challengesSolved >= 2 ? "Proficient" : challengesSolved >= 1 ? "Exploring" : "Not Started",
+      score: Math.min(100, challengesSolved * 35),
+      color: "bg-purple",
+    },
   ];
+
+  const weakConcepts = progress?.weakConcepts || [];
 
   return (
     <AppShell activeTitle="My Progress & Analytics" activeCategory="Analytics">
@@ -52,8 +142,8 @@ export function ProgressPage() {
               <span className="lvl-tag">Level</span>
             </div>
             <div className="level-details">
-              <h3>Quantum Apprentice (Level {level})</h3>
-              <p>{xp} XP earned • {nextLevelXP - xp} XP to Level {level + 1} (Quantum Practitioner)</p>
+              <h3>Quantum Pioneer (Level {level})</h3>
+              <p>{xp} XP earned • {Math.max(0, nextLevelXP - xp)} XP to Level {level + 1}</p>
               <div className="xp-progress-bar">
                 <div className="fill" style={{ width: `${levelProgressPct}%` }} />
               </div>
@@ -94,16 +184,30 @@ export function ProgressPage() {
                 ))}
               </div>
 
-              {/* Weak Concept Alert & Recommendation */}
-              <div className="weak-concept-alert">
-                <AlertTriangle size={18} className="text-amber" />
-                <div className="alert-text">
-                  <h5>Focus Area: Quantum Phase & Kickback</h5>
-                  <p>
-                    Your recent challenge submissions indicate minor confusion regarding how relative phase turns into observable probabilities.
-                  </p>
+              {/* Weak Concept Alert & Recommendation if any */}
+              {weakConcepts.length > 0 ? (
+                <div className="weak-concept-alert">
+                  <AlertTriangle size={18} className="text-amber" />
+                  <div className="alert-text">
+                    <h5>Focus Area: {weakConcepts[0]}</h5>
+                    <p>
+                      Based on your recent assessment submissions, targeted practice in gate ordering and relative phases will strengthen your foundations.
+                    </p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="weak-concept-alert" style={{ borderColor: "rgba(20, 184, 166, 0.3)", background: "rgba(20, 184, 166, 0.05)" }}>
+                  <Sparkles size={18} className="text-teal" />
+                  <div className="alert-text">
+                    <h5 style={{ color: "#2dd4bf" }}>Skill Readiness Track</h5>
+                    <p>
+                      {completedLessons === 0
+                        ? "Begin your foundational learning path in Quantum Foundations to unlock skill mastery metrics."
+                        : "Great work! Continue progressing through multi-qubit algorithm modules and daily challenges."}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Learning Hours & Stats */}
@@ -114,19 +218,19 @@ export function ProgressPage() {
               </div>
               <div className="stats-2x2-grid">
                 <div className="stat-box">
-                  <span className="num">6.4h</span>
-                  <span className="lbl">Total Time Invested</span>
+                  <span className="num">{totalHours}h</span>
+                  <span className="lbl">Time Invested</span>
                 </div>
                 <div className="stat-box">
-                  <span className="num">18</span>
+                  <span className="num">{simulationsRun}</span>
                   <span className="lbl">Circuits Simulated</span>
                 </div>
                 <div className="stat-box">
-                  <span className="num">4/12</span>
+                  <span className="num">{completedLessons}/12</span>
                   <span className="lbl">Lessons Finished</span>
                 </div>
                 <div className="stat-box">
-                  <span className="num">88%</span>
+                  <span className="num">{avgScore > 0 ? `${avgScore}%` : "—"}</span>
                   <span className="lbl">Average Quiz Score</span>
                 </div>
               </div>
@@ -152,7 +256,7 @@ export function ProgressPage() {
                       <div className="badge-info">
                         <h5>{b.title}</h5>
                         <p>{b.desc}</p>
-                        {b.unlocked && <span className="unlock-date">Unlocked {b.date}</span>}
+                        {b.unlocked && <span className="unlock-date">Unlocked</span>}
                         {!b.unlocked && <span className="locked-text">Locked</span>}
                       </div>
                     </div>

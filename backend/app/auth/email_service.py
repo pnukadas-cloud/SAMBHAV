@@ -4,20 +4,55 @@ from email.message import EmailMessage
 from typing import Optional, Tuple
 
 
+# =========================================================================
+# SMTP CREDENTIALS CONFIGURATION
+# You can paste your credentials directly below or set them in backend/.env
+# =========================================================================
+DEFAULT_SMTP_HOST = ""       # e.g. "smtp.gmail.com"
+DEFAULT_SMTP_PORT = 587             # 587 for TLS, 465 for SSL
+DEFAULT_SMTP_USER = ""       # e.g. "your_email@gmail.com"
+DEFAULT_SMTP_PASSWORD = ""   # e.g. "xxxx xxxx xxxx xxxx" (App Password)
+DEFAULT_SMTP_FROM = ""       # optional, e.g. "SAMBHAV Quantum <your_email@gmail.com>"
+DEFAULT_SMTP_TLS = True
+# =========================================================================
+
+
 class EmailService:
     """
     Email service abstraction for dispatching authentication OTPs and notifications.
-    Supports real SMTP dispatch when credentials are configured in the environment,
+    Supports real SMTP dispatch when credentials are configured in the environment or in code above,
     with a clear development fallback when unconfigured.
     """
 
     def __init__(self):
-        self.smtp_host = os.getenv("SMTP_HOST", "")
-        self.smtp_port = int(os.getenv("SMTP_PORT", "587"))
-        self.smtp_user = os.getenv("SMTP_USER", "")
-        self.smtp_password = os.getenv("SMTP_PASSWORD", "")
-        self.smtp_from = os.getenv("SMTP_FROM", "SAMBHAV Quantum Platform <noreply@sambhav.edu>")
-        self.smtp_tls = os.getenv("SMTP_TLS", "true").lower() in ("true", "1", "yes")
+        self.last_dispatched_code_for_test: Optional[str] = None
+
+    @property
+    def smtp_host(self) -> str:
+        return os.getenv("SMTP_HOST", DEFAULT_SMTP_HOST).strip()
+
+    @property
+    def smtp_port(self) -> int:
+        return int(os.getenv("SMTP_PORT", str(DEFAULT_SMTP_PORT)))
+
+    @property
+    def smtp_user(self) -> str:
+        return os.getenv("SMTP_USER", DEFAULT_SMTP_USER).strip()
+
+    @property
+    def smtp_password(self) -> str:
+        return os.getenv("SMTP_PASSWORD", DEFAULT_SMTP_PASSWORD).strip()
+
+    @property
+    def smtp_from(self) -> str:
+        return os.getenv("SMTP_FROM", DEFAULT_SMTP_FROM).strip() or f"SAMBHAV Quantum Platform <{self.smtp_user or 'noreply@sambhav.edu'}>"
+
+    @property
+    def smtp_tls(self) -> bool:
+        env_tls = os.getenv("SMTP_TLS")
+        if env_tls is not None:
+            return env_tls.lower() in ("true", "1", "yes")
+        return DEFAULT_SMTP_TLS
 
     @property
     def is_configured(self) -> bool:
@@ -29,6 +64,7 @@ class EmailService:
         Dispatches a 6-digit OTP email.
         Returns: (success: bool, delivery_info: str)
         """
+        self.last_dispatched_code_for_test = otp_code
         greeting = f"Hello {user_name}," if user_name else "Hello Quantum Learner,"
         subject = f"SAMBHAV Quantum Platform — Your Verification Code is {otp_code}"
         

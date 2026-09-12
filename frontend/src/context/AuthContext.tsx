@@ -95,11 +95,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               name: profile.name,
               email: profile.email,
               role: profile.role,
-              xp: prev?.xp ?? (profile.role === "instructor" ? 2400 : 480),
-              streakDays: prev?.streakDays ?? (profile.role === "instructor" ? 14 : 4),
-              level: prev?.level ?? (profile.role === "instructor" ? 10 : 3),
+              xp: profile.xp ?? prev?.xp ?? 0,
+              streakDays: profile.streakDays ?? prev?.streakDays ?? 0,
+              level: profile.level ?? prev?.level ?? 1,
               experienceLevel: prev?.experienceLevel ?? (profile.role === "instructor" ? "advanced" : "beginner"),
-              interests: prev?.interests ?? ["Quantum Fundamentals", "Quantum Algorithms"],
+              interests: prev?.interests ?? [],
             }));
           } else {
             // Invalid session
@@ -143,11 +143,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: res.user.name,
         email: res.user.email,
         role: res.user.role,
-        xp: res.user.role === "instructor" ? 2400 : 480,
-        streakDays: res.user.role === "instructor" ? 14 : 4,
-        level: res.user.role === "instructor" ? 10 : 3,
+        xp: 0,
+        streakDays: 0,
+        level: 1,
         experienceLevel: res.user.role === "instructor" ? "advanced" : "beginner",
-        interests: ["Quantum Fundamentals", "Quantum Algorithms", "Circuit Simulation"],
+        interests: [],
       };
       setUser(authenticatedUser);
       setIsLoading(false);

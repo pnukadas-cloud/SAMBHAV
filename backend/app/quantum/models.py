@@ -54,10 +54,10 @@ class BlochVector(BaseModel):
 
 
 class SimulationResult(BaseModel):
-    backend: str
-    shots: int
-    counts: dict[str, int]
-    probabilities: dict[str, float]
+    backend: str = "local_statevector"
+    shots: int = 1024
+    counts: dict[str, int] = Field(default_factory=dict)
+    probabilities: dict[str, float] = Field(default_factory=dict)
     statevector: list[StateAmplitude] = Field(default_factory=list)
     bloch: list[BlochVector] = Field(default_factory=list)
     dirac: str = Field(default="")

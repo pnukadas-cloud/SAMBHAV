@@ -1,6 +1,8 @@
 import unittest
+import uuid
 from fastapi.testclient import TestClient
 
+from app.auth.email_service import email_service
 from app.auth.security import create_access_token, decode_access_token, hash_password, verify_password
 from app.db import repository
 from app.db.connection import init_db
@@ -46,10 +48,15 @@ class TestAuthAndDatabase(unittest.TestCase):
         self.assertEqual(init_data["status"], "otp_required")
         self.assertIn("session_token", init_data)
         self.assertEqual(init_data["email"], "student@sambhav.edu")
+        
+        # Privacy assertion: OTP must NEVER be exposed in API payload
+        self.assertNotIn("dev_otp", init_data)
+        self.assertNotIn("otp", init_data)
+        
         session_token = init_data["session_token"]
-        dev_otp = init_data.get("dev_otp")
-        self.assertIsNotNone(dev_otp)
-        self.assertEqual(len(dev_otp), 6)
+        otp_code = email_service.last_dispatched_code_for_test
+        self.assertIsNotNone(otp_code)
+        self.assertEqual(len(otp_code), 6)
 
         # Step 2: Test incorrect OTP rejection
         wrong_otp_resp = self.client.post(
@@ -59,10 +66,10 @@ class TestAuthAndDatabase(unittest.TestCase):
         self.assertEqual(wrong_otp_resp.status_code, 400)
         self.assertIn("Incorrect verification code", wrong_otp_resp.json()["detail"])
 
-        # Step 3: Verify with correct OTP
+        # Step 3: Verify with correct dispatched OTP
         verify_resp = self.client.post(
             "/api/auth/verify-otp",
-            json={"session_token": session_token, "otp_code": dev_otp},
+            json={"session_token": session_token, "otp_code": otp_code},
         )
         self.assertEqual(verify_resp.status_code, 200)
         data = verify_resp.json()
@@ -73,7 +80,7 @@ class TestAuthAndDatabase(unittest.TestCase):
         # Step 4: Verify OTP reuse is rejected (single-use)
         reused_resp = self.client.post(
             "/api/auth/verify-otp",
-            json={"session_token": session_token, "otp_code": dev_otp},
+            json={"session_token": session_token, "otp_code": otp_code},
         )
         self.assertEqual(reused_resp.status_code, 400)
 
@@ -86,14 +93,16 @@ class TestAuthAndDatabase(unittest.TestCase):
         self.assertEqual(init_resp.status_code, 200)
         init_data = init_resp.json()
         self.assertEqual(init_data["status"], "otp_required")
+        self.assertNotIn("dev_otp", init_data)
+        
         session_token = init_data["session_token"]
-        dev_otp = init_data.get("dev_otp")
-        self.assertIsNotNone(dev_otp)
+        otp_code = email_service.last_dispatched_code_for_test
+        self.assertIsNotNone(otp_code)
 
         # Step 2: Verify instructor OTP
         verify_resp = self.client.post(
             "/api/auth/verify-otp",
-            json={"session_token": session_token, "otp_code": dev_otp},
+            json={"session_token": session_token, "otp_code": otp_code},
         )
         self.assertEqual(verify_resp.status_code, 200)
         data = verify_resp.json()
@@ -326,6 +335,83 @@ class TestAuthAndDatabase(unittest.TestCase):
         self.assertEqual(len(loaded_course["modules"][0]["lessons"]), 1)
         self.assertEqual(loaded_course["modules"][0]["lessons"][0]["id"], lesson_id)
         self.assertEqual(loaded_course["modules"][0]["lessons"][0]["title"], "Bit-Flip Syndrome Measurement")
+
+    def test_new_user_registration_starts_with_clean_zero_progress(self):
+        # 1. Register a brand new unique user
+        new_email = f"fresh.learner.{uuid.uuid4().hex[:8]}@sambhav.edu"
+        signup_resp = self.client.post(
+            "/api/auth/register",
+            json={
+                "name": "Fresh Learner",
+                "email": new_email,
+                "password": "QuantumPass2026!",
+                "role": "student"
+            }
+        )
+        self.assertEqual(signup_resp.status_code, 200)
+        signup_data = signup_resp.json()
+        self.assertEqual(signup_data["status"], "otp_required")
+        # Ensure OTP is not in payload
+        self.assertNotIn("dev_otp", signup_data)
+        
+        session_token = signup_data["session_token"]
+        otp_code = email_service.last_dispatched_code_for_test
+        self.assertIsNotNone(otp_code)
+
+        # 2. Verify OTP and obtain JWT
+        verify_resp = self.client.post(
+            "/api/auth/verify-otp",
+            json={"session_token": session_token, "otp_code": otp_code}
+        )
+        self.assertEqual(verify_resp.status_code, 200)
+        user_jwt = verify_resp.json()["token"]
+        user_id = verify_resp.json()["user"]["id"]
+
+        # 3. Check progress for new user: must start with genuine zero state
+        prog_resp = self.client.get(
+            "/api/progress/me",
+            headers={"Authorization": f"Bearer {user_jwt}"}
+        )
+        self.assertEqual(prog_resp.status_code, 200)
+        prog_data = prog_resp.json()
+
+        self.assertEqual(prog_data["userId"], user_id)
+        self.assertEqual(prog_data["xp"], 0)
+        self.assertEqual(prog_data["level"], 1)
+        self.assertEqual(prog_data["streakDays"], 0)
+        self.assertEqual(prog_data["completedLessons"], 0)
+        self.assertEqual(prog_data["simulationsRun"], 0)
+        self.assertEqual(prog_data["challengesSolved"], 0)
+        self.assertEqual(prog_data["averageScore"], 0.0)
+        self.assertEqual(prog_data["records"], [])
+
+        # 4. Record 1 lesson progress for this new user
+        rec_resp = self.client.post(
+            "/api/progress/record",
+            headers={"Authorization": f"Bearer {user_jwt}"},
+            json={
+                "course_id": "quantum-foundations",
+                "lesson_id": "qubit-basics",
+                "status": "completed",
+                "score": 100.0,
+                "time_spent": 180
+            }
+        )
+        self.assertEqual(rec_resp.status_code, 200)
+
+        # 5. Check progress again: exactly 1 lesson, 100 XP, 1 streak day
+        prog_after = self.client.get(
+            "/api/progress/me",
+            headers={"Authorization": f"Bearer {user_jwt}"}
+        ).json()
+        self.assertEqual(prog_after["completedLessons"], 1)
+        self.assertEqual(prog_after["xp"], 100)
+        self.assertEqual(prog_after["streakDays"], 1)
+        self.assertEqual(len(prog_after["records"]), 1)
+
+        # 6. Verify isolation: demo student progress remains unaffected
+        demo_prog = self.client.get("/api/progress/demo").json()
+        self.assertNotEqual(demo_prog["userId"], user_id)
 
 
 if __name__ == "__main__":
