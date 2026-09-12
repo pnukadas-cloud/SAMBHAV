@@ -197,5 +197,31 @@ class TestAPIEndpoints(unittest.TestCase):
         self.assertTrue("cx" in explanation_lower or "controlled" in explanation_lower or "cnot" in explanation_lower)
 
 
+    def test_ai_generate_challenge_endpoint(self):
+        payload = {
+            "learnerLevel": "intermediate",
+            "topic": "Quantum Entanglement and Bell States",
+            "current_circuit": {
+                "qubits": 2,
+                "classicalBits": 2,
+                "operations": [{"gate": "h", "targets": [0]}]
+            },
+            "weak_concepts": ["controlled-gates", "entanglement"]
+        }
+        response = self.client.post("/api/ai/generate-challenge", json=payload)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("title", data)
+        self.assertIn("description", data)
+        self.assertIn("task", data)
+        self.assertIn("hints", data)
+        self.assertIn("targetExpected", data)
+        self.assertIn("qubits", data)
+        self.assertIn(data.get("source"), ["llm", "curated_fallback", "rule-based-generator"])
+        self.assertTrue(len(data["hints"]) >= 1)
+
+
+
 if __name__ == "__main__":
     unittest.main()
+

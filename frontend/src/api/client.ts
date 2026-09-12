@@ -128,6 +128,27 @@ export function fetchCourseById(courseId: string): Promise<any> {
   return request<any>(`/api/courses/${courseId}`);
 }
 
+export function createCourseApi(payload: { title: string; description: string; difficulty: string; published?: boolean }): Promise<any> {
+  return request<any>("/api/courses", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function createModuleApi(courseId: string, payload: { title: string; order_index?: number }): Promise<any> {
+  return request<any>(`/api/courses/${courseId}/modules`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function createLessonApi(moduleId: string, payload: { title: string; content_markdown?: string; estimated_minutes?: number; order_index?: number }): Promise<any> {
+  return request<any>(`/api/courses/modules/${moduleId}/lessons`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 export function fetchChallenges(): Promise<any[]> {
   return request<any[]>("/api/challenges");
 }

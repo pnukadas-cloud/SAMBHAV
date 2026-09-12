@@ -192,6 +192,72 @@ class TestAuthAndDatabase(unittest.TestCase):
         self.assertIn("commonMistakes", data)
         self.assertIn("students", data)
 
+    def test_instructor_course_authoring_and_student_access(self):
+        instructor = repository.get_user_by_email("instructor@sambhav.edu")
+        self.assertIsNotNone(instructor)
+        instructor_token = create_access_token(
+            user_id=instructor["id"],
+            email=instructor["email"],
+            role=instructor["role"],
+            name=instructor["name"],
+        )
+
+        # 1. Instructor creates a new course
+        new_course_payload = {
+            "title": "Quantum Error Correction Masterclass",
+            "description": "Comprehensive course on 3-qubit bit flip and Shor code.",
+            "difficulty": "Advanced",
+            "published": True
+        }
+        course_resp = self.client.post(
+            "/api/courses",
+            headers={"Authorization": f"Bearer {instructor_token}"},
+            json=new_course_payload
+        )
+        self.assertEqual(course_resp.status_code, 201)
+        course_data = course_resp.json()
+        course_id = course_data["id"]
+        self.assertEqual(course_data["title"], "Quantum Error Correction Masterclass")
+
+        # 2. Instructor adds a module
+        new_mod_payload = {
+            "title": "Module 1: Bit-Flip Repetition Code",
+            "order_index": 1
+        }
+        mod_resp = self.client.post(
+            f"/api/courses/{course_id}/modules",
+            headers={"Authorization": f"Bearer {instructor_token}"},
+            json=new_mod_payload
+        )
+        self.assertEqual(mod_resp.status_code, 201)
+        module_id = mod_resp.json()["id"]
+
+        # 3. Instructor adds a lesson
+        new_lesson_payload = {
+            "title": "Bit-Flip Syndrome Measurement",
+            "content_markdown": "# Quantum Error Correction\n\nProtects quantum information from decoherence.",
+            "estimated_minutes": 25,
+            "order_index": 1
+        }
+        lesson_resp = self.client.post(
+            f"/api/courses/modules/{module_id}/lessons",
+            headers={"Authorization": f"Bearer {instructor_token}"},
+            json=new_lesson_payload
+        )
+        self.assertEqual(lesson_resp.status_code, 201)
+        lesson_id = lesson_resp.json()["id"]
+
+        # 4. Verify public / student can fetch this published course and lesson
+        get_course_resp = self.client.get(f"/api/courses/{course_id}")
+        self.assertEqual(get_course_resp.status_code, 200)
+        loaded_course = get_course_resp.json()
+        self.assertEqual(loaded_course["title"], "Quantum Error Correction Masterclass")
+        self.assertEqual(len(loaded_course["modules"]), 1)
+        self.assertEqual(len(loaded_course["modules"][0]["lessons"]), 1)
+        self.assertEqual(loaded_course["modules"][0]["lessons"][0]["id"], lesson_id)
+        self.assertEqual(loaded_course["modules"][0]["lessons"][0]["title"], "Bit-Flip Syndrome Measurement")
+
 
 if __name__ == "__main__":
     unittest.main()
+

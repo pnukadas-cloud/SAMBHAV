@@ -122,6 +122,61 @@ def get_lesson_by_id(lesson_id: str) -> Optional[dict[str, Any]]:
         return dict(row)
 
 
+def create_course(
+    title: str,
+    description: str,
+    difficulty: str = "Beginner",
+    created_by: Optional[str] = None,
+    published: bool = True,
+) -> dict[str, Any]:
+    course_id = str(uuid.uuid4())
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO courses (id, title, description, difficulty, created_by, published)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (course_id, title, description, difficulty, created_by, 1 if published else 0),
+        )
+    return get_course_by_id(course_id) or {"id": course_id, "title": title, "modules": []}
+
+
+def create_module(course_id: str, title: str, order_index: int = 1) -> dict[str, Any]:
+    module_id = str(uuid.uuid4())
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO modules (id, course_id, title, order_index)
+            VALUES (?, ?, ?, ?)
+            """,
+            (module_id, course_id, title, order_index),
+        )
+    return {"id": module_id, "course_id": course_id, "title": title, "order_index": order_index, "lessons": []}
+
+
+def create_lesson(
+    module_id: str,
+    title: str,
+    content_markdown: str,
+    estimated_minutes: int = 15,
+    order_index: int = 1,
+) -> dict[str, Any]:
+    lesson_id = str(uuid.uuid4())
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO lessons (id, module_id, title, content_markdown, estimated_minutes, order_index)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (lesson_id, module_id, title, content_markdown, estimated_minutes, order_index),
+        )
+    return get_lesson_by_id(lesson_id) or {"id": lesson_id, "module_id": module_id, "title": title}
+
+
+
 # ==========================================
 # CIRCUITS REPOSITORY
 # ==========================================
@@ -231,6 +286,39 @@ def get_user_progress(user_id: str) -> dict[str, Any]:
         )
         progress_records = [dict(r) for r in cursor.fetchall()]
 
+        # Transparent Misconception Detector & Recommendation Engine
+        weak_concepts = []
+        recommendations = []
+
+        cursor.execute(
+            "SELECT assessment_id, score, feedback FROM submissions WHERE user_id = ? ORDER BY submitted_at DESC LIMIT 5",
+            (user_id,),
+        )
+        recent_subs = [dict(s) for s in cursor.fetchall()]
+        low_score_subs = [s for s in recent_subs if (s.get("score") or 100.0) < 80.0]
+
+        if any("bell" in s["assessment_id"].lower() or "swap" in s["assessment_id"].lower() for s in low_score_subs):
+            weak_concepts.append("Controlled Gate Ordering & Inversion")
+            recommendations.append({
+                "title": "Quantum Foundations: Building a Bell State (|Φ⁺⟩)",
+                "to": "/learn/quantum-foundations/bell-state",
+                "reason": "Recommended because you encountered controlled-gate ordering errors in recent challenges.",
+                "action": "Review Bell State",
+            })
+        else:
+            recommendations.append({
+                "title": "Quantum Logic & Unitary Gates: S & T Phase Shifts",
+                "to": "/learn/quantum-gates-logic/phase-gates",
+                "reason": "Recommended to master phase shifts and relative phases before algorithm synthesis.",
+                "action": "Continue Course",
+            })
+            recommendations.append({
+                "title": "Construct 3-Qubit GHZ State",
+                "to": "/challenges",
+                "reason": "Recommended to test your understanding of multipartite quantum entanglement.",
+                "action": "Practice Challenge",
+            })
+
         return {
             "userId": user_id,
             "xp": total_xp,
@@ -240,6 +328,8 @@ def get_user_progress(user_id: str) -> dict[str, Any]:
             "simulationsRun": sim_count,
             "challengesSolved": solved_challenges,
             "averageScore": avg_score,
+            "weakConcepts": weak_concepts,
+            "recommendations": recommendations,
             "records": progress_records,
         }
 

@@ -160,6 +160,40 @@ class TestVerifiedAlgorithms(unittest.TestCase):
         p_counting_is_1 = sum(prob for basis, prob in res.probabilities.items() if basis[0] == "1")
         self.assertAlmostEqual(p_counting_is_1, 1.0, places=2)
 
+    def test_8_quantum_teleportation_protocol(self):
+        # Quantum Teleportation of state |1> from Alice (q0) to Bob (q2)
+        circuit = CircuitIR(
+            qubits=3,
+            classicalBits=3,
+            operations=[
+                # 1. Alice prepares unknown state |psi> = |1> on qubit 0
+                {"gate": "x", "targets": [0]},
+                # 2. Shared EPR Bell pair creation between Alice (q1) and Bob (q2)
+                {"gate": "h", "targets": [1]},
+                {"gate": "cx", "controls": [1], "targets": [2]},
+                # 3. Alice performs Bell-basis measurement operations
+                {"gate": "cx", "controls": [0], "targets": [1]},
+                {"gate": "h", "targets": [0]},
+                # 4. Bob applies conditional quantum corrections (coherent teleportation protocol)
+                {"gate": "cx", "controls": [1], "targets": [2]},
+                {"gate": "cz", "controls": [0], "targets": [2]},
+                # 5. Measure all qubits
+                {"gate": "measure", "targets": [0, 1, 2], "classicalTargets": [0, 1, 2]},
+            ],
+        )
+        res = orchestrator.simulate(circuit, self.options)
+        
+        # Verify: For any measurement outcome on Alice's qubits (q0, q1), Bob's qubit (q2) must be in state |1>!
+        # This means all non-zero probability states must end with '1' ("001", "011", "101", "111")
+        p_bob_qubit_is_1 = sum(prob for basis, prob in res.probabilities.items() if basis[2] == "1")
+        self.assertAlmostEqual(p_bob_qubit_is_1, 1.0, places=2)
+        
+        # Verify 0 probability for states where Bob's qubit is 0 ("000", "010", "100", "110")
+        p_bob_qubit_is_0 = sum(prob for basis, prob in res.probabilities.items() if basis[2] == "0")
+        self.assertAlmostEqual(p_bob_qubit_is_0, 0.0, places=2)
+
 
 if __name__ == "__main__":
     unittest.main()
+
+
