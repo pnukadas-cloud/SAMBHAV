@@ -356,7 +356,7 @@ class TestAPIEndpoints(unittest.TestCase):
 
         self.assertIn("USER QUESTION:\nWhy does this circuit create entanglement?", prompt)
         self.assertIn("INSTRUCTION:", prompt)
-        self.assertIn("PRIMARY subject", prompt)
+        self.assertIn("Answer the user's question directly", prompt)
         self.assertIn("CURRENT CIRCUIT (Supporting Context):", prompt)
         self.assertIn("Step 1: H on qubit 0", prompt)
         self.assertIn("Step 2: CX (control: qubit 0, target: qubit 1)", prompt)
