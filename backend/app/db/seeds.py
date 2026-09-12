@@ -4,66 +4,13 @@ from app.db.connection import get_db_connection, init_db
 
 
 def seed_database() -> None:
-    """Seeds the database with demo users, courses, modules, lessons, and progress data."""
+    """Seeds the database with courses, modules, and lessons."""
     init_db()
 
     with get_db_connection() as conn:
         cursor = conn.cursor()
 
-        # 1. Check if demo student exists
-        cursor.execute("SELECT id FROM users WHERE email = 'student@sambhav.edu'")
-        existing_student = cursor.fetchone()
-        student_pw = hash_password("QuantumLearner#2026")
-
-        if existing_student:
-            student_id = existing_student["id"]
-            cursor.execute("UPDATE users SET password_hash = ?, role = 'student' WHERE id = ?", (student_pw, student_id))
-        else:
-            student_id = str(uuid.uuid4())
-            cursor.execute(
-                """
-                INSERT INTO users (id, name, email, password_hash, role)
-                VALUES (?, ?, ?, ?, ?)
-                """,
-                (student_id, "Aarav Sharma", "student@sambhav.edu", student_pw, "student"),
-            )
-
-        # 2. Check if demo instructor exists
-        cursor.execute("SELECT id FROM users WHERE email = 'instructor@sambhav.edu'")
-        existing_instructor = cursor.fetchone()
-        instructor_pw = hash_password("ProfessorQuantum#2026")
-
-        if existing_instructor:
-            instructor_id = existing_instructor["id"]
-            cursor.execute("UPDATE users SET password_hash = ?, role = 'instructor' WHERE id = ?", (instructor_pw, instructor_id))
-        else:
-            instructor_id = str(uuid.uuid4())
-            cursor.execute(
-                """
-                INSERT INTO users (id, name, email, password_hash, role)
-                VALUES (?, ?, ?, ?, ?)
-                """,
-                (instructor_id, "Dr. Neha Verma", "instructor@sambhav.edu", instructor_pw, "instructor"),
-            )
-
-        # 3. Seed additional students for classroom roster if needed
-        additional_students = [
-            ("Meera Patel", "meera.patel@sambhav.edu"),
-            ("Ishaan Gupta", "ishaan.gupta@sambhav.edu"),
-            ("Diya Sundaram", "diya.sundaram@sambhav.edu"),
-            ("Rohan Kapoor", "rohan.kapoor@sambhav.edu"),
-            ("Ananya Rao", "ananya.rao@sambhav.edu"),
-        ]
-        for name, email in additional_students:
-            cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
-            if not cursor.fetchone():
-                u_id = str(uuid.uuid4())
-                cursor.execute(
-                    "INSERT INTO users (id, name, email, password_hash, role) VALUES (?, ?, ?, ?, ?)",
-                    (u_id, name, email, hash_password("Quantum#2026"), "student"),
-                )
-
-        # 4. Check if courses exist
+        # Check if courses exist
         cursor.execute("SELECT COUNT(*) as course_count FROM courses")
         if cursor.fetchone()["course_count"] == 0:
             courses_to_seed = [

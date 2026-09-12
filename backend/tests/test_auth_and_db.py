@@ -15,7 +15,48 @@ class TestAuthAndDatabase(unittest.TestCase):
     def setUpClass(cls):
         init_db()
         seed_database()
+        
+        # Explicit test user fixtures
+        if not repository.get_user_by_email("student@sambhav.edu"):
+            repository.create_user(
+                name="Aarav Sharma",
+                email="student@sambhav.edu",
+                password_hash=hash_password("QuantumLearner#2026"),
+                role="student",
+            )
+        if not repository.get_user_by_email("instructor@sambhav.edu"):
+            repository.create_user(
+                name="Dr. Neha Verma",
+                email="instructor@sambhav.edu",
+                password_hash=hash_password("ProfessorQuantum#2026"),
+                role="instructor",
+            )
+        for name, email in [
+            ("Meera Patel", "meera.patel@sambhav.edu"),
+            ("Ishaan Gupta", "ishaan.gupta@sambhav.edu"),
+            ("Diya Sundaram", "diya.sundaram@sambhav.edu"),
+            ("Rohan Kapoor", "rohan.kapoor@sambhav.edu"),
+            ("Ananya Rao", "ananya.rao@sambhav.edu"),
+        ]:
+            if not repository.get_user_by_email(email):
+                repository.create_user(
+                    name=name,
+                    email=email,
+                    password_hash=hash_password("Quantum#2026"),
+                    role="student",
+                )
+        
         cls.client = TestClient(app)
+
+    @classmethod
+    def tearDownClass(cls):
+        # Clean up test user records after test suite completes
+        with repository.get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("PRAGMA foreign_keys = OFF;")
+            cursor.execute("DELETE FROM users WHERE email LIKE '%@sambhav.edu';")
+            cursor.execute("PRAGMA foreign_keys = ON;")
+            conn.commit()
 
     def test_password_hashing_and_verification(self):
         pw = "SuperSecureQuantumPass2026!"
