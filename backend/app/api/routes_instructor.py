@@ -1,24 +1,18 @@
-from fastapi import APIRouter
+from typing import Any
+from fastapi import APIRouter, Depends
+
+from app.auth.security import get_optional_current_user
+from app.db import repository
 
 
 router = APIRouter()
 
 
 @router.get("/dashboard")
-def instructor_dashboard() -> dict:
-    return {
-        "classroom": "Quantum Foundations A",
-        "activeStudents": 28,
-        "averageProgress": 54,
-        "commonMistakes": [
-            "Confusing superposition with randomness",
-            "Missing measurement operations",
-            "Using CNOT without identifying control and target",
-        ],
-        "recentActivity": [
-            {"student": "Aarav", "event": "Completed Bell State lesson"},
-            {"student": "Meera", "event": "Ran Grover mini-circuit"},
-            {"student": "Ishaan", "event": "Submitted superposition quiz"},
-        ],
-    }
+def instructor_dashboard(current_user: Any = Depends(get_optional_current_user)) -> dict[str, Any]:
+    return repository.get_instructor_dashboard_data()
 
+
+@router.get("/students")
+def list_students(current_user: Any = Depends(get_optional_current_user)) -> list[dict[str, Any]]:
+    return repository.list_users_by_role("student")

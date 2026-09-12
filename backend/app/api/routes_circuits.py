@@ -1,6 +1,9 @@
-from fastapi import APIRouter
+from typing import Any, Optional
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from app.auth.security import get_current_user, get_optional_current_user
+from app.db import repository
 from app.quantum.models import CircuitIR, ValidationResult
 from app.quantum.orchestrator import orchestrator
 
@@ -10,6 +13,13 @@ router = APIRouter()
 
 class CircuitCodeRequest(BaseModel):
     circuit: CircuitIR
+    framework: str = "qiskit"
+
+
+class SaveCircuitRequest(BaseModel):
+    title: str
+    circuit: CircuitIR
+    description: Optional[str] = None
     framework: str = "qiskit"
 
 
@@ -54,3 +64,30 @@ def circuit_to_code(payload: CircuitCodeRequest) -> dict[str, str]:
     lines.append("print(qc)")
     return {"framework": "qiskit", "code": "\n".join(lines)}
 
+
+@router.post("/save")
+def save_user_circuit(
+    payload: SaveCircuitRequest,
+    current_user: dict = Depends(get_current_user),
+) -> dict[str, Any]:
+    saved = repository.save_circuit(
+        owner_id=current_user["sub"],
+        title=payload.title,
+        circuit_ir=payload.circuit.model_dump(),
+        description=payload.description,
+        framework=payload.framework,
+    )
+    return {"status": "saved", "circuit": saved}
+
+
+@router.get("/my-circuits")
+def list_my_circuits(current_user: dict = Depends(get_current_user)) -> list[dict[str, Any]]:
+    return repository.get_user_circuits(current_user["sub"])
+
+
+@router.delete("/{circuit_id}")
+def delete_user_circuit(circuit_id: str, current_user: dict = Depends(get_current_user)) -> dict[str, str]:
+    deleted = repository.delete_circuit(circuit_id, current_user["sub"])
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Circuit not found or unauthorized")
+    return {"status": "deleted"}

@@ -17,7 +17,9 @@ dist/
 .DS_Store
 Thumbs.db
 .idea/
-.vscode/
+# Databases
+*.db
+*.sqlite3
 
 # Temporary / build output
 tmp/
