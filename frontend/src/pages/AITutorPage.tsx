@@ -17,6 +17,7 @@ import { AppShell } from "../components/layout/AppShell";
 import { CircuitBuilder, PRESET_CIRCUITS } from "../features/circuit-builder/CircuitBuilder";
 import { explainCircuitWithAI, runSimulation } from "../api/client";
 import { useToast } from "../context/ToastContext";
+import { formatTutorText } from "../utils/formatTutorText";
 import type { AITutorResponse, CircuitIR, SimulationResult } from "../types";
 
 type ChatMessage = {
@@ -157,7 +158,7 @@ export function AITutorPage() {
                       <span className="message-time">{msg.timestamp}</span>
                     </div>
 
-                    <p className="message-body-text">{msg.text}</p>
+                    <div className="message-body-text">{formatTutorText(msg.text)}</div>
 
                     {/* Concept Tags */}
                     {msg.concepts && msg.concepts.length > 0 && (

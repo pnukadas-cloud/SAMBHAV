@@ -4388,6 +4388,51 @@ button, input, select {
   color: #ffffff;
 }
 
+.message-body-text {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: #1a2e29;
+}
+
+.chat-message-row.user .message-body-text {
+  color: #ffffff;
+}
+
+.formatted-tutor-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tutor-para {
+  margin: 0;
+  line-height: 1.65;
+}
+
+.tutor-bullet-list {
+  margin: 4px 0 6px 18px;
+  padding: 0;
+  list-style-type: disc;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tutor-bullet-item {
+  line-height: 1.55;
+}
+
+.tutor-para strong,
+.tutor-bullet-item strong {
+  font-weight: 700;
+  color: #0f2420;
+}
+
+.chat-message-row.user .tutor-para strong,
+.chat-message-row.user .tutor-bullet-item strong {
+  color: #a7f3d0;
+}
+
 .message-header-meta {
   display: flex;
   align-items: center;

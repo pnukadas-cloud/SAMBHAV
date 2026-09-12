@@ -4,20 +4,38 @@ import os
 import re
 import urllib.error
 import urllib.request
+from pathlib import Path
 from typing import Any, Optional
+
+from dotenv import load_dotenv
 
 from app.quantum.models import CircuitIR, SimulationResult
 
 logger = logging.getLogger("sambhav.gemini_service")
 
+ENV_PATH = Path(__file__).resolve().parent.parent.parent / ".env"
+
 SYSTEM_INSTRUCTION = (
-    "You are SAMBHAV's Quantum Tutor. Teach quantum computing accurately and clearly. "
-    "Answer the student's actual question first. Use the provided circuit, simulation result, "
-    "and lesson context when relevant. Do not invent simulation results. If information is insufficient, say so."
+    "You are SAMBHAV's Quantum Tutor, an online expert AI agent teaching quantum computing. "
+    "Teach accurately, clearly, and engagingly. "
+    "Answer the student's actual question directly first, explaining all concepts clearly. "
+    "Use the provided circuit, simulation result, and lesson context when relevant. "
+    "Do not invent simulation results. If information is insufficient, say so. "
+    "Format your explanation in clean, natural plain text with clear paragraphs and bullet points. "
+    "Avoid excessive raw markdown asterisks (**) or hashes (#) so it reads smoothly."
 )
 
 DEFAULT_GEMINI_MODEL = "gemini-1.5-flash"
 DEFAULT_TIMEOUT_SECONDS = 5.0
+
+
+def _clean_plain_text(text: str) -> str:
+    """Helper to clean unnecessary markdown syntax into clean readable text."""
+    if not text:
+        return ""
+    # Strip markdown headers like ### or ##
+    cleaned = re.sub(r"^#{1,6}\s*", "", text, flags=re.MULTILINE)
+    return cleaned.strip()
 
 
 class GeminiService:
@@ -42,6 +60,8 @@ class GeminiService:
         """Fetch API key from backend environment variable GEMINI_API_KEY (or GOOGLE_API_KEY fallback)."""
         if self._explicit_key:
             return self._explicit_key
+        if ENV_PATH.exists():
+            load_dotenv(dotenv_path=ENV_PATH, override=True)
         return os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 
     def is_configured(self) -> bool:
@@ -154,7 +174,8 @@ class GeminiService:
             "2. If the question is conceptual (e.g. 'What is a qubit?', 'Explain quantum entanglement like I'm a beginner'), give intuitive analogies and physical clarity.\n"
             "3. If the question asks about the circuit or simulation results, use the provided circuit and simulation result. Do not fabricate results.\n"
             "4. If the student asks for a hint, provide a progressive hint that guides them rather than immediately giving away the entire solution.\n"
-            "5. If information is insufficient to answer completely, state what is missing clearly."
+            "5. If information is insufficient to answer completely, state what is missing clearly.\n"
+            "6. Present the output in clean, readable plain text with neat paragraphs and bullet points. Do not use excessive asterisks."
         )
         return prompt
 
@@ -213,9 +234,9 @@ class GeminiService:
                     if candidates:
                         parts = candidates[0].get("content", {}).get("parts", [])
                         if parts and "text" in parts[0]:
-                            text = parts[0]["text"].strip()
-                            if text:
-                                return text
+                            raw_text = parts[0]["text"].strip()
+                            if raw_text:
+                                return _clean_plain_text(raw_text)
         except urllib.error.HTTPError as e:
             # Safe logging: never log URL or API key
             logger.warning(f"Gemini API HTTP error: status code {e.code}")

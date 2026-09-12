@@ -1,5 +1,6 @@
 import { BrainCircuit, Cpu, HelpCircle, Lightbulb, Send, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { formatTutorText } from "../../utils/formatTutorText";
 import type { AITutorResponse } from "../../types";
 
 type Props = {
@@ -46,7 +47,7 @@ export function TutorPanel({ response, isLoading, onAskQuestion }: Props) {
 
       {/* Main explanation content */}
       <div className="tutor-content-card">
-        <p className="tutor-text">{explanationText}</p>
+        <div className="tutor-text">{formatTutorText(explanationText)}</div>
 
         {/* Key Concepts Tags */}
         {response?.key_concepts && response.key_concepts.length > 0 && (
