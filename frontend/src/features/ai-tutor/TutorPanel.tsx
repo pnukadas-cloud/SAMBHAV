@@ -27,7 +27,7 @@ export function TutorPanel({ response, isLoading, onAskQuestion }: Props) {
     "Run your quantum circuit and click 'Explain Circuit' or ask a question below. The AI tutor provides step-by-step physical insights into superposition, entanglement, and measurement probabilities.";
 
   const explanationText = response?.explanation || defaultExplanation;
-  const isLLM = response?.source === "llm";
+  const isLLM = response?.source === "gemini" || response?.source === "llm";
 
   return (
     <section className="panel tutor-panel">
@@ -39,7 +39,7 @@ export function TutorPanel({ response, isLoading, onAskQuestion }: Props) {
         {response && (
           <span className={`tutor-source-pill ${isLLM ? "pill-llm" : "pill-fallback"}`}>
             {isLLM ? <Sparkles size={12} /> : <Cpu size={12} />}
-            {isLLM ? "LLM Powered" : "Physics Engine"}
+            {isLLM ? "Gemini AI" : "Physics Engine"}
           </span>
         )}
       </div>

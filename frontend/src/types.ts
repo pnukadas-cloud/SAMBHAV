@@ -50,17 +50,18 @@ export type SimulationResult = {
 };
 
 export type AITutorRequest = {
-  circuit: CircuitIR;
+  circuit?: CircuitIR;
   simulation_result?: SimulationResult | null;
   lesson_context?: {
-    title: string;
-    objective: string;
+    course?: string;
+    title?: string;
+    objective?: string;
   } | null;
   question?: string | null;
 };
 
 export type AITutorResponse = {
-  source: "llm" | "fallback";
+  source: "gemini" | "llm" | "fallback";
   explanation: string;
   key_concepts?: string[];
   suggestions: string[];

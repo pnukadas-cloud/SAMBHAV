@@ -23,7 +23,7 @@ type ChatMessage = {
   id: string;
   sender: "user" | "ai";
   text: string;
-  source?: "llm" | "fallback";
+  source?: "gemini" | "llm" | "fallback";
   concepts?: string[];
   suggestions?: string[];
   timestamp: string;
@@ -150,8 +150,8 @@ export function AITutorPage() {
                     <div className="message-header-meta">
                       <span className="sender-name">{msg.sender === "ai" ? "AI Quantum Tutor" : "You"}</span>
                       {msg.source && (
-                        <span className={`source-pill ${msg.source === "llm" ? "pill-llm" : "pill-fallback"}`}>
-                          {msg.source === "llm" ? "LLM Powered" : "Physics Engine"}
+                        <span className={`source-pill ${msg.source === "gemini" || msg.source === "llm" ? "pill-llm" : "pill-fallback"}`}>
+                          {msg.source === "gemini" || msg.source === "llm" ? "Gemini AI" : "Physics Engine"}
                         </span>
                       )}
                       <span className="message-time">{msg.timestamp}</span>
