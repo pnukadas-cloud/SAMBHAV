@@ -45,7 +45,26 @@ export type SimulationResult = {
     phase: number;
   }>;
   bloch: Array<{ qubit: number; x: number; y: number; z: number }>;
+  dirac?: string;
   warnings: string[];
 };
+
+export type AITutorRequest = {
+  circuit: CircuitIR;
+  simulation_result?: SimulationResult | null;
+  lesson_context?: {
+    title: string;
+    objective: string;
+  } | null;
+  question?: string | null;
+};
+
+export type AITutorResponse = {
+  source: "llm" | "fallback";
+  explanation: string;
+  key_concepts?: string[];
+  suggestions: string[];
+};
+
 
 

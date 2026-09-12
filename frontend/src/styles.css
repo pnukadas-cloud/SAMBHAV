@@ -1006,14 +1006,269 @@ button, input, select {
   font-size: 0.88rem;
 }
 
-/* Lesson & Tutor Panels */
+/* Dirac Notation Banner */
+.dirac-banner {
+  background: #f0f7f4;
+  border: 1.5px solid #bde0d4;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+
+.dirac-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #2a9d8f;
+  margin-bottom: 4px;
+}
+
+.dirac-equation {
+  font-family: "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #14342f;
+  word-break: break-all;
+  display: block;
+}
+
+/* AI Tutor Panel */
+.tutor-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tutor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.tutor-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tutor-header h2 {
+  font-size: 1.15rem;
+  margin: 0;
+  color: #14342f;
+}
+
+.tutor-source-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.pill-llm {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.pill-fallback {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.tutor-content-card {
+  background: #ffffff;
+  border: 1px solid #e1ebe5;
+  border-radius: 8px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.tutor-text {
+  color: #2c3e39;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  margin: 0;
+  white-space: pre-line;
+}
+
+.tutor-concepts-container {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #edf3f0;
+}
+
+.concepts-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6a7e77;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.tutor-concept-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.concept-tag {
+  background: #edf7f2;
+  color: #14342f;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #cde5db;
+}
+
+.tutor-suggestions-box {
+  background: #fffdf5;
+  border: 1px solid #fef08a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.suggestions-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #854d0e;
+  text-transform: uppercase;
+}
+
+.suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.suggestion-pill-btn {
+  background: #ffffff;
+  border: 1px solid #fde047;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 0.78rem;
+  color: #713f12;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.suggestion-pill-btn:hover:not(:disabled) {
+  background: #fef9c3;
+  border-color: #eab308;
+}
+
+.quick-prompts-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.quick-prompt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #edf5f1;
+  border: 1px solid #cce0d7;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1b534a;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.quick-prompt-btn:hover:not(:disabled) {
+  background: #d8ede3;
+  color: #14342f;
+}
+
+.tutor-input-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.tutor-input-field {
+  flex: 1;
+  background: #ffffff;
+  border: 1.5px solid #c2d5cb;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: #14342f;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.tutor-input-field:focus {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.15);
+}
+
+.tutor-submit-btn {
+  background: #2a9d8f;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.tutor-submit-btn:hover:not(:disabled) {
+  background: #21867a;
+}
+
+.tutor-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tutor-loading-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #ffffff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: tutor-spin 0.6s linear infinite;
+}
+
+@keyframes tutor-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Lesson Panels */
 .lesson-panel h2, .panel h2 {
   font-size: 1.15rem;
   margin: 0 0 8px;
   color: #14342f;
 }
 
-.lesson-panel p, .muted, .tutor-text {
+.lesson-panel p, .muted {
   color: var(--text-muted);
   font-size: 0.9rem;
   line-height: 1.55;

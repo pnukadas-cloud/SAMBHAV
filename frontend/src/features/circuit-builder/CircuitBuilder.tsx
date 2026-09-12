@@ -120,6 +120,15 @@ function formatAngle(rad: number): string {
   return `${rad.toFixed(2)} rad`;
 }
 
+export function getPartnerQubit(qubit: number, totalQubits: number): number {
+  if (totalQubits < 2) return 0;
+  if (qubit > 0) {
+    return qubit - 1;
+  }
+  return qubit + 1;
+}
+
+
 // Convert CircuitIR operations into a stepped GridOperation array
 export function irToGridOperations(circuit: CircuitIR): GridOperation[] {
   const gridOps: GridOperation[] = [];
@@ -242,7 +251,6 @@ export function CircuitBuilder({ circuit, onChange }: Props) {
     const meta = GATE_CATALOG.find((g) => g.gate === gateType);
     const angle = customAngle ?? (meta?.defaultAngle || selectedAngle);
 
-    // Remove any existing single-qubit op in this exact (qubit, step) slot
     let updatedOps = gridOps.filter(
       (op) =>
         !(
@@ -254,8 +262,8 @@ export function CircuitBuilder({ circuit, onChange }: Props) {
     let newOp: GridOperation;
 
     if (gateType === "cx" || gateType === "cz") {
-      const controlQubit = targetQubit === 0 ? (circuit.qubits > 1 ? 1 : 0) : 0;
-      // Also clear control slot if occupied at the same step
+      const controlQubit = getPartnerQubit(targetQubit, circuit.qubits);
+      // Clear control slot if occupied at destination step
       updatedOps = updatedOps.filter(
         (op) =>
           !(
@@ -271,19 +279,19 @@ export function CircuitBuilder({ circuit, onChange }: Props) {
         controls: [controlQubit],
       };
     } else if (gateType === "swap") {
-      const otherQubit = targetQubit === 0 ? (circuit.qubits > 1 ? 1 : 0) : 0;
+      const partnerQubit = getPartnerQubit(targetQubit, circuit.qubits);
       updatedOps = updatedOps.filter(
         (op) =>
           !(
             op.step === step &&
-            (op.targets.includes(otherQubit) || (op.controls && op.controls.includes(otherQubit)))
+            (op.targets.includes(partnerQubit) || (op.controls && op.controls.includes(partnerQubit)))
           )
       );
       newOp = {
         id: `op-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
         gate: gateType,
         step,
-        targets: [Math.min(targetQubit, otherQubit), Math.max(targetQubit, otherQubit)],
+        targets: [Math.min(targetQubit, partnerQubit), Math.max(targetQubit, partnerQubit)],
       };
     } else if (gateType === "rx" || gateType === "ry" || gateType === "rz") {
       newOp = {
@@ -302,7 +310,6 @@ export function CircuitBuilder({ circuit, onChange }: Props) {
         classicalTargets: [targetQubit],
       };
     } else {
-      // standard 1-qubit gate
       newOp = {
         id: `op-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
         gate: gateType,
@@ -383,30 +390,58 @@ export function CircuitBuilder({ circuit, onChange }: Props) {
     } else if (draggedOpId) {
       const op = gridOps.find((o) => o.id === draggedOpId);
       if (op) {
-        const remaining = gridOps.filter((o) => o.id !== draggedOpId);
-        // Place at new location
+        let remaining = gridOps.filter((o) => o.id !== draggedOpId);
+
         if (op.gate === "cx" || op.gate === "cz") {
-          const control = op.controls?.[0] ?? 0;
-          const target = targetQubit;
-          remaining.push({
-            ...op,
-            step: targetStep,
-            targets: [target],
-            controls: [control === target ? (target === 0 ? 1 : 0) : control],
-          });
-        } else if (op.gate === "swap") {
-          const t1 = targetQubit;
-          const t2 = (targetQubit + 1) % circuit.qubits;
-          remaining.push({
-            ...op,
-            step: targetStep,
-            targets: [t1, t2],
-          });
-        } else {
+          const partner = getPartnerQubit(targetQubit, circuit.qubits);
+          // Remove any colliding operations at destination step on both wires
+          remaining = remaining.filter(
+            (o) =>
+              !(
+                o.step === targetStep &&
+                (o.targets.includes(targetQubit) ||
+                  o.targets.includes(partner) ||
+                  (o.controls && o.controls.includes(targetQubit)) ||
+                  (o.controls && o.controls.includes(partner)))
+              )
+          );
           remaining.push({
             ...op,
             step: targetStep,
             targets: [targetQubit],
+            controls: [partner],
+          });
+        } else if (op.gate === "swap") {
+          const partner = getPartnerQubit(targetQubit, circuit.qubits);
+          remaining = remaining.filter(
+            (o) =>
+              !(
+                o.step === targetStep &&
+                (o.targets.includes(targetQubit) ||
+                  o.targets.includes(partner) ||
+                  (o.controls && o.controls.includes(targetQubit)) ||
+                  (o.controls && o.controls.includes(partner)))
+              )
+          );
+          remaining.push({
+            ...op,
+            step: targetStep,
+            targets: [Math.min(targetQubit, partner), Math.max(targetQubit, partner)],
+          });
+        } else {
+          // Single qubit, rotation, or measurement
+          remaining = remaining.filter(
+            (o) =>
+              !(
+                o.step === targetStep &&
+                (o.targets.includes(targetQubit) || (o.controls && o.controls.includes(targetQubit)))
+              )
+          );
+          remaining.push({
+            ...op,
+            step: targetStep,
+            targets: [targetQubit],
+            classicalTargets: op.gate === "measure" ? [targetQubit] : undefined,
           });
         }
         emitChanges(remaining);

@@ -1,4 +1,4 @@
-import type { CircuitIR, SimulationResult } from "../types";
+import type { AITutorRequest, AITutorResponse, CircuitIR, SimulationResult } from "../types";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000";
 
@@ -21,6 +21,13 @@ export function runSimulation(circuit: CircuitIR): Promise<SimulationResult> {
   });
 }
 
+export function explainCircuitWithAI(payload: AITutorRequest): Promise<AITutorResponse> {
+  return request<AITutorResponse>("/api/ai/explain", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 export function explainCircuit(circuit: CircuitIR): Promise<{ explanation: string; suggestions: string[] }> {
   return request("/api/ai/explain-circuit", {
     method: "POST",
@@ -34,4 +41,3 @@ export function toQiskitCode(circuit: CircuitIR): Promise<{ framework: string; c
     body: JSON.stringify({ circuit, framework: "qiskit" }),
   });
 }
-

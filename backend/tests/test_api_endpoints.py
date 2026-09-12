@@ -29,6 +29,9 @@ class TestAPIEndpoints(unittest.TestCase):
         self.assertEqual(data["backend"], "local_statevector")
         self.assertAlmostEqual(data["probabilities"]["0"], 0.5, places=5)
         self.assertAlmostEqual(data["probabilities"]["1"], 0.5, places=5)
+        self.assertIn("dirac", data)
+        self.assertIn("|0⟩", data["dirac"])
+        self.assertIn("|1⟩", data["dirac"])
 
     def test_run_simulation_x_gate(self):
         payload = {
@@ -43,6 +46,7 @@ class TestAPIEndpoints(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertAlmostEqual(data["probabilities"]["1"], 1.0, places=5)
+        self.assertEqual(data["dirac"], "|ψ⟩ = |1⟩")
 
     def test_run_simulation_bell_state(self):
         payload = {
@@ -64,6 +68,8 @@ class TestAPIEndpoints(unittest.TestCase):
         self.assertAlmostEqual(data["probabilities"]["11"], 0.5, places=5)
         self.assertNotIn("01", data["probabilities"])
         self.assertNotIn("10", data["probabilities"])
+        self.assertIn("|00⟩", data["dirac"])
+        self.assertIn("|11⟩", data["dirac"])
 
     def test_run_simulation_reversed_cx(self):
         payload = {
@@ -145,6 +151,50 @@ class TestAPIEndpoints(unittest.TestCase):
         }
         response = self.client.post("/api/simulations/run", json=payload)
         self.assertEqual(response.status_code, 422)
+
+    def test_ai_explain_endpoint_default(self):
+        payload = {
+            "circuit": {
+                "qubits": 2,
+                "classicalBits": 2,
+                "operations": [
+                    {"gate": "h", "targets": [0]},
+                    {"gate": "cx", "controls": [0], "targets": [1]},
+                ],
+            },
+            "lesson_context": {
+                "title": "Bell States",
+                "objective": "Understand maximum quantum entanglement",
+            },
+        }
+        response = self.client.post("/api/ai/explain", json=payload)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn(data["source"], ["llm", "fallback"])
+        self.assertTrue(len(data["explanation"]) > 20)
+        self.assertIn("Bell", data["explanation"])
+        self.assertIsInstance(data["key_concepts"], list)
+        self.assertIsInstance(data["suggestions"], list)
+
+    def test_ai_explain_endpoint_with_question(self):
+        payload = {
+            "circuit": {
+                "qubits": 2,
+                "classicalBits": 2,
+                "operations": [
+                    {"gate": "h", "targets": [0]},
+                    {"gate": "cx", "controls": [0], "targets": [1]},
+                ],
+            },
+            "question": "Why did this circuit create entanglement?",
+        }
+        response = self.client.post("/api/ai/explain", json=payload)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn(data["source"], ["llm", "fallback"])
+        explanation_lower = data["explanation"].lower()
+        self.assertIn("superposition", explanation_lower)
+        self.assertTrue("cx" in explanation_lower or "controlled" in explanation_lower or "cnot" in explanation_lower)
 
 
 if __name__ == "__main__":

@@ -44,6 +44,7 @@ class LocalStatevectorAdapter(QuantumBackendAdapter):
         counts = self._deterministic_counts(probabilities, options.shots)
         amplitudes = self._state_amplitudes(state, circuit.qubits) if options.includeStatevector else []
         bloch = self._bloch_vectors(state, circuit.qubits)
+        dirac = self._format_dirac(state, circuit.qubits)
         return SimulationResult(
             backend=self.name,
             shots=options.shots,
@@ -51,6 +52,7 @@ class LocalStatevectorAdapter(QuantumBackendAdapter):
             probabilities=probabilities,
             statevector=amplitudes,
             bloch=bloch,
+            dirac=dirac,
             warnings=validation.warnings,
         )
 
@@ -155,4 +157,41 @@ class LocalStatevectorAdapter(QuantumBackendAdapter):
         y = 2 * (alpha.conjugate() * beta).imag
         z = abs(alpha) ** 2 - abs(beta) ** 2
         return [BlochVector(qubit=0, x=round(x, 6), y=round(y, 6), z=round(z, 6))]
+
+    def _format_dirac(self, state: list[complex], qubits: int) -> str:
+        terms: list[str] = []
+        for index, amplitude in enumerate(state):
+            if abs(amplitude) <= 1e-4:
+                continue
+            basis = format(index, f"0{qubits}b")
+            r = round(amplitude.real, 3)
+            i = round(amplitude.imag, 3)
+            if abs(i) < 1e-4:
+                if r == 1.0:
+                    term = f"|{basis}⟩"
+                elif r == -1.0:
+                    term = f"-|{basis}⟩"
+                else:
+                    term = f"{r:+g}|{basis}⟩" if terms else f"{r:g}|{basis}⟩"
+            elif abs(r) < 1e-4:
+                if i == 1.0:
+                    term = f"+i|{basis}⟩" if terms else f"i|{basis}⟩"
+                elif i == -1.0:
+                    term = f"-i|{basis}⟩"
+                else:
+                    term = f"{i:+g}i|{basis}⟩" if terms else f"{i:g}i|{basis}⟩"
+            else:
+                sign = "+" if i > 0 else "-"
+                term = f"+({r:g} {sign} {abs(i):g}i)|{basis}⟩" if terms else f"({r:g} {sign} {abs(i):g}i)|{basis}⟩"
+            terms.append(term)
+
+        if not terms:
+            return "|ψ⟩ = 0"
+
+        formatted = " ".join(terms)
+        if formatted.startswith("+"):
+            formatted = formatted[1:]
+        formatted = formatted.replace(" +", " + ").replace(" -", " - ")
+        return f"|ψ⟩ = {formatted}"
+
 

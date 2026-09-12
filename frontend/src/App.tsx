@@ -10,13 +10,13 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useState } from "react";
-import { explainCircuit, runSimulation, toQiskitCode } from "./api/client";
-import { CircuitBuilder, PRESET_CIRCUITS } from "./features/circuit-builder/CircuitBuilder";
+import { explainCircuitWithAI, runSimulation, toQiskitCode } from "./api/client";
+import { CircuitBuilder } from "./features/circuit-builder/CircuitBuilder";
 import { TutorPanel } from "./features/ai-tutor/TutorPanel";
 import { LearningPanel } from "./features/learning/LearningPanel";
 import { InstructorPanel } from "./features/instructor/InstructorPanel";
 import { ResultsPanel } from "./features/visualization/ResultsPanel";
-import type { CircuitIR, SimulationResult } from "./types";
+import type { AITutorResponse, CircuitIR, SimulationResult } from "./types";
 
 const defaultBellCircuit: CircuitIR = {
   qubits: 2,
@@ -31,9 +31,8 @@ const defaultBellCircuit: CircuitIR = {
 export function App() {
   const [circuit, setCircuit] = useState<CircuitIR>(defaultBellCircuit);
   const [result, setResult] = useState<SimulationResult | null>(null);
-  const [explanation, setExplanation] = useState(
-    "Run the Bell circuit and ask the AI tutor why the measurement outcomes are correlated."
-  );
+  const [tutorResponse, setTutorResponse] = useState<AITutorResponse | null>(null);
+  const [isTutorLoading, setIsTutorLoading] = useState(false);
   const [code, setCode] = useState("");
   const [status, setStatus] = useState("Ready");
   const [isRunning, setIsRunning] = useState(false);
@@ -72,24 +71,49 @@ export function App() {
     }
   }
 
-  async function handleExplain() {
+  async function handleAskTutor(question?: string) {
     if (isCircuitEmpty) {
-      setValidationError("Your circuit is empty. Add at least one gate before requesting an explanation.");
+      setValidationError("Your circuit is empty. Add at least one gate before asking the AI tutor.");
       return;
     }
 
     setValidationError(null);
+    setIsTutorLoading(true);
     setStatus("Asking AI tutor...");
 
     try {
-      const response = await explainCircuit(circuit);
-      setExplanation(
-        `${response.explanation}\n\n💡 Next Steps:\n${response.suggestions.map((s) => `• ${s}`).join("\n")}`
+      // Ensure we have current simulation results for rich contextual reasoning
+      let currentResult = result;
+      if (!currentResult) {
+        try {
+          currentResult = await runSimulation(circuit);
+          setResult(currentResult);
+        } catch {
+          // If simulation fails here, backend will still simulate internally
+        }
+      }
+
+      const response = await explainCircuitWithAI({
+        circuit,
+        simulation_result: currentResult,
+        question: question || null,
+        lesson_context: {
+          title: "Quantum Entanglement & Superposition",
+          objective: "Understand how Hadamard and CX gates create non-separable states.",
+        },
+      });
+
+      setTutorResponse(response);
+      setStatus(
+        response.source === "llm"
+          ? "AI tutor response ready (LLM)"
+          : "AI tutor explanation ready"
       );
-      setStatus("AI explanation ready");
     } catch (error) {
       setStatus("Tutor request failed");
       setValidationError("Failed to retrieve AI explanation. Please check backend connectivity.");
+    } finally {
+      setIsTutorLoading(false);
     }
   }
 
@@ -120,7 +144,7 @@ export function App() {
           </div>
         </div>
         <div className="topbar-actions">
-          <div className={`status-pill ${isRunning ? "status-running" : ""}`}>
+          <div className={`status-pill ${isRunning || isTutorLoading ? "status-running" : ""}`}>
             {status}
           </div>
         </div>
@@ -165,11 +189,11 @@ export function App() {
 
             <button
               className="secondary-button"
-              onClick={handleExplain}
-              disabled={isCircuitEmpty}
+              onClick={() => handleAskTutor()}
+              disabled={isCircuitEmpty || isTutorLoading}
               title={isCircuitEmpty ? "Add gates before asking AI" : "Explain this circuit"}
             >
-              <Sparkles size={18} /> Explain Circuit
+              <Sparkles size={18} /> {isTutorLoading ? "Thinking..." : "Explain Circuit"}
             </button>
 
             <button
@@ -197,7 +221,11 @@ export function App() {
         {/* Right Column: Quantum Simulation Results, AI Tutor & Instructor Snapshot */}
         <div className="insight-column">
           <ResultsPanel result={result} />
-          <TutorPanel explanation={explanation} />
+          <TutorPanel
+            response={tutorResponse}
+            isLoading={isTutorLoading}
+            onAskQuestion={(q) => handleAskTutor(q)}
+          />
           <div className="section-heading compact">
             <LayoutDashboard size={18} />
             <h2>Instructor Snapshot</h2>

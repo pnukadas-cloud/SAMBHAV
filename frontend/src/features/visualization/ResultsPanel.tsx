@@ -24,10 +24,20 @@ export function ResultsPanel({ result }: Props) {
         <span>{result.backend}</span>
         <span>{result.shots} shots</span>
       </div>
+
+      {result.dirac && (
+        <div className="dirac-banner">
+          <div className="dirac-label">Quantum State (Dirac Notation)</div>
+          <div className="dirac-equation" title="Statevector in Dirac bra-ket representation">
+            {result.dirac}
+          </div>
+        </div>
+      )}
+
       <div className="probability-list">
         {probabilities.map(([basis, probability]) => (
           <div className="probability-row" key={basis}>
-            <span className="basis-state">{basis}</span>
+            <span className="basis-state">|{basis}⟩</span>
             <div className="bar-track">
               <span className="bar-fill" style={{ width: `${(probability / maxProbability) * 100}%` }} />
             </div>
@@ -35,11 +45,11 @@ export function ResultsPanel({ result }: Props) {
           </div>
         ))}
       </div>
-      <h3>Statevector</h3>
+      <h3>Statevector Amplitudes</h3>
       <div className="state-table">
         {result.statevector.map((item) => (
           <div key={item.basis}>
-            <strong>|{item.basis}&gt;</strong>
+            <strong>|{item.basis}⟩</strong>
             <span>{item.real} {item.imag >= 0 ? "+" : ""}{item.imag}i</span>
           </div>
         ))}
@@ -48,4 +58,3 @@ export function ResultsPanel({ result }: Props) {
     </section>
   );
 }
-

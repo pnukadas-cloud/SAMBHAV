@@ -60,6 +60,7 @@ class SimulationResult(BaseModel):
     probabilities: dict[str, float]
     statevector: list[StateAmplitude] = Field(default_factory=list)
     bloch: list[BlochVector] = Field(default_factory=list)
+    dirac: str = Field(default="")
     warnings: list[str] = Field(default_factory=list)
 
 

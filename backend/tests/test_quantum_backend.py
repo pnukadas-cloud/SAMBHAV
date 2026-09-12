@@ -102,19 +102,23 @@ class TestQuantumBackend(unittest.TestCase):
         self.assertAlmostEqual(result.probabilities.get("01", 0), 1.0, places=5)
 
     def test_cz_gate(self):
-        # H(0), H(1), CZ(0 -> 1) produces (|00> + |01> + |10> - |11>)/2
+        # Observability test for CZ phase flip:
+        # |00> -> X(0) -> |10> -> H(1) -> (|10> + |11>)/sqrt(2)
+        # -> CZ(0, 1) -> (|10> - |11>)/sqrt(2) = |1>|-> -> H(1) -> |11> (100% |11>)
+        # If CZ was a no-op, H(1)H(1)=I would leave the state as |10> (100% |10>)
         circuit = CircuitIR(
             qubits=2,
             classicalBits=2,
             operations=[
-                CircuitOperation(gate="h", targets=[0]),
+                CircuitOperation(gate="x", targets=[0]),
                 CircuitOperation(gate="h", targets=[1]),
                 CircuitOperation(gate="cz", controls=[0], targets=[1]),
+                CircuitOperation(gate="h", targets=[1]),
             ],
         )
         result = self.simulator.simulate(circuit, SimulationOptions(shots=1000))
-        for basis in ["00", "01", "10", "11"]:
-            self.assertAlmostEqual(result.probabilities.get(basis, 0), 0.25, places=4)
+        self.assertAlmostEqual(result.probabilities.get("11", 0), 1.0, places=5)
+        self.assertNotIn("10", result.probabilities)
 
     def test_ghz_state_3_qubits(self):
         # H(0) + CX(0 -> 1) + CX(1 -> 2) produces (|000> + |111>) / sqrt(2)
@@ -148,6 +152,38 @@ class TestQuantumBackend(unittest.TestCase):
         validation = orchestrator.validate(circuit)
         self.assertFalse(validation.valid)
         self.assertTrue(any("rotation parameter" in err for err in validation.errors))
+
+    def test_validation_cx_same_control_target(self):
+        circuit = CircuitIR(
+            qubits=2,
+            operations=[CircuitOperation(gate="cx", controls=[0], targets=[0])],
+        )
+        validation = orchestrator.validate(circuit)
+        self.assertFalse(validation.valid)
+        self.assertTrue(any("must be distinct" in err for err in validation.errors))
+
+    def test_validation_swap_same_targets(self):
+        circuit = CircuitIR(
+            qubits=2,
+            operations=[CircuitOperation(gate="swap", targets=[1, 1])],
+        )
+        validation = orchestrator.validate(circuit)
+        self.assertFalse(validation.valid)
+        self.assertTrue(any("must be distinct" in err for err in validation.errors))
+
+    def test_dirac_notation_output(self):
+        circuit = CircuitIR(
+            qubits=2,
+            classicalBits=2,
+            operations=[
+                CircuitOperation(gate="h", targets=[0]),
+                CircuitOperation(gate="cx", controls=[0], targets=[1]),
+            ],
+        )
+        result = self.simulator.simulate(circuit, SimulationOptions(shots=1000))
+        self.assertTrue(result.dirac.startswith("|ψ⟩ ="))
+        self.assertIn("|00⟩", result.dirac)
+        self.assertIn("|11⟩", result.dirac)
 
 
 if __name__ == "__main__":
