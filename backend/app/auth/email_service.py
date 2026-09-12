@@ -8,13 +8,19 @@ from typing import Optional, Tuple
 # SMTP CREDENTIALS CONFIGURATION
 # You can paste your credentials directly below or set them in backend/.env
 # =========================================================================
-DEFAULT_SMTP_HOST = ""       # e.g. "smtp.gmail.com"
+DEFAULT_SMTP_HOST = "smtp.gmail.com"       # e.g. "smtp.gmail.com"
 DEFAULT_SMTP_PORT = 587             # 587 for TLS, 465 for SSL
-DEFAULT_SMTP_USER = ""       # e.g. "your_email@gmail.com"
-DEFAULT_SMTP_PASSWORD = ""   # e.g. "xxxx xxxx xxxx xxxx" (App Password)
-DEFAULT_SMTP_FROM = ""       # optional, e.g. "SAMBHAV Quantum <your_email@gmail.com>"
+DEFAULT_SMTP_USER = "pvsn47139@gmail.com"       # e.g. "your_email@gmail.com"
+DEFAULT_SMTP_PASSWORD = "afjx yvbu xdjd uakl"   # e.g. "xxxx xxxx xxxx xxxx" (App Password)
+DEFAULT_SMTP_FROM = "SAMBHAV Quantum <pvsn47139@gmail.com>"       # optional, e.g. "SAMBHAV Quantum <your_email@gmail.com>"
 DEFAULT_SMTP_TLS = True
 # =========================================================================
+
+
+from pathlib import Path
+from dotenv import load_dotenv
+
+ENV_PATH = Path(__file__).resolve().parent.parent.parent / ".env"
 
 
 class EmailService:
@@ -27,28 +33,42 @@ class EmailService:
     def __init__(self):
         self.last_dispatched_code_for_test: Optional[str] = None
 
+    def _reload_env(self):
+        if ENV_PATH.exists():
+            load_dotenv(dotenv_path=ENV_PATH, override=True)
+
     @property
     def smtp_host(self) -> str:
+        self._reload_env()
         return os.getenv("SMTP_HOST", DEFAULT_SMTP_HOST).strip()
 
     @property
     def smtp_port(self) -> int:
+        self._reload_env()
         return int(os.getenv("SMTP_PORT", str(DEFAULT_SMTP_PORT)))
 
     @property
     def smtp_user(self) -> str:
+        self._reload_env()
         return os.getenv("SMTP_USER", DEFAULT_SMTP_USER).strip()
 
     @property
     def smtp_password(self) -> str:
-        return os.getenv("SMTP_PASSWORD", DEFAULT_SMTP_PASSWORD).strip()
+        self._reload_env()
+        raw = os.getenv("SMTP_PASSWORD", DEFAULT_SMTP_PASSWORD).strip()
+        # If user entered 16-digit Google App Password with spaces (e.g. "abcd efgh ijkl mnop"), strip spaces
+        if " " in raw and len(raw.replace(" ", "")) == 16:
+            return raw.replace(" ", "")
+        return raw
 
     @property
     def smtp_from(self) -> str:
+        self._reload_env()
         return os.getenv("SMTP_FROM", DEFAULT_SMTP_FROM).strip() or f"SAMBHAV Quantum Platform <{self.smtp_user or 'noreply@sambhav.edu'}>"
 
     @property
     def smtp_tls(self) -> bool:
+        self._reload_env()
         env_tls = os.getenv("SMTP_TLS")
         if env_tls is not None:
             return env_tls.lower() in ("true", "1", "yes")
