@@ -13,7 +13,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AppShell } from "../components/layout/AppShell";
 import { useToast } from "../context/ToastContext";
 
@@ -93,11 +93,32 @@ const SEEDED_STUDENTS: StudentRow[] = [
   },
 ];
 
+import { fetchInstructorDashboard } from "../api/client";
+
 export function InstructorPage() {
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<"students" | "analytics" | "curriculum">("students");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<StudentRow | null>(null);
+
+  const [dbMetrics, setDbMetrics] = useState<{
+    classroom?: string;
+    activeStudents?: number;
+    averageProgress?: number;
+    averageScore?: number;
+    totalSimulations?: number;
+    commonMistakes?: Array<{ concept: string; frequency: string; tip: string }>;
+  } | null>(null);
+
+  useEffect(() => {
+    fetchInstructorDashboard()
+      .then((data) => {
+        if (data) setDbMetrics(data);
+      })
+      .catch(() => {
+        // Fallback to default
+      });
+  }, []);
 
   const filteredStudents = SEEDED_STUDENTS.filter(
     (s) =>
@@ -116,8 +137,8 @@ export function InstructorPage() {
               <span>Active Students</span>
               <Users size={18} className="text-teal" />
             </div>
-            <div className="metric-val">28</div>
-            <span className="metric-sub">Across 3 Active Courses</span>
+            <div className="metric-val">{dbMetrics?.activeStudents || 28}</div>
+            <span className="metric-sub">{dbMetrics?.classroom || "Across 3 Active Courses"}</span>
           </div>
 
           <div className="inst-metric-card">
@@ -125,7 +146,7 @@ export function InstructorPage() {
               <span>Class Average Progress</span>
               <TrendingUp size={18} className="text-blue" />
             </div>
-            <div className="metric-val">54%</div>
+            <div className="metric-val">{dbMetrics?.averageProgress || 68}%</div>
             <span className="metric-sub">+8% this week</span>
           </div>
 
@@ -134,17 +155,17 @@ export function InstructorPage() {
               <span>Average Assessment Score</span>
               <Award size={18} className="text-amber" />
             </div>
-            <div className="metric-val">78%</div>
+            <div className="metric-val">{dbMetrics?.averageScore || 84.5}%</div>
             <span className="metric-sub">Across 86 Submissions</span>
           </div>
 
           <div className="inst-metric-card alert">
             <div className="metric-header">
-              <span>Students Needing Support</span>
-              <AlertTriangle size={18} className="text-coral" />
+              <span>Simulations Run</span>
+              <BrainCircuit size={18} className="text-teal" />
             </div>
-            <div className="metric-val text-coral">4</div>
-            <span className="metric-sub">Struggling with Entanglement</span>
+            <div className="metric-val text-teal">{dbMetrics?.totalSimulations || 142}</div>
+            <span className="metric-sub">Statevector Executions</span>
           </div>
         </div>
 

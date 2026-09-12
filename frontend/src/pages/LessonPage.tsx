@@ -7,13 +7,16 @@ import {
   Bot,
   BrainCircuit,
   CheckCircle2,
+  ChevronRight,
   HelpCircle,
+  Lightbulb,
   Play,
   RotateCcw,
   Sparkles,
+  Trophy,
   Zap,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "../router/Router";
 import { AppShell } from "../components/layout/AppShell";
 import { CircuitBuilder } from "../features/circuit-builder/CircuitBuilder";
@@ -21,24 +24,18 @@ import { ResultsPanel } from "../features/visualization/ResultsPanel";
 import { TutorPanel } from "../features/ai-tutor/TutorPanel";
 import { explainCircuitWithAI, runSimulation } from "../api/client";
 import { useToast } from "../context/ToastContext";
+import { LESSONS_DATABASE, type LessonData } from "../data/lessonsData";
 import type { AITutorResponse, CircuitIR, SimulationResult } from "../types";
-
-const defaultLessonCircuit: CircuitIR = {
-  qubits: 2,
-  classicalBits: 2,
-  operations: [
-    { gate: "h", targets: [0] },
-    { gate: "cx", controls: [0], targets: [1] },
-    { gate: "measure", targets: [0, 1], classicalTargets: [0, 1] },
-  ],
-};
 
 export function LessonPage() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  const [circuit, setCircuit] = useState<CircuitIR>(defaultLessonCircuit);
+  const lessonKey = lessonId || "bell-state";
+  const lessonData: LessonData = LESSONS_DATABASE[lessonKey] || LESSONS_DATABASE["bell-state"];
+
+  const [circuit, setCircuit] = useState<CircuitIR>(lessonData.initialCircuit);
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [tutorResponse, setTutorResponse] = useState<AITutorResponse | null>(null);
   const [isSimulating, setIsSimulating] = useState(false);
@@ -48,19 +45,17 @@ export function LessonPage() {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [isLessonCompleted, setIsLessonCompleted] = useState(false);
+  const [activeTab, setActiveTab] = useState<"theory" | "math" | "sandbox" | "quiz">("sandbox");
 
-  const quizQuestion = {
-    prompt: "Why does the Bell circuit produce only |00⟩ and |11⟩ outcomes with 50% probability each?",
-    options: [
-      "Because the CX gate destroys the |01⟩ and |10⟩ states through wave collapse.",
-      "Because the H gate creates superposition on q0, and CX conditionally flips q1 only when q0 is |1⟩.",
-      "Because quantum computers can only output states with equal bit values.",
-      "Because measurement always forces all qubits to match the first qubit.",
-    ],
-    correctIndex: 1,
-    explanation:
-      "Correct! The Hadamard gate puts q0 into (|0⟩+|1⟩)/√2. The CX gate maps |0⟩⊗|0⟩ → |00⟩ and |1⟩⊗|0⟩ → |11⟩, producing the entangled state (|00⟩+|11⟩)/√2.",
-  };
+  // Sync initial circuit whenever lesson changes
+  useEffect(() => {
+    setCircuit(lessonData.initialCircuit);
+    setResult(null);
+    setTutorResponse(null);
+    setSelectedAnswer(null);
+    setQuizSubmitted(false);
+    setIsLessonCompleted(false);
+  }, [lessonId]);
 
   async function handleSimulate() {
     setIsSimulating(true);
@@ -88,8 +83,8 @@ export function LessonPage() {
         simulation_result: currentResult,
         question: question || null,
         lesson_context: {
-          title: "Building a Bell State (|Φ⁺⟩)",
-          objective: "Understand how Hadamard and CX gates create non-separable quantum correlation.",
+          title: lessonData.title,
+          objective: lessonData.objective,
         },
       });
       setTutorResponse(resp);
@@ -102,139 +97,231 @@ export function LessonPage() {
 
   function handleCompleteLesson() {
     setIsLessonCompleted(true);
-    showToast("🎉 Lesson Completed! +50 XP Earned", "success", "Achievement");
+    showToast(`Lesson Completed! +100 XP Earned!`, "success", "Achievement");
   }
 
+  const isQuizCorrect = selectedAnswer === lessonData.quiz.correctIndex;
+
   return (
-    <AppShell activeTitle="Lesson 2.1: Building a Bell State" activeCategory="Curriculum">
+    <AppShell activeTitle={lessonData.title} activeCategory={lessonData.courseTitle}>
       <div className="lesson-page-container">
-        {/* Top Breadcrumb Nav */}
-        <div className="lesson-nav-bar">
-          <Link to="/learn" className="lesson-back-link">
-            <ArrowLeft size={16} /> Back to Curriculum
-          </Link>
+        {/* Top Breadcrumb Navigation */}
+        <div className="lesson-nav-header">
+          <div className="lesson-nav-left">
+            <Link to="/learn" className="back-link">
+              <ArrowLeft size={16} /> <span>Curriculum</span>
+            </Link>
+            <span className="nav-separator">/</span>
+            <span className="course-breadcrumb">{lessonData.courseTitle}</span>
+            <span className="nav-separator">/</span>
+            <span className="lesson-breadcrumb-title">{lessonData.title}</span>
+          </div>
+
           <div className="lesson-nav-actions">
-            <button
-              className={`lesson-complete-btn ${isLessonCompleted ? "completed" : ""}`}
-              onClick={handleCompleteLesson}
-            >
-              <CheckCircle2 size={16} />
-              <span>{isLessonCompleted ? "Lesson Completed (+50 XP)" : "Mark Lesson Complete"}</span>
-            </button>
+            {isLessonCompleted ? (
+              <span className="badge-completed">
+                <CheckCircle2 size={16} /> Completed
+              </span>
+            ) : (
+              <button
+                className="complete-lesson-btn"
+                onClick={handleCompleteLesson}
+                disabled={!quizSubmitted}
+                title={!quizSubmitted ? "Complete the Knowledge Check first" : "Mark lesson as complete"}
+              >
+                <Award size={16} />
+                <span>Complete Lesson (+100 XP)</span>
+              </button>
+            )}
           </div>
         </div>
 
-        {/* 2-Column Split: Theory Left, Interactive Lab & AI Right */}
-        <div className="lesson-split-grid">
-          {/* Left Theory Column */}
-          <div className="lesson-theory-pane">
-            <div className="theory-header">
-              <span className="lesson-tag">Module 2 • Lesson 1</span>
-              <h2>Building a Bell State (|Φ⁺⟩)</h2>
-              <div className="objective-box">
-                <strong>🎯 Learning Objective:</strong> Understand how applying a Hadamard (H) gate followed by a Controlled-NOT (CX) gate generates maximal 2-qubit entanglement.
-              </div>
-            </div>
-
-            {/* Theory Body */}
-            <div className="theory-body-content">
-              <h3>1. The Concept of Entanglement</h3>
-              <p>
-                In classical computing, the state of two bits is always separable: bit 1 is either 0 or 1, and bit 2 is independently 0 or 1.
-              </p>
-              <p>
-                In quantum computing, <strong>quantum entanglement</strong> is a physical phenomenon where the quantum states of two or more particles become intertwined such that one particle's state cannot be described independently of the others.
-              </p>
-
-              <h3>2. Mathematical Transformation Step-by-Step</h3>
-              <div className="math-step-card">
-                <span className="step-num">Step 1: Initialization</span>
-                <p>The 2-qubit register begins in the standard ground state:</p>
-                <code>|ψ₀⟩ = |00⟩ = |0⟩ ⊗ |0⟩</code>
-              </div>
-
-              <div className="math-step-card">
-                <span className="step-num">Step 2: Hadamard on Qubit 0</span>
-                <p>Applying the Hadamard (H) gate puts qubit 0 into equal superposition:</p>
-                <code>{"|ψ₁⟩ = (H ⊗ I)|00⟩ = (|0⟩ + |1⟩)/√2 ⊗ |0⟩ = (|00⟩ + |10⟩)/√2"}</code>
-              </div>
-
-              <div className="math-step-card">
-                <span className="step-num">Step 3: Controlled-NOT (CX)</span>
-                <p>The CX gate flips qubit 1 (target) if and only if qubit 0 (control) is in state |1⟩:</p>
-                <code>{"|ψ₂⟩ = CX|ψ₁⟩ = (|00⟩ + |11⟩)/√2 = |Φ⁺⟩"}</code>
-              </div>
-
-              <p>
-                Notice that the states <code>|01⟩</code> and <code>|10⟩</code> have <strong>0 amplitude</strong>. When measured, the outcomes are 100% correlated: both 0 or both 1.
-              </p>
-
-              {/* Interactive Knowledge Check Quiz */}
-              <div className="knowledge-check-card">
-                <div className="quiz-header">
-                  <HelpCircle size={18} className="text-teal" />
-                  <h4>Knowledge Check Quiz</h4>
-                </div>
-                <p className="quiz-prompt">{quizQuestion.prompt}</p>
-
-                <div className="quiz-options-list">
-                  {quizQuestion.options.map((opt, idx) => (
-                    <div
-                      key={idx}
-                      className={`quiz-option-item ${selectedAnswer === idx ? "selected" : ""} ${
-                        quizSubmitted && idx === quizQuestion.correctIndex ? "correct" : ""
-                      } ${quizSubmitted && selectedAnswer === idx && idx !== quizQuestion.correctIndex ? "incorrect" : ""}`}
-                      onClick={() => !quizSubmitted && setSelectedAnswer(idx)}
-                    >
-                      <span className="option-letter">{String.fromCharCode(65 + idx)}</span>
-                      <span className="option-text">{opt}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {!quizSubmitted ? (
-                  <button
-                    className="quiz-submit-btn"
-                    disabled={selectedAnswer === null}
-                    onClick={() => setQuizSubmitted(true)}
-                  >
-                    Check My Answer
-                  </button>
-                ) : (
-                  <div className="quiz-feedback-box">
-                    <p>{quizQuestion.explanation}</p>
-                  </div>
-                )}
-              </div>
-            </div>
+        {/* Lesson Objective Banner */}
+        <div className="lesson-objective-card">
+          <div className="objective-icon-badge">
+            <Sparkles size={20} className="text-teal" />
           </div>
+          <div className="objective-text">
+            <span className="objective-label">LEARNING OBJECTIVE</span>
+            <p className="objective-content">{lessonData.objective}</p>
+          </div>
+        </div>
 
-          {/* Right Interactive Mini-Lab & AI Column */}
-          <div className="lesson-interactive-pane">
-            <div className="pane-section-header">
-              <BrainCircuit size={18} className="text-teal" />
-              <h3>Interactive Circuit Canvas</h3>
-              <button className="simulate-btn-compact" onClick={handleSimulate} disabled={isSimulating}>
-                <Play size={14} /> {isSimulating ? "Simulating..." : "Simulate Live"}
+        {/* 2-Column Split: Left Interactive Content & Quiz, Right Circuit Sandbox & AI */}
+        <div className="lesson-workspace-grid">
+          {/* Left Column: Theory, Step-by-Step Math & Knowledge Check */}
+          <div className="lesson-theory-pane">
+            <div className="theory-tabs-bar">
+              <button
+                className={`theory-tab ${activeTab === "theory" ? "active" : ""}`}
+                onClick={() => setActiveTab("theory")}
+              >
+                <BookOpen size={15} /> <span>Theory & Concepts</span>
+              </button>
+              <button
+                className={`theory-tab ${activeTab === "math" ? "active" : ""}`}
+                onClick={() => setActiveTab("math")}
+              >
+                <Atom size={15} /> <span>Math Derivations</span>
+              </button>
+              <button
+                className={`theory-tab ${activeTab === "quiz" ? "active" : ""}`}
+                onClick={() => setActiveTab("quiz")}
+              >
+                <HelpCircle size={15} /> <span>Knowledge Check</span>
               </button>
             </div>
 
-            {/* Embedded Discrete Circuit Builder */}
-            <div className="lesson-builder-wrapper">
+            <div className="theory-body-content">
+              {/* Theory Tab */}
+              {(activeTab === "theory" || activeTab === "sandbox") && (
+                <section className="theory-section">
+                  <h3>1. Physical Concept</h3>
+                  <p>{lessonData.theory.intro}</p>
+
+                  <div className="key-takeaways-box">
+                    <h4>Key Quantum Principles:</h4>
+                    <ul>
+                      {lessonData.theory.keyPoints.map((pt, i) => (
+                        <li key={i}>{pt}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </section>
+              )}
+
+              {/* Math Derivations Tab */}
+              {(activeTab === "math" || activeTab === "sandbox") && (
+                <section className="math-section">
+                  <h3>2. Mathematical Transformation Step-by-Step</h3>
+                  {lessonData.theory.mathSteps.map((step) => (
+                    <div key={step.step} className="math-step-card">
+                      <span className="step-num">{step.step}: {step.label}</span>
+                      <p>{step.explanation}</p>
+                      <code>{step.math}</code>
+                    </div>
+                  ))}
+                </section>
+              )}
+
+              {/* Knowledge Check Quiz Tab */}
+              <section className="quiz-section">
+                <div className="knowledge-check-card">
+                  <div className="quiz-header">
+                    <HelpCircle size={18} className="text-teal" />
+                    <h4>Knowledge Check Quiz</h4>
+                  </div>
+                  <p className="quiz-prompt">{lessonData.quiz.prompt}</p>
+
+                  <div className="quiz-options-list">
+                    {lessonData.quiz.options.map((opt, idx) => (
+                      <button
+                        key={idx}
+                        className={`quiz-option-item ${
+                          selectedAnswer === idx ? "selected" : ""
+                        } ${
+                          quizSubmitted && idx === lessonData.quiz.correctIndex
+                            ? "correct"
+                            : ""
+                        } ${
+                          quizSubmitted &&
+                          selectedAnswer === idx &&
+                          idx !== lessonData.quiz.correctIndex
+                            ? "incorrect"
+                            : ""
+                        }`}
+                        onClick={() => !quizSubmitted && setSelectedAnswer(idx)}
+                      >
+                        <span className="option-letter">{String.fromCharCode(65 + idx)}</span>
+                        <span className="option-text">{opt}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {!quizSubmitted ? (
+                    <button
+                      className="quiz-submit-btn"
+                      onClick={() => selectedAnswer !== null && setQuizSubmitted(true)}
+                      disabled={selectedAnswer === null}
+                    >
+                      Check Answer
+                    </button>
+                  ) : (
+                    <div
+                      className={`quiz-feedback-box ${
+                        isQuizCorrect ? "correct" : "incorrect"
+                      }`}
+                    >
+                      <strong>
+                        {isQuizCorrect ? "✓ Correct!" : "✗ Review the concept:"}
+                      </strong>
+                      <p>{lessonData.quiz.explanation}</p>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* Mini-Challenge Card */}
+              <section className="mini-challenge-section">
+                <div className="mini-challenge-card">
+                  <div className="challenge-header">
+                    <Trophy size={18} className="text-amber" />
+                    <h4>Hands-On Mini Challenge: {lessonData.miniChallenge.title}</h4>
+                  </div>
+                  <p className="challenge-desc">{lessonData.miniChallenge.instructions}</p>
+                  <div className="challenge-goal">
+                    <strong>Goal:</strong> {lessonData.miniChallenge.expectedGoal}
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          {/* Right Column: Live Interactive Circuit Sandbox & AI Tutor */}
+          <div className="lesson-sandbox-pane">
+            <div className="sandbox-header">
+              <div className="sandbox-title-group">
+                <BrainCircuit size={18} className="text-teal" />
+                <h4>Interactive Circuit Sandbox</h4>
+              </div>
+              <div className="sandbox-actions">
+                <button
+                  className="reset-btn"
+                  onClick={() => {
+                    setCircuit(lessonData.initialCircuit);
+                    setResult(null);
+                  }}
+                  title="Reset to lesson starter circuit"
+                >
+                  <RotateCcw size={15} /> <span>Reset</span>
+                </button>
+                <button
+                  className="run-btn"
+                  onClick={handleSimulate}
+                  disabled={isSimulating}
+                >
+                  <Play size={15} />
+                  <span>{isSimulating ? "Simulating..." : "Run Simulation"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Circuit Canvas */}
+            <div className="sandbox-canvas-wrapper">
               <CircuitBuilder circuit={circuit} onChange={setCircuit} />
             </div>
 
-            {/* Live Results Panel */}
-            <div className="lesson-results-wrapper">
+            {/* Results Panel */}
+            <div className="sandbox-results-wrapper">
               <ResultsPanel result={result} />
             </div>
 
-            {/* AI Lesson Assistant */}
-            <div className="lesson-ai-wrapper">
+            {/* AI Tutor Assistant Panel */}
+            <div className="sandbox-tutor-wrapper">
               <TutorPanel
                 response={tutorResponse}
                 isLoading={isTutorLoading}
-                onAskQuestion={handleAskTutor}
+                onAskQuestion={(q) => handleAskTutor(q)}
               />
             </div>
           </div>

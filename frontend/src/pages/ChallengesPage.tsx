@@ -17,7 +17,7 @@ import React, { useState } from "react";
 import { AppShell } from "../components/layout/AppShell";
 import { CircuitBuilder } from "../features/circuit-builder/CircuitBuilder";
 import { ResultsPanel } from "../features/visualization/ResultsPanel";
-import { runSimulation } from "../api/client";
+import { evaluateChallenge, runSimulation } from "../api/client";
 import { useToast } from "../context/ToastContext";
 import type { CircuitIR, SimulationResult } from "../types";
 
@@ -162,17 +162,34 @@ export function ChallengesPage() {
     }
     setIsEvaluating(true);
     try {
+      // 1. Run simulation locally for instant visualization
       const sim = await runSimulation(circuit);
       setResult(sim);
-      const isPassed = selectedChallenge.verify(sim);
-      if (isPassed) {
-        setEvaluationStatus("passed");
-        setFeedback(`🎉 Excellent work! Your circuit meets the target state requirements. +${selectedChallenge.xp} XP awarded.`);
-        showToast(`Challenge Passed! +${selectedChallenge.xp} XP`, "success", "Challenge Complete");
-      } else {
-        setEvaluationStatus("failed");
-        setFeedback("The simulation output does not match the target distribution. Check your gate choices, target wires, and gate sequence.");
-        showToast("Output does not match target. Try again!", "error", "Verification Failed");
+
+      // 2. Call backend automated grading
+      try {
+        const evalRes = await evaluateChallenge(selectedChallenge.id, circuit);
+        if (evalRes.passed) {
+          setEvaluationStatus("passed");
+          setFeedback(evalRes.feedback || `🎉 Excellent work! Your circuit meets all target requirements. +${evalRes.xp_earned} XP awarded.`);
+          showToast(`Challenge Passed! +${evalRes.xp_earned} XP`, "success", "Challenge Complete");
+        } else {
+          setEvaluationStatus("failed");
+          setFeedback(evalRes.feedback || "The simulation output does not match the target distribution. Check your gate choices and wire order.");
+          showToast("Output does not match target. Try again!", "error", "Verification Failed");
+        }
+      } catch {
+        // Fallback to local verify if offline
+        const isPassed = selectedChallenge.verify(sim);
+        if (isPassed) {
+          setEvaluationStatus("passed");
+          setFeedback(`🎉 Excellent work! Your circuit meets the target state requirements. +${selectedChallenge.xp} XP awarded.`);
+          showToast(`Challenge Passed! +${selectedChallenge.xp} XP`, "success", "Challenge Complete");
+        } else {
+          setEvaluationStatus("failed");
+          setFeedback("The simulation output does not match the target distribution. Check your gate choices, target wires, and gate sequence.");
+          showToast("Output does not match target. Try again!", "error", "Verification Failed");
+        }
       }
     } catch {
       showToast("Evaluation execution failed.", "error");

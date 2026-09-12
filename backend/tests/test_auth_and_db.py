@@ -154,8 +154,37 @@ class TestAuthAndDatabase(unittest.TestCase):
         user_circuits = list_resp.json()
         self.assertTrue(any(c["id"] == saved_id for c in user_circuits))
 
-    def test_instructor_dashboard_data(self):
-        response = self.client.get("/api/instructor/dashboard")
+    def test_instructor_dashboard_authorization(self):
+        # 1. Unauthenticated request -> 401 Unauthorized
+        unauth_resp = self.client.get("/api/instructor/dashboard")
+        self.assertEqual(unauth_resp.status_code, 401)
+
+        # 2. Student token request -> 403 Forbidden
+        student_token = create_access_token(
+            user_id="student-123",
+            email="student@sambhav.edu",
+            role="student",
+            name="Student User",
+        )
+        forbidden_resp = self.client.get(
+            "/api/instructor/dashboard",
+            headers={"Authorization": f"Bearer {student_token}"},
+        )
+        self.assertEqual(forbidden_resp.status_code, 403)
+
+        # 3. Instructor token request -> 200 OK
+        instructor = repository.get_user_by_email("instructor@sambhav.edu")
+        self.assertIsNotNone(instructor)
+        instructor_token = create_access_token(
+            user_id=instructor["id"],
+            email=instructor["email"],
+            role=instructor["role"],
+            name=instructor["name"],
+        )
+        response = self.client.get(
+            "/api/instructor/dashboard",
+            headers={"Authorization": f"Bearer {instructor_token}"},
+        )
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertIn("activeStudents", data)

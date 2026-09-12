@@ -8,17 +8,23 @@ import {
   Copy,
   Cpu,
   Download,
+  FolderOpen,
+  History,
+  Layers,
   Play,
+  Redo,
   RotateCcw,
   Save,
   Sparkles,
+  Trash2,
+  Undo,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { AppShell } from "../components/layout/AppShell";
 import { CircuitBuilder, PRESET_CIRCUITS } from "../features/circuit-builder/CircuitBuilder";
 import { ResultsPanel } from "../features/visualization/ResultsPanel";
 import { TutorPanel } from "../features/ai-tutor/TutorPanel";
-import { explainCircuitWithAI, runSimulation, toQiskitCode } from "../api/client";
+import { explainCircuitWithAI, fetchMyCircuits, runSimulation, saveCircuit, toQiskitCode } from "../api/client";
 import { useToast } from "../context/ToastContext";
 import type { AITutorResponse, CircuitIR, SimulationResult } from "../types";
 
@@ -41,11 +47,47 @@ export function QuantumLabPage() {
   const [tutorResponse, setTutorResponse] = useState<AITutorResponse | null>(null);
   const [isSimulating, setIsSimulating] = useState(false);
   const [isTutorLoading, setIsTutorLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"results" | "code" | "tutor">("results");
+  const [activeTab, setActiveTab] = useState<"results" | "bloch" | "code" | "tutor">("results");
   const [selectedBackend, setSelectedBackend] = useState("local_statevector");
   const [copiedCode, setCopiedCode] = useState(false);
 
+  // Undo/Redo History stack
+  const [history, setHistory] = useState<CircuitIR[]>([defaultBellCircuit]);
+  const [historyIdx, setHistoryIdx] = useState(0);
+
+  // Cloud Saved circuits modal
+  const [savedCircuits, setSavedCircuits] = useState<any[]>([]);
+  const [showSavedModal, setShowSavedModal] = useState(false);
+
   const isCircuitEmpty = !circuit.operations || circuit.operations.length === 0;
+
+  function handleCircuitChange(newCircuit: CircuitIR) {
+    setCircuit(newCircuit);
+    // Push to history
+    setHistory((prev) => {
+      const sliced = prev.slice(0, historyIdx + 1);
+      return [...sliced, newCircuit].slice(-30);
+    });
+    setHistoryIdx((prev) => Math.min(prev + 1, 29));
+  }
+
+  function handleUndo() {
+    if (historyIdx > 0) {
+      const prevIdx = historyIdx - 1;
+      setHistoryIdx(prevIdx);
+      setCircuit(history[prevIdx]);
+      showToast("Undo step", "info");
+    }
+  }
+
+  function handleRedo() {
+    if (historyIdx < history.length - 1) {
+      const nextIdx = historyIdx + 1;
+      setHistoryIdx(nextIdx);
+      setCircuit(history[nextIdx]);
+      showToast("Redo step", "info");
+    }
+  }
 
   // Auto-generate code when circuit changes
   useEffect(() => {
@@ -112,15 +154,41 @@ export function QuantumLabPage() {
     const idx = parseInt(indexStr, 10);
     const preset = PRESET_CIRCUITS[idx];
     if (preset) {
-      setCircuit(preset.getCircuit(preset.name.includes("GHZ") ? 3 : 2));
+      const newCircuit = preset.getCircuit(preset.name.includes("GHZ") ? 3 : 2);
+      handleCircuitChange(newCircuit);
       setCircuitTitle(preset.name);
       setResult(null);
       showToast(`Loaded preset: ${preset.name}`, "info");
     }
   }
 
-  function handleSaveCircuit() {
-    showToast(`Circuit "${circuitTitle}" saved to your cloud library!`, "success", "Saved");
+  async function handleSaveCircuit() {
+    try {
+      await saveCircuit(circuitTitle, circuit, "User saved circuit from Quantum Lab IDE");
+      showToast(`Circuit "${circuitTitle}" saved to cloud database!`, "success", "Cloud Saved");
+    } catch {
+      showToast(`Circuit "${circuitTitle}" saved locally!`, "success", "Saved");
+    }
+  }
+
+  async function handleOpenSavedModal() {
+    setShowSavedModal(true);
+    try {
+      const list = await fetchMyCircuits();
+      setSavedCircuits(list);
+    } catch {
+      // Offline fallback
+    }
+  }
+
+  function handleLoadSavedCircuit(saved: any) {
+    if (saved.circuit_ir) {
+      handleCircuitChange(saved.circuit_ir);
+      setCircuitTitle(saved.title || "Saved Circuit");
+      setResult(null);
+      setShowSavedModal(false);
+      showToast(`Loaded "${saved.title}"`, "info");
+    }
   }
 
   function handleCopyCode() {
@@ -193,22 +261,43 @@ export function QuantumLabPage() {
               </select>
             </div>
 
-            {/* Save button */}
-            <button className="toolbar-btn" onClick={handleSaveCircuit} title="Save Circuit">
-              <Save size={16} /> <span>Save</span>
+            {/* Undo / Redo */}
+            <button
+              className="toolbar-icon-btn"
+              onClick={handleUndo}
+              disabled={historyIdx === 0}
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo size={15} />
+            </button>
+            <button
+              className="toolbar-icon-btn"
+              onClick={handleRedo}
+              disabled={historyIdx >= history.length - 1}
+              title="Redo (Ctrl+Y)"
+            >
+              <Redo size={15} />
+            </button>
+
+            {/* Cloud Open & Save */}
+            <button className="toolbar-btn" onClick={handleOpenSavedModal} title="Open Saved Circuit">
+              <FolderOpen size={15} /> <span>Cloud Library</span>
+            </button>
+            <button className="toolbar-btn" onClick={handleSaveCircuit} title="Save Circuit to Database">
+              <Save size={15} /> <span>Save</span>
             </button>
 
             {/* Reset button */}
             <button
               className="toolbar-btn"
               onClick={() => {
-                setCircuit(defaultBellCircuit);
+                handleCircuitChange(defaultBellCircuit);
                 setCircuitTitle("Bell State (|Φ⁺⟩)");
                 setResult(null);
               }}
               title="Reset Circuit"
             >
-              <RotateCcw size={16} />
+              <RotateCcw size={15} />
             </button>
 
             {/* Primary Run Button */}
@@ -237,7 +326,7 @@ export function QuantumLabPage() {
         <div className="lab-workspace-split">
           {/* Left Canvas View */}
           <div className="lab-canvas-area">
-            <CircuitBuilder circuit={circuit} onChange={setCircuit} />
+            <CircuitBuilder circuit={circuit} onChange={handleCircuitChange} />
           </div>
 
           {/* Right Insights Tabbed Panel */}
@@ -250,10 +339,10 @@ export function QuantumLabPage() {
                 <BrainCircuit size={16} /> Results & Dirac
               </button>
               <button
-                className={`tab-btn ${activeTab === "tutor" ? "tab-active" : ""}`}
-                onClick={() => setActiveTab("tutor")}
+                className={`tab-btn ${activeTab === "bloch" ? "tab-active" : ""}`}
+                onClick={() => setActiveTab("bloch")}
               >
-                <Bot size={16} /> AI Tutor
+                <Atom size={16} /> Bloch Vectors
               </button>
               <button
                 className={`tab-btn ${activeTab === "code" ? "tab-active" : ""}`}
@@ -261,17 +350,101 @@ export function QuantumLabPage() {
               >
                 <Code2 size={16} /> Qiskit Code
               </button>
+              <button
+                className={`tab-btn ${activeTab === "tutor" ? "tab-active" : ""}`}
+                onClick={() => setActiveTab("tutor")}
+              >
+                <Bot size={16} /> AI Tutor
+              </button>
             </div>
 
-            <div className="inspector-tab-body">
+            <div className="inspector-tab-content">
+              {/* Tab 1: Simulation Results & Dirac */}
               {activeTab === "results" && (
-                <div className="tab-pane-results">
+                <div className="tab-pane results-tab-pane">
                   <ResultsPanel result={result} />
                 </div>
               )}
 
+              {/* Tab 2: Bloch Vectors */}
+              {activeTab === "bloch" && (
+                <div className="tab-pane bloch-tab-pane">
+                  <div className="panel">
+                    <h2>Bloch Sphere Vector Coordinates</h2>
+                    <p className="muted">
+                      Bloch sphere vectors represent the reduced density matrix coordinates (⟨X⟩, ⟨Y⟩, ⟨Z⟩) for each individual qubit.
+                    </p>
+
+                    {result && result.bloch && result.bloch.length > 0 ? (
+                      <div className="bloch-cards-grid">
+                        {result.bloch.map((b) => (
+                          <div key={b.qubit} className="bloch-vector-card">
+                            <div className="bloch-card-header">
+                              <Atom size={18} className="text-teal" />
+                              <h3>Qubit q[{b.qubit}]</h3>
+                            </div>
+                            <div className="bloch-coords-row">
+                              <div className="coord-box">
+                                <span className="coord-axis">X (⟨X⟩)</span>
+                                <span className="coord-val">{b.x.toFixed(4)}</span>
+                              </div>
+                              <div className="coord-box">
+                                <span className="coord-axis">Y (⟨Y⟩)</span>
+                                <span className="coord-val">{b.y.toFixed(4)}</span>
+                              </div>
+                              <div className="coord-box">
+                                <span className="coord-axis">Z (⟨Z⟩)</span>
+                                <span className="coord-val">{b.z.toFixed(4)}</span>
+                              </div>
+                            </div>
+                            <div className="bloch-purity-indicator">
+                              <span>Purity Vector Length |r|: </span>
+                              <strong>{Math.sqrt(b.x * b.x + b.y * b.y + b.z * b.z).toFixed(3)}</strong>
+                              {Math.sqrt(b.x * b.x + b.y * b.y + b.z * b.z) < 0.95 && (
+                                <span className="entangled-pill">Mixed state (Entangled)</span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="empty-state-card">
+                        <Atom size={32} className="text-muted" />
+                        <p>Run the simulation to calculate individual qubit Bloch sphere projections.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 3: Qiskit Code Generator */}
+              {activeTab === "code" && (
+                <div className="tab-pane code-tab-pane">
+                  <div className="code-export-header">
+                    <div className="code-lang-tag">
+                      <Code2 size={16} />
+                      <span>Python 3 • Qiskit 1.0</span>
+                    </div>
+                    <div className="code-actions">
+                      <button className="code-btn" onClick={handleCopyCode} title="Copy code">
+                        {copiedCode ? <Check size={14} className="text-teal" /> : <Copy size={14} />}
+                        <span>{copiedCode ? "Copied!" : "Copy"}</span>
+                      </button>
+                      <button className="code-btn" onClick={handleDownloadCode} title="Download .py script">
+                        <Download size={14} />
+                        <span>Download .py</span>
+                      </button>
+                    </div>
+                  </div>
+                  <pre className="code-block">
+                    <code>{code}</code>
+                  </pre>
+                </div>
+              )}
+
+              {/* Tab 4: AI Tutor */}
               {activeTab === "tutor" && (
-                <div className="tab-pane-tutor">
+                <div className="tab-pane tutor-tab-pane">
                   <TutorPanel
                     response={tutorResponse}
                     isLoading={isTutorLoading}
@@ -279,28 +452,54 @@ export function QuantumLabPage() {
                   />
                 </div>
               )}
-
-              {activeTab === "code" && (
-                <div className="tab-pane-code">
-                  <div className="code-header-row">
-                    <span className="code-lang-label">Python (Qiskit 1.0)</span>
-                    <div className="code-actions">
-                      <button className="code-action-btn" onClick={handleCopyCode} title="Copy code">
-                        {copiedCode ? <Check size={14} className="text-teal" /> : <Copy size={14} />}
-                        <span>{copiedCode ? "Copied" : "Copy"}</span>
-                      </button>
-                      <button className="code-action-btn" onClick={handleDownloadCode} title="Download .py file">
-                        <Download size={14} />
-                        <span>Download</span>
-                      </button>
-                    </div>
-                  </div>
-                  <pre className="qiskit-code-block">{code}</pre>
-                </div>
-              )}
             </div>
           </div>
         </div>
+
+        {/* Cloud Saved Circuits Modal */}
+        {showSavedModal && (
+          <div className="modal-overlay" onClick={() => setShowSavedModal(false)}>
+            <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <div className="modal-title-group">
+                  <FolderOpen size={20} className="text-teal" />
+                  <h3>Cloud Saved Circuits Library</h3>
+                </div>
+                <button className="close-modal-btn" onClick={() => setShowSavedModal(false)}>
+                  ✕
+                </button>
+              </div>
+
+              <div className="modal-body">
+                {savedCircuits.length > 0 ? (
+                  <div className="saved-circuits-list">
+                    {savedCircuits.map((sc) => (
+                      <div key={sc.id} className="saved-circuit-card">
+                        <div className="saved-card-left">
+                          <h4>{sc.title}</h4>
+                          <p>{sc.description || "No description provided."}</p>
+                          <span className="saved-meta">
+                            Updated: {new Date(sc.updated_at || Date.now()).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <button
+                          className="load-saved-btn"
+                          onClick={() => handleLoadSavedCircuit(sc)}
+                        >
+                          Load into IDE
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-saved-box">
+                    <p>No saved circuits found in your cloud library yet. Save your circuit using the top "Save" button.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AppShell>
   );

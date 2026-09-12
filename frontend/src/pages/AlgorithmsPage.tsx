@@ -206,6 +206,34 @@ export const ALGORITHMS_DATA: AlgorithmItem[] = [
     ],
     significance: "Quadratic speedup for unstructured search, SAT solvers, and cryptographic analysis.",
   },
+  {
+    id: "qpe",
+    name: "Quantum Phase Estimation (QPE)",
+    category: "Search & Estimation",
+    description: "Estimates the unknown phase θ in the eigenvalue e^(2πiθ) of a unitary operator acting on an eigenstate.",
+    complexity: "O(poly(n))",
+    qubits: 2,
+    circuit: {
+      qubits: 2,
+      classicalBits: 2,
+      operations: [
+        { gate: "x", targets: [1] },
+        { gate: "h", targets: [0] },
+        { gate: "cz", controls: [0], targets: [1] },
+        { gate: "h", targets: [0] },
+        { gate: "measure", targets: [0, 1], classicalTargets: [0, 1] },
+      ],
+    },
+    theory: "Extracts eigenphase information into the relative phase of a counting qubit register, then applies Inverse Quantum Fourier Transform (QFT) to read out the binary phase.",
+    steps: [
+      "Prepare eigenstate |u⟩ on target register (e.g. state |1⟩ for Pauli-Z)",
+      "Apply Hadamard on counting qubit q0",
+      "Apply Controlled-Unitary (CZ) to impart phase e^(iπ) = -1 onto counting qubit",
+      "Apply Inverse QFT (Hadamard on q0)",
+      "Measure counting qubit: deterministic binary readout of θ = 0.5 (binary .1)",
+    ],
+    significance: "The core quantum subroutine behind Shor's factoring algorithm, quantum chemistry simulations, and HHL linear system solver.",
+  },
 ];
 
 export function AlgorithmsPage() {
