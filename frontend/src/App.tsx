@@ -1,14 +1,24 @@
-import { BrainCircuit, ChartNoAxesColumnIncreasing, GraduationCap, LayoutDashboard, Play, RotateCcw } from "lucide-react";
-import { useMemo, useState } from "react";
+import {
+  AlertTriangle,
+  Atom,
+  BrainCircuit,
+  Code2,
+  GraduationCap,
+  LayoutDashboard,
+  Play,
+  RotateCcw,
+  Sparkles,
+} from "lucide-react";
+import { useState } from "react";
 import { explainCircuit, runSimulation, toQiskitCode } from "./api/client";
-import { CircuitBuilder } from "./features/circuit-builder/CircuitBuilder";
+import { CircuitBuilder, PRESET_CIRCUITS } from "./features/circuit-builder/CircuitBuilder";
 import { TutorPanel } from "./features/ai-tutor/TutorPanel";
 import { LearningPanel } from "./features/learning/LearningPanel";
 import { InstructorPanel } from "./features/instructor/InstructorPanel";
 import { ResultsPanel } from "./features/visualization/ResultsPanel";
-import type { CircuitIR, Gate, SimulationResult } from "./types";
+import type { CircuitIR, SimulationResult } from "./types";
 
-const bellCircuit: CircuitIR = {
+const defaultBellCircuit: CircuitIR = {
   qubits: 2,
   classicalBits: 2,
   operations: [
@@ -19,23 +29,29 @@ const bellCircuit: CircuitIR = {
 };
 
 export function App() {
-  const [circuit, setCircuit] = useState<CircuitIR>(bellCircuit);
+  const [circuit, setCircuit] = useState<CircuitIR>(defaultBellCircuit);
   const [result, setResult] = useState<SimulationResult | null>(null);
-  const [explanation, setExplanation] = useState("Run the Bell circuit and ask the tutor why the outcomes are correlated.");
+  const [explanation, setExplanation] = useState(
+    "Run the Bell circuit and ask the AI tutor why the measurement outcomes are correlated."
+  );
   const [code, setCode] = useState("");
   const [status, setStatus] = useState("Ready");
+  const [isRunning, setIsRunning] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
-  const operationsByQubit = useMemo(() => {
-    return circuit.operations.reduce<Record<number, Gate[]>>((acc, operation) => {
-      for (const target of operation.targets) {
-        acc[target] = [...(acc[target] ?? []), operation.gate];
-      }
-      return acc;
-    }, {});
-  }, [circuit]);
+  const isCircuitEmpty = !circuit.operations || circuit.operations.length === 0;
 
   async function handleRun() {
-    setStatus("Running simulation...");
+    if (isCircuitEmpty) {
+      setValidationError("Your circuit is empty. Add at least one gate before running the simulation.");
+      setStatus("Circuit empty");
+      return;
+    }
+
+    setValidationError(null);
+    setIsRunning(true);
+    setStatus("Running quantum simulation...");
+
     try {
       const simulation = await runSimulation(circuit);
       const generatedCode = await toQiskitCode(circuit);
@@ -43,58 +59,142 @@ export function App() {
       setCode(generatedCode.code);
       setStatus(`Completed on ${simulation.backend}`);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Simulation failed");
+      const errorMsg =
+        error instanceof Error ? error.message : "Simulation execution failed.";
+      setStatus("Simulation failed");
+      setValidationError(
+        errorMsg.includes("422") || errorMsg.includes("at least one operation")
+          ? "Your circuit is empty. Add at least one gate before running the simulation."
+          : errorMsg
+      );
+    } finally {
+      setIsRunning(false);
     }
   }
 
   async function handleExplain() {
+    if (isCircuitEmpty) {
+      setValidationError("Your circuit is empty. Add at least one gate before requesting an explanation.");
+      return;
+    }
+
+    setValidationError(null);
     setStatus("Asking AI tutor...");
+
     try {
       const response = await explainCircuit(circuit);
-      setExplanation(`${response.explanation}\n\nTry next: ${response.suggestions.join(" ")}`);
-      setStatus("Tutor explanation ready");
+      setExplanation(
+        `${response.explanation}\n\n💡 Next Steps:\n${response.suggestions.map((s) => `• ${s}`).join("\n")}`
+      );
+      setStatus("AI explanation ready");
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Tutor request failed");
+      setStatus("Tutor request failed");
+      setValidationError("Failed to retrieve AI explanation. Please check backend connectivity.");
+    }
+  }
+
+  function handleReset() {
+    setCircuit(defaultBellCircuit);
+    setValidationError(null);
+    setStatus("Reset to Bell circuit");
+  }
+
+  function handleCircuitChange(newCircuit: CircuitIR) {
+    setCircuit(newCircuit);
+    if (newCircuit.operations.length > 0 && validationError) {
+      setValidationError(null);
     }
   }
 
   return (
     <main className="app-shell">
-      <section className="topbar" aria-label="Project overview">
-        <div>
-          <p className="eyebrow">SIH 2026 Prototype</p>
-          <h1>SAMBHAV Quantum Learning</h1>
+      {/* Platform Header Topbar */}
+      <header className="topbar" aria-label="SAMBHAV header">
+        <div className="topbar-brand">
+          <div className="brand-logo-badge">
+            <Atom size={24} className="spin-slow" />
+          </div>
+          <div>
+            <p className="eyebrow">Smart India Hackathon 2026</p>
+            <h1>SAMBHAV Quantum Learning Platform</h1>
+          </div>
         </div>
-        <div className="status-pill">{status}</div>
-      </section>
+        <div className="topbar-actions">
+          <div className={`status-pill ${isRunning ? "status-running" : ""}`}>
+            {status}
+          </div>
+        </div>
+      </header>
 
-      <section className="workspace">
-        <LearningPanel />
+      {/* Main Quantum IDE Workspace */}
+      <div className="workspace">
+        {/* Left Column: Interactive Learning & Module Guide */}
+        <div className="learning-column">
+          <LearningPanel />
+        </div>
+
+        {/* Center Column: Discrete Circuit Grid Builder & Code Engine */}
         <div className="builder-column">
           <div className="section-heading">
-            <BrainCircuit size={20} />
-            <h2>Visual Circuit Builder</h2>
+            <BrainCircuit size={20} className="text-teal" />
+            <h2>Interactive Circuit Builder</h2>
+            <span className="badge-pill">{circuit.qubits} Qubits • {circuit.operations.length} Gates</span>
           </div>
-          <CircuitBuilder circuit={circuit} operationsByQubit={operationsByQubit} onChange={setCircuit} />
+
+          {/* Validation Alert */}
+          {validationError && (
+            <div className="circuit-validation-alert" role="alert">
+              <AlertTriangle size={18} />
+              <span>{validationError}</span>
+            </div>
+          )}
+
+          {/* Circuit Canvas Grid Component */}
+          <CircuitBuilder circuit={circuit} onChange={handleCircuitChange} />
+
+          {/* Primary Action Buttons */}
           <div className="action-row">
-            <button className="primary-button" onClick={handleRun}>
-              <Play size={18} /> Run Simulation
+            <button
+              className="primary-button"
+              onClick={handleRun}
+              disabled={isRunning || isCircuitEmpty}
+              title={isCircuitEmpty ? "Add gates before running" : "Execute simulation"}
+            >
+              <Play size={18} /> {isRunning ? "Simulating..." : "Run Simulation"}
             </button>
-            <button className="secondary-button" onClick={handleExplain}>
-              <GraduationCap size={18} /> Explain
+
+            <button
+              className="secondary-button"
+              onClick={handleExplain}
+              disabled={isCircuitEmpty}
+              title={isCircuitEmpty ? "Add gates before asking AI" : "Explain this circuit"}
+            >
+              <Sparkles size={18} /> Explain Circuit
             </button>
-            <button className="icon-button" aria-label="Reset to Bell circuit" onClick={() => setCircuit(bellCircuit)}>
+
+            <button
+              className="icon-button"
+              aria-label="Reset to default Bell circuit"
+              onClick={handleReset}
+              title="Reset to Bell State (|Φ⁺⟩)"
+            >
               <RotateCcw size={18} />
             </button>
           </div>
+
+          {/* Generated Python/Qiskit Code Panel */}
           <div className="code-panel">
             <div className="section-heading compact">
-              <ChartNoAxesColumnIncreasing size={18} />
+              <Code2 size={18} />
               <h2>Generated Qiskit Code</h2>
             </div>
-            <pre>{code || "Run the circuit to generate backend code."}</pre>
+            <pre className="qiskit-code-block">
+              {code || "# Run the simulation or place gates to generate Qiskit code."}
+            </pre>
           </div>
         </div>
+
+        {/* Right Column: Quantum Simulation Results, AI Tutor & Instructor Snapshot */}
         <div className="insight-column">
           <ResultsPanel result={result} />
           <TutorPanel explanation={explanation} />
@@ -104,8 +204,7 @@ export function App() {
           </div>
           <InstructorPanel />
         </div>
-      </section>
+      </div>
     </main>
   );
 }
-

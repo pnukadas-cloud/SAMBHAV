@@ -1,4 +1,17 @@
-export type Gate = "h" | "x" | "z" | "cx" | "measure";
+export type Gate =
+  | "h"
+  | "x"
+  | "y"
+  | "z"
+  | "s"
+  | "t"
+  | "rx"
+  | "ry"
+  | "rz"
+  | "cx"
+  | "cz"
+  | "swap"
+  | "measure";
 
 export type CircuitOperation = {
   gate: Gate;
@@ -6,6 +19,11 @@ export type CircuitOperation = {
   controls?: number[];
   classicalTargets?: number[];
   params?: number[];
+};
+
+export type GridOperation = CircuitOperation & {
+  id: string;
+  step: number;
 };
 
 export type CircuitIR = {
@@ -29,4 +47,5 @@ export type SimulationResult = {
   bloch: Array<{ qubit: number; x: number; y: number; z: number }>;
   warnings: string[];
 };
+
 
