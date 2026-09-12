@@ -5255,3 +5255,72 @@ button, input, select {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   LaTeX Equation & Mathematical Formatting (KaTeX)
+   ========================================================================== */
+.katex-display-block {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 12px 0;
+  padding: 10px 14px;
+  background: rgba(20, 52, 47, 0.04);
+  border: 1px solid rgba(20, 52, 47, 0.1);
+  border-radius: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  font-size: 1.05rem;
+  color: #14342f;
+  max-width: 100%;
+}
+
+.katex-inline {
+  display: inline-block;
+  padding: 0 2px;
+  font-size: 0.98em;
+  color: #0f4c3a;
+  vertical-align: -0.1em;
+}
+
+.katex-fallback {
+  font-family: var(--font-mono, monospace);
+  color: #00875a;
+  background: #f0f4f2;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.inline-code-badge {
+  font-family: var(--font-mono, monospace);
+  background: rgba(20, 52, 47, 0.08);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.88em;
+  color: #1b4d3e;
+}
+
+.formatted-tutor-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  line-height: 1.6;
+}
+
+.tutor-para {
+  margin: 0;
+  color: inherit;
+}
+
+.tutor-bullet-list {
+  margin: 4px 0 8px 18px;
+  padding: 0;
+  list-style-type: disc;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tutor-bullet-item {
+  line-height: 1.55;
+}
