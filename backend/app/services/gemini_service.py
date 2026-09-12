@@ -22,7 +22,7 @@ SYSTEM_INSTRUCTION = (
     "Whenever relevant context (such as circuits, simulations, or lessons) is provided, feel free to reference it, but always prioritize the user's actual question."
 )
 
-DEFAULT_GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+DEFAULT_GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
 DEFAULT_TIMEOUT_SECONDS = 8.0
 
 
@@ -49,7 +49,7 @@ class GeminiService:
         timeout: float = DEFAULT_TIMEOUT_SECONDS,
     ):
         self._explicit_key = api_key
-        self.model = model or os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+        self.model = model or os.getenv("GEMINI_MODEL", "gemini-flash-latest")
         self.timeout = timeout
 
     @property
@@ -199,59 +199,69 @@ class GeminiService:
             lesson_context=lesson_context,
         )
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={key}"
-        headers = {"Content-Type": "application/json"}
+        models_to_try = [self.model]
+        for fallback_m in ["gemini-flash-latest", "gemini-pro-latest", "gemini-2.5-flash"]:
+            if fallback_m not in models_to_try:
+                models_to_try.append(fallback_m)
 
-        payload = {
-            "system_instruction": {
-                "parts": [{"text": SYSTEM_INSTRUCTION}]
-            },
-            "contents": [
-                {
-                    "role": "user",
-                    "parts": [{"text": prompt}],
-                }
-            ],
-            "generationConfig": {
-                "temperature": 0.3,
-                "topP": 0.95,
-                "maxOutputTokens": 800,
-            },
-        }
+        for current_model in models_to_try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{current_model}:generateContent?key={key}"
+            headers = {"Content-Type": "application/json"}
 
-        try:
-            req_data = json.dumps(payload).encode("utf-8")
-            req = urllib.request.Request(url, data=req_data, headers=headers, method="POST")
+            payload = {
+                "system_instruction": {
+                    "parts": [{"text": SYSTEM_INSTRUCTION}]
+                },
+                "contents": [
+                    {
+                        "role": "user",
+                        "parts": [{"text": prompt}],
+                    }
+                ],
+                "generationConfig": {
+                    "temperature": 0.3,
+                    "topP": 0.95,
+                    "maxOutputTokens": 800,
+                },
+            }
 
-            with urllib.request.urlopen(req, timeout=self.timeout) as response:
-                if response.status == 200:
-                    res_body = response.read().decode("utf-8")
-                    data = json.loads(res_body)
-                    candidates = data.get("candidates", [])
-                    if candidates:
-                        parts = candidates[0].get("content", {}).get("parts", [])
-                        if parts and "text" in parts[0]:
-                            raw_text = parts[0]["text"].strip()
-                            if raw_text:
-                                return _clean_plain_text(raw_text)
-        except urllib.error.HTTPError as e:
-            # Safe server-side categorization without leaking key or full URL
-            if e.code in (401, 403):
-                logger.warning(f"Gemini API authentication/permission error [HTTP {e.code}]. Falling back to deterministic engine.")
-            elif e.code == 404:
-                logger.warning(f"Gemini model '{self.model}' not found [HTTP 404]. Falling back to deterministic engine.")
-            elif e.code == 429:
-                logger.warning("Gemini API quota exceeded/rate limited [HTTP 429]. Falling back to deterministic engine.")
-            elif e.code in (500, 503, 504):
-                logger.warning(f"Gemini API upstream service error [HTTP {e.code}]. Falling back to deterministic engine.")
-            else:
-                logger.warning(f"Gemini API HTTP error [HTTP {e.code}]. Falling back to deterministic engine.")
-            return None
-        except urllib.error.URLError as e:
-            logger.warning(f"Gemini API network connection/timeout error: {type(e.reason).__name__}. Falling back to deterministic engine.")
-            return None
-        except Exception as e:
-            logger.warning(f"Gemini service unexpected exception: {type(e).__name__}. Falling back to deterministic engine.")
-            return None
+            try:
+                req_data = json.dumps(payload).encode("utf-8")
+                req = urllib.request.Request(url, data=req_data, headers=headers, method="POST")
+
+                with urllib.request.urlopen(req, timeout=self.timeout) as response:
+                    if response.status == 200:
+                        res_body = response.read().decode("utf-8")
+                        data = json.loads(res_body)
+                        candidates = data.get("candidates", [])
+                        if candidates:
+                            parts = candidates[0].get("content", {}).get("parts", [])
+                            if parts and "text" in parts[0]:
+                                raw_text = parts[0]["text"].strip()
+                                if raw_text:
+                                    return _clean_plain_text(raw_text)
+            except urllib.error.HTTPError as e:
+                # Safe server-side categorization without leaking key or full URL
+                if e.code in (401, 403):
+                    logger.warning(f"Gemini API authentication/permission error [HTTP {e.code}]. Falling back to deterministic engine.")
+                    return None
+                elif e.code == 404:
+                    logger.warning(f"Gemini model '{current_model}' not found [HTTP 404]. Trying next candidate model.")
+                    continue
+                elif e.code == 429:
+                    logger.warning(f"Gemini model '{current_model}' rate limited [HTTP 429]. Trying next candidate model.")
+                    continue
+                elif e.code in (500, 503, 504):
+                    logger.warning(f"Gemini model '{current_model}' upstream service error [HTTP {e.code}]. Trying next candidate model.")
+                    continue
+                else:
+                    logger.warning(f"Gemini API HTTP error [HTTP {e.code}].")
+                    continue
+            except urllib.error.URLError as e:
+                logger.warning(f"Gemini API network connection/timeout error on '{current_model}': {type(e.reason).__name__}.")
+                continue
+            except Exception as e:
+                logger.warning(f"Gemini service unexpected exception on '{current_model}': {type(e).__name__}.")
+                continue
 
         return None

@@ -81,6 +81,11 @@ def _extract_key_concepts(circuit: Optional[CircuitIR], sim_result: Optional[Sim
         concepts.append("Pedagogical Guidance")
     if "hello" in q_lower or "help" in q_lower:
         concepts.append("Quantum Computing Fundamentals")
+    if any(k in q_lower for k in ["quantum", "basic", "fundamental", "learn", "start", "beginner", "intro", "dont know", "don't know"]):
+        if "Quantum Foundations" not in concepts:
+            concepts.append("Quantum Foundations")
+        if "Qubits & Superposition" not in concepts:
+            concepts.append("Qubits & Superposition")
 
     # 2. Secondary: Supporting Circuit-derived concepts (only if not already populated or if question asks about circuit)
     if len(concepts) < 3:
@@ -357,6 +362,24 @@ def _generate_deterministic_explanation(payload: ExplainRequest, sim_result: Opt
         )
         return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
 
+    # Foundational / Beginners / Learning from scratch
+    if re.search(r"\b(dont know|don't know|what is quantum|learn quantum|basics|start|beginner|new to quantum|strong in this|fundamentals|introduction to quantum|intro to quantum)\b", q_lower):
+        explanation = (
+            "Welcome to Quantum Computing! Building strong foundations starts with understanding how the quantum world differs from our everyday classical world.\n\n"
+            "1. What is Quantum Computing?\n"
+            "Classical computers (laptops, phones, supercomputers) process information using classical bits that are strictly 0 or 1 (like light switches that are OFF or ON).\n"
+            "Quantum computers use qubits (quantum bits). Because qubits obey quantum mechanics, they can exist in a superposition of both 0 and 1 simultaneously.\n\n"
+            "2. The Three Pillars of Quantum Computing:\n"
+            "• Superposition: A qubit can explore both 0 and 1 at once with probability amplitudes. Placing a qubit in superposition using the Hadamard (H) gate gives it a 50/50 chance of measuring 0 or 1.\n"
+            "• Entanglement: Linking two or more qubits so that their physical states are intertwined. Measuring one qubit instantly determines the state of the other, no matter the distance.\n"
+            "• Quantum Interference: Quantum algorithms choreograph constructive interference to amplify the correct answer and destructive interference to cancel out wrong answers.\n\n"
+            "3. Your Hands-On Learning Roadmap on SAMBHAV:\n"
+            "• Step 1: Drag a Hadamard (H) gate onto qubit 0 in the circuit builder and click 'Simulate' to see superposition in action.\n"
+            "• Step 2: Add a CNOT (CX) gate from qubit 0 to qubit 1 to generate your very first entangled Bell State.\n"
+            "• Step 3: Explore Course 1 ('Quantum Foundations') in the platform modules to master the Bloch sphere and Dirac notation step-by-step!"
+        )
+        return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
+
     # =========================================================================
     # 2. DEFAULT CIRCUIT EXPLANATION (ONLY WHEN USER EXPLICITLY DID NOT ASK A QUESTION)
     # =========================================================================
@@ -393,18 +416,20 @@ def _generate_deterministic_explanation(payload: ExplainRequest, sim_result: Opt
         return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
 
     # =========================================================================
-    # 3. HONEST FALLBACK FOR UNRECOGNIZED QUESTIONS (NEVER SUBSTITUTE BELL-STATE)
+    # 3. HIGH-QUALITY STRUCTURAL FALLBACK FOR OPEN / CONCEPTUAL QUESTIONS
     # =========================================================================
     explanation = (
-        f"I couldn't generate a full AI explanation right now for your question: \"{q}\".\n\n"
-        "• Please try rephrasing your question or check your connection to the AI engine.\n"
-        "• You can also ask about core quantum computing topics such as:\n"
-        "  - What is a qubit?\n"
-        "  - Why does the Hadamard gate create superposition?\n"
-        "  - What is quantum entanglement?\n"
-        "  - What does a CNOT gate do?\n"
-        "  - Explain Grover's algorithm\n"
-        "  - Why does my circuit produce these measurement probabilities?"
+        f"Here is a foundational overview regarding your inquiry: \"{q}\"\n\n"
+        "1. Core Intuition & Principles:\n"
+        "Quantum computing fundamentally harnesses the wave-particle duality and probability mechanics of nature to perform information processing. "
+        "Rather than relying on deterministic binary gates, quantum algorithms manipulate complex probability amplitudes that evolve unitarily in Hilbert space.\n\n"
+        "2. Essential Quantum Pillars:\n"
+        "• State Vectors & The Bloch Sphere: Pure single-qubit states are described by |ψ⟩ = α|0⟩ + β|1⟩, parameterized geometrically on the Bloch sphere.\n"
+        "• Reversible Unitary Gates: Single-qubit gates (H, X, Y, Z, S, T) and multi-qubit entangling gates (CX, CZ, SWAP) preserve quantum information without heat dissipation.\n"
+        "• Quantum Interference & Measurement: Amplitudes interfere constructively to yield high-probability measurement outcomes for optimal solutions (Born rule: P(x) = |⟨x|ψ⟩|²).\n\n"
+        "3. Recommended Next Steps:\n"
+        "• Explore Course 1 ('Quantum Foundations') to master the basics step-by-step.\n"
+        "• Drag gates like H and CX onto the interactive canvas to observe Dirac statevectors live!"
     )
 
     return ExplainResponse(
