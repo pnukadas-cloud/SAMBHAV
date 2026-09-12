@@ -41,8 +41,11 @@ export function Navbar() {
         {/* Right CTA Actions */}
         <div className="navbar-actions">
           {user ? (
-            <Link to="/dashboard" className="btn-primary-glow">
-              <Compass size={16} /> Go to Dashboard
+            <Link
+              to={user.role === "instructor" ? "/instructor" : "/dashboard"}
+              className="btn-primary-glow"
+            >
+              <Compass size={16} /> {user.role === "instructor" ? "Instructor Portal" : "Go to Dashboard"}
             </Link>
           ) : (
             <>

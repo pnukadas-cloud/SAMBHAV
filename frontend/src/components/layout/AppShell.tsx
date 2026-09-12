@@ -10,10 +10,8 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Moon,
   Search,
   Settings,
-  Sparkles,
   Trophy,
   Users,
   X,
@@ -21,7 +19,7 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "../../router/Router";
-import { useAuth, UserRole } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 type Props = {
   children: React.ReactNode;
@@ -38,25 +36,14 @@ interface NavItem {
 }
 
 export function AppShell({ children, activeTitle, activeCategory }: Props) {
-  const { user, logout, switchRole } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showRoleMenu, setShowRoleMenu] = useState(false);
 
   const isInstructor = user?.role === "instructor";
-
-  const handleRoleToggle = (role: UserRole) => {
-    switchRole(role);
-    setShowRoleMenu(false);
-    if (role === "instructor") {
-      navigate("/instructor");
-    } else {
-      navigate("/dashboard");
-    }
-  };
 
   const navItemsStudent: NavItem[] = [
     { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
@@ -104,42 +91,18 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
           </button>
         </div>
 
-        {/* Role Switcher Pill */}
+        {/* Static Immutable Role Badge */}
         {isSidebarOpen && (
           <div className="sidebar-role-selector">
             <div className="role-selector-card">
               <div className="role-current-info">
-                <span className="role-label">Active Portal</span>
+                <span className="role-label">Authenticated Role</span>
                 <span className={`role-badge ${isInstructor ? "badge-instructor" : "badge-student"}`}>
                   {isInstructor ? <GraduationCap size={13} /> : <Zap size={13} />}
-                  {isInstructor ? "Instructor Mode" : "Student Mode"}
+                  {isInstructor ? "Instructor / Educator" : "Student Learner"}
                 </span>
               </div>
-              <button
-                className="role-switch-trigger"
-                onClick={() => setShowRoleMenu(!showRoleMenu)}
-                title="Switch between Student and Instructor views"
-              >
-                Switch
-              </button>
             </div>
-
-            {showRoleMenu && (
-              <div className="role-dropdown-menu">
-                <button
-                  className={`role-option-btn ${!isInstructor ? "active" : ""}`}
-                  onClick={() => handleRoleToggle("student")}
-                >
-                  <Zap size={14} /> Student View
-                </button>
-                <button
-                  className={`role-option-btn ${isInstructor ? "active" : ""}`}
-                  onClick={() => handleRoleToggle("instructor")}
-                >
-                  <GraduationCap size={14} /> Instructor View
-                </button>
-              </div>
-            )}
           </div>
         )}
 
@@ -230,16 +193,6 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
                 }}
               />
             </div>
-
-            {/* Quick Demo Switcher */}
-            <button
-              className="topbar-demo-pill"
-              onClick={() => handleRoleToggle(isInstructor ? "student" : "instructor")}
-              title="Click to toggle between Student and Instructor views"
-            >
-              <Sparkles size={14} className="text-amber" />
-              <span>{isInstructor ? "View as Student" : "View as Instructor"}</span>
-            </button>
           </div>
         </header>
 

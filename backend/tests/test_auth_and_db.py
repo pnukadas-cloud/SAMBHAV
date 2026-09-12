@@ -35,27 +35,87 @@ class TestAuthAndDatabase(unittest.TestCase):
         self.assertEqual(decoded["email"], "test@sambhav.edu")
         self.assertEqual(decoded["role"], "student")
 
-    def test_demo_student_login(self):
-        response = self.client.post(
+    def test_demo_student_login_with_otp_flow(self):
+        # Step 1: Initiate login with valid credentials
+        init_resp = self.client.post(
             "/api/auth/login",
             json={"email": "student@sambhav.edu", "password": "QuantumLearner#2026"},
         )
-        self.assertEqual(response.status_code, 200)
-        data = response.json()
+        self.assertEqual(init_resp.status_code, 200)
+        init_data = init_resp.json()
+        self.assertEqual(init_data["status"], "otp_required")
+        self.assertIn("session_token", init_data)
+        self.assertEqual(init_data["email"], "student@sambhav.edu")
+        session_token = init_data["session_token"]
+        dev_otp = init_data.get("dev_otp")
+        self.assertIsNotNone(dev_otp)
+        self.assertEqual(len(dev_otp), 6)
+
+        # Step 2: Test incorrect OTP rejection
+        wrong_otp_resp = self.client.post(
+            "/api/auth/verify-otp",
+            json={"session_token": session_token, "otp_code": "000000"},
+        )
+        self.assertEqual(wrong_otp_resp.status_code, 400)
+        self.assertIn("Incorrect verification code", wrong_otp_resp.json()["detail"])
+
+        # Step 3: Verify with correct OTP
+        verify_resp = self.client.post(
+            "/api/auth/verify-otp",
+            json={"session_token": session_token, "otp_code": dev_otp},
+        )
+        self.assertEqual(verify_resp.status_code, 200)
+        data = verify_resp.json()
         self.assertIn("token", data)
         self.assertEqual(data["user"]["email"], "student@sambhav.edu")
         self.assertEqual(data["user"]["role"], "student")
 
-    def test_demo_instructor_login(self):
-        response = self.client.post(
+        # Step 4: Verify OTP reuse is rejected (single-use)
+        reused_resp = self.client.post(
+            "/api/auth/verify-otp",
+            json={"session_token": session_token, "otp_code": dev_otp},
+        )
+        self.assertEqual(reused_resp.status_code, 400)
+
+    def test_demo_instructor_login_with_otp_flow(self):
+        # Step 1: Initiate instructor login
+        init_resp = self.client.post(
             "/api/auth/login",
             json={"email": "instructor@sambhav.edu", "password": "ProfessorQuantum#2026"},
         )
-        self.assertEqual(response.status_code, 200)
-        data = response.json()
+        self.assertEqual(init_resp.status_code, 200)
+        init_data = init_resp.json()
+        self.assertEqual(init_data["status"], "otp_required")
+        session_token = init_data["session_token"]
+        dev_otp = init_data.get("dev_otp")
+        self.assertIsNotNone(dev_otp)
+
+        # Step 2: Verify instructor OTP
+        verify_resp = self.client.post(
+            "/api/auth/verify-otp",
+            json={"session_token": session_token, "otp_code": dev_otp},
+        )
+        self.assertEqual(verify_resp.status_code, 200)
+        data = verify_resp.json()
         self.assertIn("token", data)
         self.assertEqual(data["user"]["email"], "instructor@sambhav.edu")
         self.assertEqual(data["user"]["role"], "instructor")
+
+    def test_otp_resend_rate_limiting(self):
+        init_resp = self.client.post(
+            "/api/auth/login",
+            json={"email": "student@sambhav.edu", "password": "QuantumLearner#2026"},
+        )
+        self.assertEqual(init_resp.status_code, 200)
+        session_token = init_resp.json()["session_token"]
+
+        # Immediate resend request should trigger 429 Too Many Requests cooldown
+        resend_resp = self.client.post(
+            "/api/auth/resend-otp",
+            json={"session_token": session_token},
+        )
+        self.assertEqual(resend_resp.status_code, 429)
+        self.assertIn("Please wait", resend_resp.json()["detail"])
 
     def test_invalid_login_rejected(self):
         response = self.client.post(
@@ -63,6 +123,7 @@ class TestAuthAndDatabase(unittest.TestCase):
             json={"email": "student@sambhav.edu", "password": "InvalidPassword"},
         )
         self.assertEqual(response.status_code, 401)
+
 
     def test_get_me_with_valid_token(self):
         token = create_access_token(
@@ -191,6 +252,15 @@ class TestAuthAndDatabase(unittest.TestCase):
         self.assertIn("averageScore", data)
         self.assertIn("commonMistakes", data)
         self.assertIn("students", data)
+
+        # 4. Student token attempting to create course -> 403 Forbidden
+        student_course_create_resp = self.client.post(
+            "/api/courses",
+            headers={"Authorization": f"Bearer {student_token}"},
+            json={"title": "Unauthorized Course", "description": "Should fail", "difficulty": "Beginner"}
+        )
+        self.assertEqual(student_course_create_resp.status_code, 403)
+
 
     def test_instructor_course_authoring_and_student_access(self):
         instructor = repository.get_user_by_email("instructor@sambhav.edu")

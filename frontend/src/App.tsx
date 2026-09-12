@@ -2,6 +2,7 @@ import React from "react";
 import { RouterProvider, Route } from "./router/Router";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
+import { ProtectedRoute, InstructorRoute } from "./router/RouteGuards";
 
 // Pages
 import { LandingPage } from "./pages/LandingPage";
@@ -24,33 +25,161 @@ export function App() {
     <AuthProvider>
       <ToastProvider>
         <RouterProvider>
-          {/* Public & Authentication Routes */}
+          {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/forgot-password" element={<LoginPage />} />
-          <Route path="/onboarding" element={<OnboardingPage />} />
 
-          {/* Student Portal Routes */}
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/lab" element={<QuantumLabPage />} />
-          <Route path="/lab/:circuitId" element={<QuantumLabPage />} />
-          <Route path="/learn" element={<LearnPage />} />
-          <Route path="/learn/:courseId/:lessonId" element={<LessonPage />} />
-          <Route path="/algorithms" element={<AlgorithmsPage />} />
-          <Route path="/algorithms/:algorithmId" element={<AlgorithmsPage />} />
-          <Route path="/challenges" element={<ChallengesPage />} />
-          <Route path="/challenges/:challengeId" element={<ChallengesPage />} />
-          <Route path="/ai-tutor" element={<AITutorPage />} />
-          <Route path="/progress" element={<ProgressPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          {/* Protected Onboarding */}
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute>
+                <OnboardingPage />
+              </ProtectedRoute>
+            }
+          />
 
-          {/* Instructor Portal Routes */}
-          <Route path="/instructor" element={<InstructorPage />} />
-          <Route path="/instructor/students" element={<InstructorPage />} />
-          <Route path="/instructor/courses" element={<InstructorPage />} />
-          <Route path="/instructor/analytics" element={<InstructorPage />} />
-          <Route path="/instructor/challenges" element={<InstructorPage />} />
+          {/* Protected Student Portal Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/lab"
+            element={
+              <ProtectedRoute>
+                <QuantumLabPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/lab/:circuitId"
+            element={
+              <ProtectedRoute>
+                <QuantumLabPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/learn"
+            element={
+              <ProtectedRoute>
+                <LearnPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/learn/:courseId/:lessonId"
+            element={
+              <ProtectedRoute>
+                <LessonPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/algorithms"
+            element={
+              <ProtectedRoute>
+                <AlgorithmsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/algorithms/:algorithmId"
+            element={
+              <ProtectedRoute>
+                <AlgorithmsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/challenges"
+            element={
+              <ProtectedRoute>
+                <ChallengesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/challenges/:challengeId"
+            element={
+              <ProtectedRoute>
+                <ChallengesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tutor"
+            element={
+              <ProtectedRoute>
+                <AITutorPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/progress"
+            element={
+              <ProtectedRoute>
+                <ProgressPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Protected Instructor Portal Routes */}
+          <Route
+            path="/instructor"
+            element={
+              <InstructorRoute>
+                <InstructorPage />
+              </InstructorRoute>
+            }
+          />
+          <Route
+            path="/instructor/students"
+            element={
+              <InstructorRoute>
+                <InstructorPage />
+              </InstructorRoute>
+            }
+          />
+          <Route
+            path="/instructor/courses"
+            element={
+              <InstructorRoute>
+                <InstructorPage />
+              </InstructorRoute>
+            }
+          />
+          <Route
+            path="/instructor/analytics"
+            element={
+              <InstructorRoute>
+                <InstructorPage />
+              </InstructorRoute>
+            }
+          />
+          <Route
+            path="/instructor/challenges"
+            element={
+              <InstructorRoute>
+                <InstructorPage />
+              </InstructorRoute>
+            }
+          />
         </RouterProvider>
       </ToastProvider>
     </AuthProvider>

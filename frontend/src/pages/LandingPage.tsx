@@ -1,14 +1,10 @@
 import {
   ArrowRight,
   Atom,
-  Award,
   BookOpen,
   Bot,
   BrainCircuit,
   CheckCircle,
-  Code2,
-  Compass,
-  Cpu,
   GraduationCap,
   Play,
   RotateCcw,
@@ -21,6 +17,7 @@ import { Link, useNavigate } from "../router/Router";
 import { Navbar } from "../components/layout/Navbar";
 import { CircuitBuilder } from "../features/circuit-builder/CircuitBuilder";
 import { runSimulation } from "../api/client";
+import { useAuth } from "../context/AuthContext";
 import type { CircuitIR, SimulationResult } from "../types";
 
 const defaultHeroCircuit: CircuitIR = {
@@ -34,9 +31,23 @@ const defaultHeroCircuit: CircuitIR = {
 
 export function LandingPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [circuit, setCircuit] = useState<CircuitIR>(defaultHeroCircuit);
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [isSimulating, setIsSimulating] = useState(false);
+
+  // Helper to gate protected features and preserve destination
+  function navProtected(targetPath: string) {
+    if (user) {
+      navigate(targetPath);
+    } else {
+      navigate(`/login?redirect=${encodeURIComponent(targetPath)}`);
+    }
+  }
+
+  function getGatedUrl(targetPath: string): string {
+    return user ? targetPath : `/login?redirect=${encodeURIComponent(targetPath)}`;
+  }
 
   async function handleSimulate() {
     setIsSimulating(true);
@@ -80,10 +91,10 @@ export function LandingPage() {
           </p>
 
           <div className="hero-actions-row">
-            <Link to="/signup" className="hero-primary-btn">
-              <Zap size={18} /> Start Learning Free <ArrowRight size={18} />
+            <Link to={user ? "/dashboard" : "/signup"} className="hero-primary-btn">
+              <Zap size={18} /> {user ? "Go to Dashboard" : "Start Learning Free"} <ArrowRight size={18} />
             </Link>
-            <Link to="/lab" className="hero-secondary-btn">
+            <Link to={getGatedUrl("/lab")} className="hero-secondary-btn">
               <BrainCircuit size={18} /> Open Quantum Lab
             </Link>
           </div>
@@ -108,7 +119,7 @@ export function LandingPage() {
           </div>
         </div>
 
-        {/* Live Interactive Hero Canvas */}
+        {/* Live Interactive Hero Canvas (Interactive Teaser) */}
         <div className="hero-interactive-demo">
           <div className="demo-window-card">
             <div className="demo-window-header">
@@ -176,8 +187,8 @@ export function LandingPage() {
           </div>
 
           <div className="features-grid">
-            {/* Feature 1 */}
-            <div className="feature-card" onClick={() => navigate("/lab")}>
+            {/* Feature 1: Lab */}
+            <div className="feature-card" onClick={() => navProtected("/lab")}>
               <div className="feature-icon-wrapper bg-teal-soft">
                 <BrainCircuit size={28} className="text-teal" />
               </div>
@@ -190,8 +201,8 @@ export function LandingPage() {
               </div>
             </div>
 
-            {/* Feature 2 */}
-            <div className="feature-card" onClick={() => navigate("/ai-tutor")}>
+            {/* Feature 2: AI Tutor */}
+            <div className="feature-card" onClick={() => navProtected("/ai-tutor")}>
               <div className="feature-icon-wrapper bg-purple-soft">
                 <Bot size={28} className="text-purple" />
               </div>
@@ -204,8 +215,8 @@ export function LandingPage() {
               </div>
             </div>
 
-            {/* Feature 3 */}
-            <div className="feature-card" onClick={() => navigate("/challenges")}>
+            {/* Feature 3: Challenges */}
+            <div className="feature-card" onClick={() => navProtected("/challenges")}>
               <div className="feature-icon-wrapper bg-amber-soft">
                 <Trophy size={28} className="text-amber" />
               </div>
@@ -218,8 +229,8 @@ export function LandingPage() {
               </div>
             </div>
 
-            {/* Feature 4 */}
-            <div className="feature-card" onClick={() => navigate("/algorithms")}>
+            {/* Feature 4: Algorithms */}
+            <div className="feature-card" onClick={() => navProtected("/algorithms")}>
               <div className="feature-icon-wrapper bg-blue-soft">
                 <Atom size={28} className="text-blue" />
               </div>
@@ -232,8 +243,8 @@ export function LandingPage() {
               </div>
             </div>
 
-            {/* Feature 5 */}
-            <div className="feature-card" onClick={() => navigate("/learn")}>
+            {/* Feature 5: Curriculum */}
+            <div className="feature-card" onClick={() => navProtected("/learn")}>
               <div className="feature-icon-wrapper bg-green-soft">
                 <BookOpen size={28} className="text-green" />
               </div>
@@ -246,8 +257,8 @@ export function LandingPage() {
               </div>
             </div>
 
-            {/* Feature 6 */}
-            <div className="feature-card" onClick={() => navigate("/instructor")}>
+            {/* Feature 6: Instructor */}
+            <div className="feature-card" onClick={() => navProtected("/instructor")}>
               <div className="feature-icon-wrapper bg-coral-soft">
                 <GraduationCap size={28} className="text-coral" />
               </div>
@@ -269,10 +280,10 @@ export function LandingPage() {
           <h2>Ready to Begin Your Quantum Journey?</h2>
           <p>Join students and educators using SAMBHAV to learn quantum mechanics and algorithms interactively.</p>
           <div className="cta-buttons">
-            <Link to="/signup" className="btn-primary-glow large">
-              <Sparkles size={18} /> Get Started Now
+            <Link to={user ? "/dashboard" : "/signup"} className="btn-primary-glow large">
+              <Sparkles size={18} /> {user ? "Go to Dashboard" : "Get Started Now"}
             </Link>
-            <Link to="/lab" className="btn-ghost-light large">
+            <Link to={getGatedUrl("/lab")} className="btn-ghost-light large">
               Open Quantum Lab
             </Link>
           </div>
@@ -292,16 +303,16 @@ export function LandingPage() {
           <div className="footer-links-group">
             <div className="footer-col">
               <h4>Platform</h4>
-              <Link to="/learn">Curriculum</Link>
-              <Link to="/lab">Quantum Lab</Link>
-              <Link to="/algorithms">Algorithms</Link>
-              <Link to="/challenges">Challenges</Link>
+              <Link to={getGatedUrl("/learn")}>Curriculum</Link>
+              <Link to={getGatedUrl("/lab")}>Quantum Lab</Link>
+              <Link to={getGatedUrl("/algorithms")}>Algorithms</Link>
+              <Link to={getGatedUrl("/challenges")}>Challenges</Link>
             </div>
             <div className="footer-col">
               <h4>Intelligence</h4>
-              <Link to="/ai-tutor">AI Quantum Tutor</Link>
-              <Link to="/progress">Progress Tracker</Link>
-              <Link to="/instructor">Instructor View</Link>
+              <Link to={getGatedUrl("/ai-tutor")}>AI Quantum Tutor</Link>
+              <Link to={getGatedUrl("/progress")}>Progress Tracker</Link>
+              <Link to={getGatedUrl("/instructor")}>Instructor View</Link>
             </div>
           </div>
         </div>

@@ -76,10 +76,21 @@ export function toQiskitCode(circuit: CircuitIR): Promise<{ framework: string; c
 }
 
 // ==========================================
-// AUTHENTICATION APIS
+// AUTHENTICATION & 2-FACTOR OTP APIS
 // ==========================================
 
-export interface AuthResponse {
+export interface OtpInitiatedResponse {
+  status: "otp_required";
+  session_token: string;
+  email: string;
+  expires_in: number;
+  resend_cooldown: number;
+  email_sent: boolean;
+  delivery_info: string;
+  dev_otp?: string;
+}
+
+export interface AuthSuccessResponse {
   token: string;
   user: {
     id: string;
@@ -89,22 +100,34 @@ export interface AuthResponse {
   };
 }
 
-export async function loginApi(email: string, password: string): Promise<AuthResponse> {
-  const res = await request<AuthResponse>("/api/auth/login", {
+export async function loginRequestOtpApi(email: string, password: string): Promise<OtpInitiatedResponse> {
+  return request<OtpInitiatedResponse>("/api/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
+  });
+}
+
+export async function registerRequestOtpApi(name: string, email: string, password: string, role: string): Promise<OtpInitiatedResponse> {
+  return request<OtpInitiatedResponse>("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ name, email, password, role }),
+  });
+}
+
+export async function verifyOtpApi(sessionToken: string, otpCode: string): Promise<AuthSuccessResponse> {
+  const res = await request<AuthSuccessResponse>("/api/auth/verify-otp", {
+    method: "POST",
+    body: JSON.stringify({ session_token: sessionToken, otp_code: otpCode }),
   });
   setAuthToken(res.token);
   return res;
 }
 
-export async function registerApi(name: string, email: string, password: string, role: string): Promise<AuthResponse> {
-  const res = await request<AuthResponse>("/api/auth/register", {
+export async function resendOtpApi(sessionToken: string): Promise<OtpInitiatedResponse> {
+  return request<OtpInitiatedResponse>("/api/auth/resend-otp", {
     method: "POST",
-    body: JSON.stringify({ name, email, password, role }),
+    body: JSON.stringify({ session_token: sessionToken }),
   });
-  setAuthToken(res.token);
-  return res;
 }
 
 export function getMeApi(): Promise<any> {
