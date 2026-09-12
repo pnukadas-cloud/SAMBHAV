@@ -88,13 +88,6 @@ class OTPManager:
         self._cleanup_expired()
         norm_email = email.lower().strip()
 
-        # Check resend rate limit if active challenge exists
-        existing = self._challenges.get(norm_email)
-        now = time.time()
-        if existing and not existing.is_used and now < existing.resend_available_at:
-            wait_seconds = int(existing.resend_available_at - now)
-            raise ValueError(f"Please wait {wait_seconds} seconds before requesting a new code.")
-
         # Cryptographically secure 6-digit number [100000 - 999999]
         otp_code = str(secrets.randbelow(900000) + 100000)
         
@@ -129,6 +122,7 @@ class OTPManager:
         """
         Resends an OTP for an active session with rate limit validation.
         """
+        self._cleanup_expired()
         norm_email = self._session_tokens.get(session_token)
         if not norm_email:
             raise ValueError("Invalid or expired session. Please log in again.")
@@ -136,6 +130,11 @@ class OTPManager:
         existing = self._challenges.get(norm_email)
         if not existing:
             raise ValueError("Session expired. Please log in again.")
+
+        now = time.time()
+        if not existing.is_used and now < existing.resend_available_at:
+            wait_seconds = int(existing.resend_available_at - now)
+            raise ValueError(f"Please wait {wait_seconds} seconds before requesting a new code.")
 
         return self.create_challenge(
             user_id=existing.user_id,

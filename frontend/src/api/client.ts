@@ -25,19 +25,31 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...(init?.headers as Record<string, string> || {}),
   };
 
-  if (authToken) {
-    headers["Authorization"] = `Bearer ${authToken}`;
+  try {
+    const response = await fetch(`${API_BASE}${path}`, {
+      headers,
+      ...init,
+    });
+    if (!response.ok) {
+      let errorMsg = `Request failed with status ${response.status}`;
+      try {
+        const json = await response.json();
+        if (json && json.detail) {
+          errorMsg = typeof json.detail === "string" ? json.detail : JSON.stringify(json.detail);
+        }
+      } catch {
+        const text = await response.text().catch(() => "");
+        if (text) errorMsg = text;
+      }
+      throw new Error(errorMsg);
+    }
+    return (await response.json()) as Promise<T>;
+  } catch (err: any) {
+    if (err.message && err.message.includes("Failed to fetch")) {
+      throw new Error("Cannot connect to backend server. Please ensure the backend is running at http://127.0.0.1:8000");
+    }
+    throw err;
   }
-
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers,
-    ...init,
-  });
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(body || `Request failed with ${response.status}`);
-  }
-  return response.json() as Promise<T>;
 }
 
 // ==========================================

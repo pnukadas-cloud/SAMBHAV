@@ -13,12 +13,13 @@ def seed_database() -> None:
         # 1. Check if demo student exists
         cursor.execute("SELECT id FROM users WHERE email = 'student@sambhav.edu'")
         existing_student = cursor.fetchone()
+        student_pw = hash_password("QuantumLearner#2026")
 
         if existing_student:
             student_id = existing_student["id"]
+            cursor.execute("UPDATE users SET password_hash = ?, role = 'student' WHERE id = ?", (student_pw, student_id))
         else:
             student_id = str(uuid.uuid4())
-            student_pw = hash_password("QuantumLearner#2026")
             cursor.execute(
                 """
                 INSERT INTO users (id, name, email, password_hash, role)
@@ -30,12 +31,13 @@ def seed_database() -> None:
         # 2. Check if demo instructor exists
         cursor.execute("SELECT id FROM users WHERE email = 'instructor@sambhav.edu'")
         existing_instructor = cursor.fetchone()
+        instructor_pw = hash_password("ProfessorQuantum#2026")
 
         if existing_instructor:
             instructor_id = existing_instructor["id"]
+            cursor.execute("UPDATE users SET password_hash = ?, role = 'instructor' WHERE id = ?", (instructor_pw, instructor_id))
         else:
             instructor_id = str(uuid.uuid4())
-            instructor_pw = hash_password("ProfessorQuantum#2026")
             cursor.execute(
                 """
                 INSERT INTO users (id, name, email, password_hash, role)
