@@ -1,4 +1,4 @@
-import { BrainCircuit, Cpu, HelpCircle, Lightbulb, Send, Sparkles } from "lucide-react";
+import { BrainCircuit, HelpCircle, Lightbulb, Send, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { formatTutorText } from "../../utils/formatTutorText";
 import type { AITutorResponse } from "../../types";
@@ -28,7 +28,6 @@ export function TutorPanel({ response, isLoading, onAskQuestion }: Props) {
     "Run your quantum circuit and click 'Explain Circuit' or ask a question below. The AI tutor provides step-by-step physical insights into superposition, entanglement, and measurement probabilities.";
 
   const explanationText = response?.explanation || defaultExplanation;
-  const isLLM = response?.source === "gemini" || response?.source === "llm";
 
   return (
     <section className="panel tutor-panel">
@@ -37,12 +36,10 @@ export function TutorPanel({ response, isLoading, onAskQuestion }: Props) {
           <BrainCircuit size={20} className="text-teal" />
           <h2>AI Quantum Tutor</h2>
         </div>
-        {response && (
-          <span className={`tutor-source-pill ${isLLM ? "pill-llm" : "pill-fallback"}`}>
-            {isLLM ? <Sparkles size={12} /> : <Cpu size={12} />}
-            {isLLM ? "Gemini AI" : "Physics Engine"}
-          </span>
-        )}
+        <span className="tutor-source-pill pill-llm">
+          <Sparkles size={12} />
+          Gemini AI
+        </span>
       </div>
 
       {/* Main explanation content */}

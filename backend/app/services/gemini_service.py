@@ -23,8 +23,8 @@ SYSTEM_INSTRUCTION = (
     "Format mathematical equations, quantum Dirac statevectors, matrix operations, and formulas using standard LaTeX syntax ($ for inline math like $|0\\rangle$, and $$ for display math)."
 )
 
-DEFAULT_GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
-DEFAULT_TIMEOUT_SECONDS = 8.0
+DEFAULT_GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-lite-latest")
+DEFAULT_TIMEOUT_SECONDS = 10.0
 
 
 def _clean_plain_text(text: str) -> str:
@@ -50,7 +50,7 @@ class GeminiService:
         timeout: float = DEFAULT_TIMEOUT_SECONDS,
     ):
         self._explicit_key = api_key
-        self.model = model or os.getenv("GEMINI_MODEL", "gemini-flash-latest")
+        self.model = model or os.getenv("GEMINI_MODEL", "gemini-flash-lite-latest")
         self.timeout = timeout
 
     @property
@@ -183,16 +183,14 @@ class GeminiService:
         circuit: Optional[CircuitIR] = None,
         sim_result: Optional[SimulationResult] = None,
         lesson_context: Optional[Any] = None,
-    ) -> Optional[str]:
+    ) -> str:
         """
-        Invoke Google's Gemini API using the server-side API key.
-        Returns the text response or None if Gemini is unavailable, timed out, or unconfigured.
-        Categorizes errors safely without exposing credentials.
+        Invoke Google's Gemini API directly using the server-side API key.
+        Returns the AI generated response text.
         """
         key = self.api_key
         if not key or not key.strip():
-            logger.info("Gemini API key is not configured. Falling back to deterministic engine.")
-            return None
+            return "Gemini API Key is not configured. Please set GEMINI_API_KEY in backend/.env."
 
         prompt = self.build_prompt(
             question=question,
@@ -202,10 +200,11 @@ class GeminiService:
         )
 
         models_to_try = [self.model]
-        for fallback_m in ["gemini-flash-latest", "gemini-pro-latest", "gemini-2.5-flash"]:
+        for fallback_m in ["gemini-flash-lite-latest", "gemini-3.5-flash", "gemini-flash-latest", "gemini-pro-latest"]:
             if fallback_m not in models_to_try:
                 models_to_try.append(fallback_m)
 
+        last_error = ""
         for current_model in models_to_try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{current_model}:generateContent?key={key}"
             headers = {"Content-Type": "application/json"}
@@ -221,9 +220,9 @@ class GeminiService:
                     }
                 ],
                 "generationConfig": {
-                    "temperature": 0.3,
+                    "temperature": 0.4,
                     "topP": 0.95,
-                    "maxOutputTokens": 800,
+                    "maxOutputTokens": 1000,
                 },
             }
 
@@ -243,27 +242,29 @@ class GeminiService:
                                 if raw_text:
                                     return _clean_plain_text(raw_text)
             except urllib.error.HTTPError as e:
-                # Safe server-side categorization without leaking key or full URL
+                last_error = f"HTTP {e.code}"
                 if e.code in (401, 403):
-                    logger.warning(f"Gemini API authentication/permission error [HTTP {e.code}]. Falling back to deterministic engine.")
-                    return None
+                    logger.warning(f"Gemini API authentication error [HTTP {e.code}].")
+                    return f"Gemini API authentication error ({last_error}). Please check your GEMINI_API_KEY."
                 elif e.code == 404:
-                    logger.warning(f"Gemini model '{current_model}' not found [HTTP 404]. Trying next candidate model.")
+                    logger.warning(f"Gemini model '{current_model}' not found [HTTP 404]. Trying next model.")
                     continue
                 elif e.code == 429:
-                    logger.warning(f"Gemini model '{current_model}' rate limited [HTTP 429]. Trying next candidate model.")
+                    logger.warning(f"Gemini model '{current_model}' rate limited [HTTP 429]. Trying next model.")
                     continue
                 elif e.code in (500, 503, 504):
-                    logger.warning(f"Gemini model '{current_model}' upstream service error [HTTP {e.code}]. Trying next candidate model.")
+                    logger.warning(f"Gemini model '{current_model}' upstream error [HTTP {e.code}]. Trying next model.")
                     continue
                 else:
-                    logger.warning(f"Gemini API HTTP error [HTTP {e.code}].")
+                    logger.warning(f"Gemini API HTTP error on '{current_model}': {e.code}")
                     continue
             except urllib.error.URLError as e:
-                logger.warning(f"Gemini API network connection/timeout error on '{current_model}': {type(e.reason).__name__}.")
+                last_error = f"Network error ({type(e.reason).__name__})"
+                logger.warning(f"Gemini network error on '{current_model}': {last_error}")
                 continue
             except Exception as e:
-                logger.warning(f"Gemini service unexpected exception on '{current_model}': {type(e).__name__}.")
+                last_error = str(e)
+                logger.warning(f"Gemini unexpected exception on '{current_model}': {last_error}")
                 continue
 
-        return None
+        return f"Gemini AI could not complete the request ({last_error or 'timeout'}). Please try again in a moment."

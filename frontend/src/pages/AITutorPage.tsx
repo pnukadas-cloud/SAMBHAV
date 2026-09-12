@@ -51,8 +51,8 @@ export function AITutorPage() {
     {
       id: "msg-1",
       sender: "ai",
-      text: "Hello! I am your AI Quantum Physics Tutor. I analyze your quantum circuits, Dirac notations, and measurement probabilities to provide step-by-step physical derivations. Ask me anything or select a prompt below!",
-      source: "fallback",
+      text: "Hello! I am your AI Quantum Physics Tutor powered by Google Gemini. I analyze your quantum circuits, Dirac notations, and measurement probabilities to provide step-by-step physical derivations. Ask me anything or select a prompt below!",
+      source: "gemini",
       concepts: ["Superposition", "Entanglement", "Measurement Collapse"],
       suggestions: [
         "Why did this circuit create entanglement?",
@@ -150,9 +150,10 @@ export function AITutorPage() {
                   <div className="message-bubble">
                     <div className="message-header-meta">
                       <span className="sender-name">{msg.sender === "ai" ? "AI Quantum Tutor" : "You"}</span>
-                      {msg.source && (
-                        <span className={`source-pill ${msg.source === "gemini" || msg.source === "llm" ? "pill-llm" : "pill-fallback"}`}>
-                          {msg.source === "gemini" || msg.source === "llm" ? "Gemini AI" : "Physics Engine"}
+                      {msg.sender === "ai" && (
+                        <span className="source-pill pill-llm">
+                          <Sparkles size={11} style={{ marginRight: 4, display: "inline-block" }} />
+                          Gemini AI
                         </span>
                       )}
                       <span className="message-time">{msg.timestamp}</span>
