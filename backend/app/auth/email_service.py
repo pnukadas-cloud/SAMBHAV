@@ -5,14 +5,13 @@ from typing import Optional, Tuple
 
 
 # =========================================================================
-# SMTP CREDENTIALS CONFIGURATION
-# You can paste your credentials directly below or set them in backend/.env
+# SMTP CREDENTIALS CONFIGURATION (READ FROM SERVER ENVIRONMENT / .env)
 # =========================================================================
-DEFAULT_SMTP_HOST = "smtp.gmail.com"       # e.g. "smtp.gmail.com"
-DEFAULT_SMTP_PORT = 587             # 587 for TLS, 465 for SSL
-DEFAULT_SMTP_USER = "pvsn47139@gmail.com"       # e.g. "your_email@gmail.com"
-DEFAULT_SMTP_PASSWORD = "afjx yvbu xdjd uakl"   # e.g. "xxxx xxxx xxxx xxxx" (App Password)
-DEFAULT_SMTP_FROM = "SAMBHAV Quantum <pvsn47139@gmail.com>"       # optional, e.g. "SAMBHAV Quantum <your_email@gmail.com>"
+DEFAULT_SMTP_HOST = "smtp.gmail.com"
+DEFAULT_SMTP_PORT = 587
+DEFAULT_SMTP_USER = ""
+DEFAULT_SMTP_PASSWORD = ""
+DEFAULT_SMTP_FROM = ""
 DEFAULT_SMTP_TLS = True
 # =========================================================================
 
