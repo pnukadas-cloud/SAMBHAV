@@ -96,7 +96,7 @@ Your 6-digit verification code for SAMBHAV Quantum Platform is:
 This code is valid for 5 minutes and can only be used once.
 If you did not request this verification code, please ignore this email.
 
-— The SAMBHAV Quantum Team (Smart India Hackathon 2026)
+— The SAMBHAV Quantum Team
 """
 
         html_body = f"""
@@ -121,7 +121,7 @@ If you did not request this verification code, please ignore this email.
     <div class="otp-box">{otp_code}</div>
     <p style="font-size: 14px; color: #94a3b8;">This code is valid for <strong>5 minutes</strong> and can only be used once.</p>
     <div class="footer">
-      Smart India Hackathon 2026 Innovation<br>
+      SAMBHAV Quantum Intelligence Platform<br>
       If you did not request this login, you can safely disregard this message.
     </div>
   </div>

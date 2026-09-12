@@ -1,6 +1,6 @@
 # SAMBHAV — Phase 1 Technical Review Bundle for Claude (Senior Architect)
-
-**Project:** SAMBHAV (Smart India Hackathon 2026)  
+ 
+**Project:** SAMBHAV — AI Quantum Learning Platform  
 **Milestone:** P0 Phase 1 Review — Quantum Circuit Builder & Execution Hardening  
 **Primary Implementation Engineer:** Antigravity  
 **Senior Architect / Reviewer:** Claude  

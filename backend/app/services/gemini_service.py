@@ -25,8 +25,8 @@ SYSTEM_INSTRUCTION = (
     "Avoid excessive raw markdown asterisks (**) or hashes (#) so it reads smoothly."
 )
 
-DEFAULT_GEMINI_MODEL = "gemini-1.5-flash"
-DEFAULT_TIMEOUT_SECONDS = 5.0
+DEFAULT_GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+DEFAULT_TIMEOUT_SECONDS = 8.0
 
 
 def _clean_plain_text(text: str) -> str:
@@ -48,11 +48,11 @@ class GeminiService:
     def __init__(
         self,
         api_key: Optional[str] = None,
-        model: str = DEFAULT_GEMINI_MODEL,
+        model: Optional[str] = None,
         timeout: float = DEFAULT_TIMEOUT_SECONDS,
     ):
         self._explicit_key = api_key
-        self.model = model
+        self.model = model or os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
         self.timeout = timeout
 
     @property
@@ -146,11 +146,12 @@ class GeminiService:
         lesson_context: Optional[Any] = None,
     ) -> str:
         """
-        Build the structured prompt for Gemini clearly distinguishing:
-        - USER QUESTION
-        - CURRENT CIRCUIT
-        - SIMULATION RESULT
+        Build the structured prompt for Gemini clearly establishing:
+        - USER QUESTION as PRIMARY
+        - INSTRUCTION prioritizing direct answer and conceptual clarity
         - LESSON CONTEXT
+        - CURRENT CIRCUIT (supporting context)
+        - SIMULATION RESULT (supporting context)
         """
         user_question = (question or "").strip()
         if not user_question:
@@ -163,19 +164,20 @@ class GeminiService:
         prompt = (
             "USER QUESTION:\n"
             f"{user_question}\n\n"
-            "CURRENT CIRCUIT:\n"
-            f"{circuit_desc}\n\n"
-            "SIMULATION RESULT:\n"
-            f"{sim_desc}\n\n"
+            "INSTRUCTION:\n"
+            "1. Answer the user's question directly. The USER QUESTION above is your PRIMARY subject.\n"
+            "2. Do not answer a different question, and do not assume the question is about the active circuit unless the user's question explicitly references it.\n"
+            "3. If the user question is conceptual (e.g., 'What is a qubit?', 'Explain quantum entanglement', 'Explain Grover\\'s algorithm'), explain the concepts clearly with intuitive analogies and treat the circuit as optional background.\n"
+            "4. If the user question refers to the current circuit, gate actions, or measurement probabilities, use the CURRENT CIRCUIT and SIMULATION RESULT provided below.\n"
+            "5. If the user asks for a hint, give a progressive pedagogical hint that guides them without giving away the complete answer.\n"
+            "6. If the user asks a greeting or general conversational query, respond warmly and guide them on how to explore quantum computing.\n"
+            "7. Present your output in clean, readable plain text with neat paragraphs and bullet points without raw markdown hashes or excessive asterisks.\n\n"
             "LESSON CONTEXT:\n"
             f"{lesson_desc}\n\n"
-            "TUTOR INSTRUCTIONS:\n"
-            "1. Answer the student's actual question directly, accurately, and pedagogically.\n"
-            "2. If the question is conceptual (e.g. 'What is a qubit?', 'Explain quantum entanglement like I'm a beginner'), give intuitive analogies and physical clarity.\n"
-            "3. If the question asks about the circuit or simulation results, use the provided circuit and simulation result. Do not fabricate results.\n"
-            "4. If the student asks for a hint, provide a progressive hint that guides them rather than immediately giving away the entire solution.\n"
-            "5. If information is insufficient to answer completely, state what is missing clearly.\n"
-            "6. Present the output in clean, readable plain text with neat paragraphs and bullet points. Do not use excessive asterisks."
+            "CURRENT CIRCUIT (Supporting Context):\n"
+            f"{circuit_desc}\n\n"
+            "SIMULATION RESULT (Supporting Context):\n"
+            f"{sim_desc}"
         )
         return prompt
 
@@ -189,6 +191,7 @@ class GeminiService:
         """
         Invoke Google's Gemini API using the server-side API key.
         Returns the text response or None if Gemini is unavailable, timed out, or unconfigured.
+        Categorizes errors safely without exposing credentials.
         """
         key = self.api_key
         if not key or not key.strip():
@@ -238,14 +241,23 @@ class GeminiService:
                             if raw_text:
                                 return _clean_plain_text(raw_text)
         except urllib.error.HTTPError as e:
-            # Safe logging: never log URL or API key
-            logger.warning(f"Gemini API HTTP error: status code {e.code}")
+            # Safe server-side categorization without leaking key or full URL
+            if e.code in (401, 403):
+                logger.warning(f"Gemini API authentication/permission error [HTTP {e.code}]. Falling back to deterministic engine.")
+            elif e.code == 404:
+                logger.warning(f"Gemini model '{self.model}' not found [HTTP 404]. Falling back to deterministic engine.")
+            elif e.code == 429:
+                logger.warning("Gemini API quota exceeded/rate limited [HTTP 429]. Falling back to deterministic engine.")
+            elif e.code in (500, 503, 504):
+                logger.warning(f"Gemini API upstream service error [HTTP {e.code}]. Falling back to deterministic engine.")
+            else:
+                logger.warning(f"Gemini API HTTP error [HTTP {e.code}]. Falling back to deterministic engine.")
             return None
         except urllib.error.URLError as e:
-            logger.warning(f"Gemini API connection error/timeout: {e.reason}")
+            logger.warning(f"Gemini API network connection/timeout error: {type(e.reason).__name__}. Falling back to deterministic engine.")
             return None
         except Exception as e:
-            logger.warning(f"Gemini service exception: {type(e).__name__}")
+            logger.warning(f"Gemini service unexpected exception: {type(e).__name__}. Falling back to deterministic engine.")
             return None
 
         return None

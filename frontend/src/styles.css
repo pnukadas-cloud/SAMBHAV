@@ -2168,7 +2168,7 @@ button, input, select {
   background: #0f1c19;
   border: 1px solid #28443e;
   border-radius: 6px;
-  padding: 10px 12px 10px 38px;
+  padding: 10px 40px 10px 38px;
   color: #ffffff;
   font-size: 0.88rem;
   outline: none;
@@ -2177,6 +2177,25 @@ button, input, select {
 .input-with-icon input:focus {
   border-color: #2a9d8f;
   box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #6a7e77;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+  color: #2a9d8f;
 }
 
 .role-pills-row {

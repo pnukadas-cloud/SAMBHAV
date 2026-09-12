@@ -58,51 +58,79 @@ def _extract_key_concepts(circuit: Optional[CircuitIR], sim_result: Optional[Sim
     q_lower = (question or "").lower()
     gates = [op.gate.lower() for op in circuit.operations] if circuit and circuit.operations else []
 
-    # Check question-derived concepts
+    # 1. Primary: Question-derived concepts
     if "qubit" in q_lower or "bit" in q_lower:
         concepts.append("Quantum Bit (Qubit)")
-    if "superposition" in q_lower or "hadamard" in q_lower:
+    if "superposition" in q_lower or "hadamard" in q_lower or "h gate" in q_lower:
         concepts.append("Quantum Superposition")
-    if "entangle" in q_lower or "bell" in q_lower:
+    if "entangle" in q_lower or "bell" in q_lower or "epr" in q_lower:
         concepts.append("Quantum Entanglement")
-    if "cnot" in q_lower or "cx" in q_lower:
+    if "cnot" in q_lower or "cx" in q_lower or "controlled" in q_lower:
         concepts.append("Controlled-NOT Gate")
+    if "grover" in q_lower or "search" in q_lower:
+        concepts.append("Grover's Search Algorithm")
     if "phase" in q_lower or "kickback" in q_lower:
         concepts.append("Quantum Phase")
     if "born" in q_lower or "measure" in q_lower or "probab" in q_lower:
         concepts.append("Born Rule & Measurement Collapse")
-    if "grover" in q_lower:
-        concepts.append("Amplitude Amplification")
+    if "pauli" in q_lower or "x gate" in q_lower or "z gate" in q_lower or "y gate" in q_lower:
+        concepts.append("Pauli Gates (X, Y, Z)")
     if "teleport" in q_lower:
         concepts.append("Quantum Teleportation")
-    if "hint" in q_lower:
+    if "hint" in q_lower or "guide" in q_lower:
         concepts.append("Pedagogical Guidance")
+    if "hello" in q_lower or "help" in q_lower:
+        concepts.append("Quantum Computing Fundamentals")
 
-    # Circuit-derived concepts
-    if "h" in gates and "Quantum Superposition" not in concepts:
-        concepts.append("Quantum Superposition")
-    if "cx" in gates:
-        if "h" in gates and circuit and circuit.qubits >= 2 and "Quantum Entanglement" not in concepts:
-            concepts.append("Bell State |Φ⁺⟩")
-            concepts.append("Quantum Entanglement")
-        elif "Controlled-NOT Gate" not in concepts:
-            concepts.append("Controlled-NOT (CX)")
-    if "cz" in gates and "Quantum Phase" not in concepts:
-        concepts.append("Controlled-Phase (CZ)")
-    if "swap" in gates:
-        concepts.append("SWAP State Exchange")
-    if any(g in {"rx", "ry", "rz"} for g in gates):
-        concepts.append("Continuous Bloch Rotation")
+    # 2. Secondary: Supporting Circuit-derived concepts (only if not already populated or if question asks about circuit)
+    if len(concepts) < 3:
+        if "h" in gates and "Quantum Superposition" not in concepts:
+            concepts.append("Quantum Superposition")
+        if "cx" in gates:
+            if "h" in gates and circuit and circuit.qubits >= 2 and "Quantum Entanglement" not in concepts:
+                concepts.append("Bell State |Φ⁺⟩")
+                concepts.append("Quantum Entanglement")
+            elif "Controlled-NOT Gate" not in concepts:
+                concepts.append("Controlled-NOT (CX)")
+        if "cz" in gates and "Quantum Phase" not in concepts:
+            concepts.append("Controlled-Phase (CZ)")
+        if "swap" in gates:
+            concepts.append("SWAP State Exchange")
+        if any(g in {"rx", "ry", "rz"} for g in gates):
+            concepts.append("Continuous Bloch Rotation")
+
     if not concepts:
         concepts.append("Computational Basis State")
     return concepts[:4]
 
 
 def _generate_suggestions(circuit: Optional[CircuitIR], sim_result: Optional[SimulationResult], question: Optional[str] = None) -> list[str]:
+    q_lower = (question or "").lower()
     gates = [op.gate.lower() for op in circuit.operations] if circuit and circuit.operations else []
     suggestions: list[str] = []
 
-    if circuit and circuit.qubits >= 2 and gates[:2] == ["h", "cx"]:
+    # Priority based on user's current topic/question
+    if "grover" in q_lower:
+        suggestions.append("How does the Quantum Oracle mark target items?")
+        suggestions.append("What is the Grover Diffusion operator?")
+        suggestions.append("How many Grover iterations are needed for N items?")
+    elif "qubit" in q_lower:
+        suggestions.append("Why does the Hadamard gate create superposition?")
+        suggestions.append("What is quantum entanglement?")
+        suggestions.append("How does the Bloch sphere represent quantum states?")
+    elif "hadamard" in q_lower or "superposition" in q_lower:
+        suggestions.append("What happens if you remove the Hadamard gate?")
+        suggestions.append("Why does applying H twice return to the original state?")
+        suggestions.append("How does superposition enable quantum parallelism?")
+    elif "entangle" in q_lower or "bell" in q_lower:
+        suggestions.append("Why did this circuit create entanglement?")
+        suggestions.append("How do you create the other three Bell states?")
+        suggestions.append("What is the EPR paradox?")
+    elif "cnot" in q_lower or "cx" in q_lower:
+        suggestions.append("Why does CNOT create entanglement when control is |+⟩?")
+        suggestions.append("What happens if control is |0⟩ vs |1⟩?")
+        suggestions.append("How is a SWAP gate constructed from 3 CNOTs?")
+    elif circuit and circuit.qubits >= 2 and gates[:2] == ["h", "cx"]:
         suggestions.append("Why did this circuit create entanglement?")
         suggestions.append("What happens if you remove the CX gate?")
         suggestions.append("How do you create the other three Bell states?")
@@ -110,15 +138,10 @@ def _generate_suggestions(circuit: Optional[CircuitIR], sim_result: Optional[Sim
         suggestions.append("Why does Hadamard create equal probabilities?")
         suggestions.append("What happens if you apply a second H gate on the same qubit?")
         suggestions.append("How does superposition differ from classical uncertainty?")
-    elif "cz" in gates:
-        suggestions.append("How does the Controlled-Z (CZ) gate differ from CX?")
-        suggestions.append("Why does CZ apply phase kickback exclusively to |11⟩?")
-    elif "swap" in gates:
-        suggestions.append("How is the SWAP gate constructed using 3 CNOT gates?")
     else:
         suggestions.append("What is a qubit?")
         suggestions.append("Why does the Hadamard gate create superposition?")
-        suggestions.append("Explain quantum entanglement like I'm a beginner.")
+        suggestions.append("What is quantum entanglement?")
 
     return suggestions[:3]
 
@@ -137,10 +160,12 @@ def _generate_deterministic_explanation(payload: ExplainRequest, sim_result: Opt
     key_concepts = _extract_key_concepts(circuit, sim_result, q)
     suggestions = _generate_suggestions(circuit, sim_result, q)
 
-    # 1. SPECIFIC CONCEPTUAL & TARGETED QUESTIONS
+    # =========================================================================
+    # 1. SPECIFIC CONCEPTUAL & TARGETED QUESTIONS (PRIMARY)
+    # =========================================================================
 
     # A. What is a qubit / bit vs qubit?
-    if re.search(r"\b(what is a qubit|what is qubit|explain qubit|difference between bit and qubit|qubit vs bit)\b", q_lower):
+    if re.search(r"\b(what is a qubit|what is qubit|explain qubit|difference between bit and qubit|qubit vs bit|about qubit)\b", q_lower):
         explanation = (
             "A qubit (quantum bit) is the fundamental unit of quantum information, analogous to a classical bit in digital computing.\n\n"
             "• Classical Bit vs Qubit: While a classical bit must strictly be in state 0 or state 1, a qubit can exist in a linear combination "
@@ -152,21 +177,7 @@ def _generate_deterministic_explanation(payload: ExplainRequest, sim_result: Opt
         )
         return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
 
-    # B. Hadamard gate / Superposition creation
-    if re.search(r"\b(hadamard|h gate|why does hadamard|why does the hadamard|create superposition|creates superposition)\b", q_lower) and not re.search(r"\bremove\b", q_lower):
-        explanation = (
-            "The Hadamard (H) gate is the cornerstone single-qubit gate used to create quantum superposition from basis states.\n\n"
-            "• Mathematical Action: It maps the computational basis states into symmetric superposition states:\n"
-            "  - H|0⟩ = (|0⟩ + |1⟩)/√2 = |+⟩ (50% |0⟩, 50% |1⟩)\n"
-            "  - H|1⟩ = (|0⟩ - |1⟩)/√2 = |−⟩ (50% |0⟩, 50% |1⟩ with a relative π phase shift)\n\n"
-            "• Bloch Sphere Rotation: Geometrically, the Hadamard gate performs a 180° rotation around the diagonal X+Z axis on the Bloch sphere, "
-            "transforming the vertical state on the Z-axis into the horizontal equator on the X-axis.\n\n"
-            "• Self-Inverting Property: Applying H twice restores the original state: H · H = I. This demonstrates quantum interference, "
-            "where the amplitudes for |1⟩ destructively interfere to return to |0⟩."
-        )
-        return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
-
-    # C. Removing the Hadamard gate / What happens if I remove...
+    # B. Removing the Hadamard gate / What happens if I remove...
     if re.search(r"\b(what happens if i remove|remove the hadamard|remove hadamard|without the hadamard|remove h gate)\b", q_lower):
         if circuit and "cx" in gates:
             explanation = (
@@ -183,6 +194,20 @@ def _generate_deterministic_explanation(payload: ExplainRequest, sim_result: Opt
                 "• The qubit will not enter a quantum superposition and will remain in its initial basis state (typically |0⟩).\n"
                 "• Any subsequent measurement will deterministically yield the basis state (100% probability) rather than a 50/50 probabilistic outcome."
             )
+        return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
+
+    # C. Hadamard gate / Superposition creation
+    if re.search(r"\b(hadamard|h gate|why does hadamard|why does the hadamard|create superposition|creates superposition)\b", q_lower):
+        explanation = (
+            "The Hadamard (H) gate is the cornerstone single-qubit gate used to create quantum superposition from basis states.\n\n"
+            "• Mathematical Action: It maps the computational basis states into symmetric superposition states:\n"
+            "  - H|0⟩ = (|0⟩ + |1⟩)/√2 = |+⟩ (50% |0⟩, 50% |1⟩)\n"
+            "  - H|1⟩ = (|0⟩ - |1⟩)/√2 = |−⟩ (50% |0⟩, 50% |1⟩ with a relative π phase shift)\n\n"
+            "• Bloch Sphere Rotation: Geometrically, the Hadamard gate performs a 180° rotation around the diagonal X+Z axis on the Bloch sphere, "
+            "transforming the vertical state on the Z-axis into the horizontal equator on the X-axis.\n\n"
+            "• Self-Inverting Property: Applying H twice restores the original state: H · H = I. This demonstrates quantum interference, "
+            "where the amplitudes for |1⟩ destructively interfere to return to |0⟩."
+        )
         return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
 
     # D. Hints / Give me a hint instead of the answer
@@ -209,28 +234,43 @@ def _generate_deterministic_explanation(payload: ExplainRequest, sim_result: Opt
             )
         return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
 
-    # E. CNOT / CX Gate & CNOT circuit result explanation
-    if re.search(r"\b(why is my cnot circuit|cnot circuit producing|why is my cnot|what does the cnot|what does cnot|what does cx|cnot gate)\b", q_lower):
-        dirac_str = sim_result.dirac if sim_result and sim_result.dirac else "|ψ⟩"
-        prob_str = ", ".join(f"|{b}⟩: {p*100:.1f}%" for b, p in sim_result.probabilities.items() if p > 0.001) if sim_result else "50% |00⟩, 50% |11⟩"
+    # E. CNOT / CX Gate conceptual definition
+    if re.search(r"\b(what does a cnot|what does cnot|what does cx|cnot gate|cx gate|controlled-not|controlled not)\b", q_lower) and not re.search(r"\b(why is my|producing this result|these measurement)\b", q_lower):
         explanation = (
-            f"Your CNOT circuit produces the result {prob_str} (statevector: {dirac_str}) due to controlled state transformation:\n\n"
-            "• How CNOT Operates: The Controlled-NOT gate flips the target qubit if and only if the control qubit is |1⟩.\n"
-            "  - When control is in superposition (|0⟩ + |1⟩)/√2, CNOT applies linearity across both branches:\n"
-            "  - |0⟩|0⟩ → |00⟩\n"
-            "  - |1⟩|0⟩ → |11⟩\n\n"
-            "• Entanglement: The resulting state (|00⟩ + |11⟩)/√2 is a non-separable Bell state. Neither qubit has an independent state; "
-            "measuring qubit 0 instantly determines the state of qubit 1 with 100% correlation."
+            "The CNOT (Controlled-NOT or CX) gate is the fundamental 2-qubit entangling gate in quantum computing.\n\n"
+            "• How It Works: It operates on two qubits: a control qubit and a target qubit. If the control qubit is in state |1⟩, "
+            "it flips the target qubit (|0⟩ ↔ |1⟩). If the control qubit is in state |0⟩, the target qubit remains unchanged.\n\n"
+            "• Basis State Mapping:\n"
+            "  - |00⟩ → |00⟩\n"
+            "  - |01⟩ → |01⟩\n"
+            "  - |10⟩ → |11⟩\n"
+            "  - |11⟩ → |10⟩\n\n"
+            "• Entanglement Generation: When the control qubit is in a superposition state like (|0⟩ + |1⟩)/√2 and the target is |0⟩, "
+            "the CNOT gate maps the product state (|0⟩ + |1⟩)|0⟩/√2 into the maximally entangled Bell state (|00⟩ + |11⟩)/√2."
         )
         return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
 
-    # F. Entanglement explanation (beginner-friendly & general)
+    # F. Why is my CNOT / active circuit producing this result?
+    if re.search(r"\b(why is my cnot|cnot circuit producing|why does my cnot|why did this circuit create entangle)\b", q_lower):
+        dirac_str = sim_result.dirac if sim_result and sim_result.dirac else "|ψ⟩ = 0.707|00⟩ + 0.707|11⟩"
+        prob_str = ", ".join(f"|{b}⟩: {p*100:.1f}%" for b, p in sim_result.probabilities.items() if p > 0.001) if sim_result else "50% |00⟩, 50% |11⟩"
+        explanation = (
+            f"Your CNOT (CX) circuit produces the result {prob_str} (statevector: {dirac_str}) through linear controlled state evolution:\n\n"
+            "• Step 1: Superposition - The Hadamard (H) gate initializes the control qubit 0 into the equal superposition state (|0⟩ + |1⟩)/√2.\n"
+            "• Step 2: Entangling via CNOT - The Controlled-NOT (CX) gate flips target qubit 1 if and only if control qubit 0 is |1⟩:\n"
+            "  - |0⟩|0⟩ → |00⟩ (control is 0, target unchanged)\n"
+            "  - |1⟩|0⟩ → |11⟩ (control is 1, target flipped from 0 to 1)\n\n"
+            "• Resulting Bell State: The output state (|00⟩ + |11⟩)/√2 is a non-separable entangled state where measuring one qubit immediately collapses the other."
+        )
+        return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
+
+    # G. Entanglement explanation (General & Conceptual)
     if re.search(r"\b(entangle|entanglement|explain entanglement|what is entanglement|spooky)\b", q_lower):
         circuit_has_cx = "cx" in gates or "cz" in gates
         circuit_note = (
-            "In your active circuit, qubit 0 is placed into superposition via H(0), and CX(0, 1) creates non-separable entanglement, yielding (|00⟩ + |11⟩)/√2."
+            "In your active circuit, qubit 0 is in superposition via H, and the CX gate creates non-separable entanglement, yielding (|00⟩ + |11⟩)/√2."
             if circuit_has_cx
-            else "To create entanglement on your canvas, apply an H gate on qubit 0 followed by a CX gate from qubit 0 to qubit 1."
+            else "To create entanglement on your canvas, apply an H gate on qubit 0 followed by a CX (Controlled-NOT) gate from qubit 0 to qubit 1."
         )
         explanation = (
             "Quantum Entanglement is a phenomenon where two or more qubits become inextricably correlated such that the quantum state of each particle "
@@ -238,23 +278,49 @@ def _generate_deterministic_explanation(payload: ExplainRequest, sim_result: Opt
             "• The Coin Analogy (Beginner Friendly): If two friends flip classical coins independently, each has a 50% chance of heads or tails. "
             "In an entangled pair (|00⟩ + |11⟩)/√2, both coins are linked: while each coin still looks completely random (50% 0, 50% 1), "
             "the instant one friend observes heads, the other is 100% guaranteed to observe heads.\n\n"
-            f"• Non-Separability: The wave function cannot be factored into independent single-qubit states. {circuit_note}"
+            f"• Non-Separability: The joint wave function cannot be factored into independent single-qubit states. {circuit_note}"
         )
         return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
 
-    # G. Measurement results & Born Rule
-    if re.search(r"\b(why is my circuit producing|measurement result|probabilities|50%|probability|born rule|why did this produce)\b", q_lower):
-        prob_summary = ", ".join(f"|{b}⟩: {p*100:.1f}%" for b, p in sim_result.probabilities.items()) if sim_result else "100% |0⟩"
+    # H. Grover's Search Algorithm
+    if re.search(r"\b(grover|grover's|search algorithm)\b", q_lower):
         explanation = (
-            f"Your circuit produces the measurement distribution {prob_summary} according to the Born Rule of quantum mechanics: "
-            "the probability of measuring basis state |x⟩ is given by the squared magnitude of its amplitude: P(x) = |⟨x|ψ⟩|².\n\n"
-            f"• Current Statevector: The simulated state is {sim_result.dirac if sim_result else '|ψ⟩ = |0⟩'}.\n"
-            "• Superposition & Amplitudes: Each non-zero amplitude in the statevector corresponds to a measurable state. "
-            "When the quantum state is measured, the continuous wave function collapses into one discrete outcome with the calculated probability."
+            "Grover's Search Algorithm provides a provable quadratic quantum speedup O(√N) for searching unsorted databases of size N, "
+            "compared to the classical O(N) brute-force search.\n\n"
+            "• Step 1: Equal Superposition - Initialize all n qubits into an equal superposition state |s⟩ using Hadamard gates across all qubits.\n"
+            "• Step 2: Quantum Oracle - The oracle marks the target state |ω⟩ by inverting its quantum phase (multiplying its amplitude by -1).\n"
+            "• Step 3: Grover Diffusion Operator - The diffusion operator performs an inversion about the average amplitude across all states, "
+            "amplifying the marked state's probability while suppressing all non-target states.\n\n"
+            "• Iterations: Repeating the Oracle + Diffusion cycle approximately (π/4)√N times concentrates the probability amplitude onto the target state with near 100% probability."
         )
         return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
 
-    # H. Pauli Gates (X, Y, Z)
+    # I. Measurement Probabilities & Born Rule for active circuit
+    if re.search(r"\b(why does my (current )?circuit produce|measurement probab|probabilities|why is my circuit producing|born rule)\b", q_lower):
+        prob_summary = ", ".join(f"|{b}⟩: {p*100:.1f}%" for b, p in sim_result.probabilities.items()) if sim_result and sim_result.probabilities else "100% |0⟩"
+        dirac_val = sim_result.dirac if sim_result and sim_result.dirac else "|0⟩"
+        explanation = (
+            f"Your current circuit produces the measurement distribution {prob_summary} according to the Born Rule of quantum mechanics: "
+            "the probability of measuring basis state |x⟩ is given by the squared magnitude of its amplitude: P(x) = |⟨x|ψ⟩|².\n\n"
+            f"• Current Statevector: The simulated state is {dirac_val}.\n"
+            "• Superposition & Amplitudes: Each non-zero amplitude in the statevector corresponds to a measurable state. "
+            "When the quantum state is measured, the continuous wave function collapses probabilistically into one discrete outcome with the calculated probability."
+        )
+        return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
+
+    # J. Conversational Greetings & General Help
+    if re.search(r"\b(hello|hi|hey|greetings|help me understand quantum|can you help me)\b", q_lower):
+        explanation = (
+            "Hello! I am SAMBHAV's Quantum AI Tutor, your expert interactive guide for quantum computing.\n\n"
+            "I can help you explore quantum mechanics and quantum circuit development step-by-step:\n"
+            "• Conceptual Questions: Ask me about qubits, superposition, entanglement, Pauli rotations, or Grover's algorithm.\n"
+            "• Circuit Analysis: Place gates on the canvas (like H, X, CX) and ask 'Why does my circuit produce these probabilities?'\n"
+            "• Hints & Guidance: Ask 'Give me a hint for this circuit' to receive progressive guidance on solving challenges.\n\n"
+            "What would you like to explore first?"
+        )
+        return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
+
+    # K. Pauli Gates (X, Y, Z)
     if re.search(r"\b(pauli|x gate|z gate|y gate|bit flip|phase flip|not gate)\b", q_lower):
         explanation = (
             "The Pauli Gates (X, Y, Z) represent 180° (π radian) rotations about the principal axes of the Bloch sphere:\n\n"
@@ -264,7 +330,7 @@ def _generate_deterministic_explanation(payload: ExplainRequest, sim_result: Opt
         )
         return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
 
-    # I. Phase shifts, S and T gates
+    # L. Phase shifts, S and T gates
     if re.search(r"\b(s gate|t gate|phase shift|phase kickback|cz gate|controlled z)\b", q_lower):
         explanation = (
             "Phase Gates introduce relative complex phases between computational basis states without changing their individual measurement probabilities:\n\n"
@@ -274,15 +340,7 @@ def _generate_deterministic_explanation(payload: ExplainRequest, sim_result: Opt
         )
         return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
 
-    # J. Quantum Algorithms (Grover, Deutsch-Jozsa, Teleportation, Superdense Coding)
-    if re.search(r"\b(grover|search algorithm)\b", q_lower):
-        explanation = (
-            "Grover's Search Algorithm provides a quadratic quantum speedup O(√N) for searching unsorted databases of size N.\n\n"
-            "• Mechanism: It initializes an equal superposition across all items, uses an Oracle gate to invert the phase of target items, "
-            "and applies a Grover Diffusion operator to reflect amplitudes around the mean, exponentially amplifying the target item's probability."
-        )
-        return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
-
+    # M. Other Quantum Algorithms (Deutsch-Jozsa, Teleportation)
     if re.search(r"\b(deutsch|jozsa|oracle)\b", q_lower):
         explanation = (
             "The Deutsch-Jozsa Algorithm determines whether an unknown black-box function f(x) is constant (same output for all inputs) "
@@ -299,40 +357,55 @@ def _generate_deterministic_explanation(payload: ExplainRequest, sim_result: Opt
         )
         return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
 
-    # 2. CIRCUIT STEP-BY-STEP EXPLANATION (When user asks about the active circuit or has no specific keyword)
-    has_bell_pattern = circuit and circuit.qubits >= 2 and gates[:2] == ["h", "cx"]
-    if has_bell_pattern:
-        explanation = (
-            (f"You asked: \"{q}\"\n\n" if q else "") +
-            "Analyzing your active circuit configuration:\n\n"
-            "• Step 1: Superposition - The Hadamard (H) gate on qubit 0 rotates the ground state |0⟩ into equal superposition (|0⟩ + |1⟩)/√2.\n"
-            "• Step 2: Entangling - The CX gate uses qubit 0 as control and qubit 1 as target, transforming the joint state into the maximally entangled Bell state |Φ⁺⟩ = (|00⟩ + |11⟩)/√2.\n"
-            f"• Outcome: The statevector is {sim_result.dirac if sim_result else '(|00⟩ + |11⟩)/√2'}. Measurement yields 50% |00⟩ and 50% |11⟩ with 0% probability of |01⟩ or |10⟩."
-        )
-    elif gates == ["h"]:
-        explanation = (
-            (f"You asked: \"{q}\"\n\n" if q else "") +
-            "Analyzing your single-qubit Hadamard circuit:\n\n"
-            "• State Transformation: The initial state |0⟩ is transformed into the superposition state |+⟩ = (|0⟩ + |1⟩)/√2.\n"
-            "• Measurement Outcome: Both basis states |0⟩ and |1⟩ have an equal 50% probability of detection upon measurement."
-        )
-    elif circuit and circuit.operations:
-        ops_summary = " → ".join(op.gate.upper() for op in circuit.operations)
-        dirac_summary = sim_result.dirac if sim_result else "|0⟩"
-        prob_summary = ", ".join(f"|{b}⟩: {p*100:.1f}%" for b, p in sim_result.probabilities.items()) if sim_result else "100% |0⟩"
-        explanation = (
-            (f"Regarding your question \"{q}\":\n\n" if q else "") +
-            f"Your active circuit executes the gate sequence [{ops_summary}] across {circuit.qubits} qubit(s).\n\n"
-            f"• State Evolution: The circuit transforms the input state into: {dirac_summary}.\n"
-            f"• Measurement Probabilities: {prob_summary}.\n\n"
-            "Feel free to ask any specific question about any gate or physical property in this circuit!"
-        )
-    else:
-        explanation = (
-            (f"Regarding your question: \"{q}\"\n\n" if q else "") +
-            "In quantum computing, circuits start in the computational ground state |0...0⟩. "
-            "To explore quantum behavior, place gates like H (superposition), X (bit-flip), or CX (entanglement) on the canvas and click Simulate!"
-        )
+    # =========================================================================
+    # 2. DEFAULT CIRCUIT EXPLANATION (ONLY WHEN USER EXPLICITLY DID NOT ASK A QUESTION)
+    # =========================================================================
+    if not q:
+        has_bell_pattern = circuit and circuit.qubits >= 2 and gates[:2] == ["h", "cx"]
+        if has_bell_pattern:
+            explanation = (
+                "Analyzing your active circuit configuration:\n\n"
+                "• Step 1: Superposition - The Hadamard (H) gate on qubit 0 rotates the ground state |0⟩ into equal superposition (|0⟩ + |1⟩)/√2.\n"
+                "• Step 2: Entangling - The CX gate uses qubit 0 as control and qubit 1 as target, transforming the joint state into the maximally entangled Bell state |Φ⁺⟩ = (|00⟩ + |11⟩)/√2.\n"
+                f"• Outcome: The statevector is {sim_result.dirac if sim_result else '(|00⟩ + |11⟩)/√2'}. Measurement yields 50% |00⟩ and 50% |11⟩ with 0% probability of |01⟩ or |10⟩."
+            )
+        elif gates == ["h"]:
+            explanation = (
+                "Analyzing your single-qubit Hadamard circuit:\n\n"
+                "• State Transformation: The initial state |0⟩ is transformed into the superposition state |+⟩ = (|0⟩ + |1⟩)/√2.\n"
+                "• Measurement Outcome: Both basis states |0⟩ and |1⟩ have an equal 50% probability of detection upon measurement."
+            )
+        elif circuit and circuit.operations:
+            ops_summary = " → ".join(op.gate.upper() for op in circuit.operations)
+            dirac_summary = sim_result.dirac if sim_result else "|0⟩"
+            prob_summary = ", ".join(f"|{b}⟩: {p*100:.1f}%" for b, p in sim_result.probabilities.items()) if sim_result else "100% |0⟩"
+            explanation = (
+                f"Your active circuit executes the gate sequence [{ops_summary}] across {circuit.qubits} qubit(s).\n\n"
+                f"• State Evolution: The circuit transforms the input state into: {dirac_summary}.\n"
+                f"• Measurement Probabilities: {prob_summary}.\n\n"
+                "Feel free to ask any specific question about any gate or physical property in this circuit!"
+            )
+        else:
+            explanation = (
+                "In quantum computing, circuits start in the computational ground state |0...0⟩. "
+                "To explore quantum behavior, place gates like H (superposition), X (bit-flip), or CX (entanglement) on the canvas and click Simulate!"
+            )
+        return ExplainResponse(source="fallback", explanation=explanation, key_concepts=key_concepts, suggestions=suggestions)
+
+    # =========================================================================
+    # 3. HONEST FALLBACK FOR UNRECOGNIZED QUESTIONS (NEVER SUBSTITUTE BELL-STATE)
+    # =========================================================================
+    explanation = (
+        f"I couldn't generate a full AI explanation right now for your question: \"{q}\".\n\n"
+        "• Please try rephrasing your question or check your connection to the AI engine.\n"
+        "• You can also ask about core quantum computing topics such as:\n"
+        "  - What is a qubit?\n"
+        "  - Why does the Hadamard gate create superposition?\n"
+        "  - What is quantum entanglement?\n"
+        "  - What does a CNOT gate do?\n"
+        "  - Explain Grover's algorithm\n"
+        "  - Why does my circuit produce these measurement probabilities?"
+    )
 
     return ExplainResponse(
         source="fallback",

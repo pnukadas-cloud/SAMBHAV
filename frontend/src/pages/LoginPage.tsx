@@ -3,6 +3,8 @@ import {
   ArrowRight,
   Atom,
   CheckCircle,
+  Eye,
+  EyeOff,
   KeyRound,
   Lock,
   LogIn,
@@ -44,6 +46,7 @@ export function LoginPage() {
   const [step, setStep] = useState<"credentials" | "otp">("credentials");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -183,17 +186,6 @@ export function LoginPage() {
     }
   }
 
-  // Helper to prefill evaluation credentials
-  const fillCredentials = (type: "student" | "instructor") => {
-    if (type === "student") {
-      setEmail("student@sambhav.edu");
-      setPassword("QuantumLearner#2026");
-    } else {
-      setEmail("instructor@sambhav.edu");
-      setPassword("ProfessorQuantum#2026");
-    }
-  };
-
   return (
     <div className="auth-page-root">
       <div className="auth-card-container">
@@ -213,76 +205,60 @@ export function LoginPage() {
 
         {/* STEP 1: CREDENTIALS FORM */}
         {step === "credentials" && (
-          <>
-            {/* Quick-fill credentials badge for evaluation */}
-            <div className="demo-accounts-box">
-              <div className="demo-accounts-title">
-                <Sparkles size={14} className="text-amber" />
-                <span>Evaluation Credentials (Auto-fill):</span>
+          <form className="auth-form" onSubmit={handleCredentialsSubmit}>
+            <div className="form-group">
+              <label htmlFor="login-email">Email Address</label>
+              <div className="input-with-icon">
+                <Mail size={17} className="input-icon" />
+                <input
+                  id="login-email"
+                  type="email"
+                  placeholder="student@sambhav.edu"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoFocus
+                />
               </div>
-              <div className="demo-buttons-row">
+            </div>
+
+            <div className="form-group">
+              <div className="label-with-link">
+                <label htmlFor="login-password">Password</label>
+                <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
+              </div>
+              <div className="input-with-icon">
+                <Lock size={17} className="input-icon" />
+                <input
+                  id="login-password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
                 <button
                   type="button"
-                  className="demo-btn demo-btn-student"
-                  onClick={() => fillCredentials("student")}
+                  className="password-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  title={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  Student: student@sambhav.edu
-                </button>
-                <button
-                  type="button"
-                  className="demo-btn demo-btn-instructor"
-                  onClick={() => fillCredentials("instructor")}
-                >
-                  Instructor: instructor@sambhav.edu
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            <form className="auth-form" onSubmit={handleCredentialsSubmit}>
-              <div className="form-group">
-                <label htmlFor="login-email">Email Address</label>
-                <div className="input-with-icon">
-                  <Mail size={17} className="input-icon" />
-                  <input
-                    id="login-email"
-                    type="email"
-                    placeholder="student@sambhav.edu"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    autoFocus
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <div className="label-with-link">
-                  <label htmlFor="login-password">Password</label>
-                  <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
-                </div>
-                <div className="input-with-icon">
-                  <Lock size={17} className="input-icon" />
-                  <input
-                    id="login-password"
-                    type="password"
-                    placeholder="••••••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-remember-row">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                  />
-                  <span>Remember my device</span>
-                </label>
-              </div>
+            <div className="form-remember-row">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                <span>Remember my device</span>
+              </label>
+            </div>
 
               <button
                 type="submit"
@@ -296,7 +272,6 @@ export function LoginPage() {
                 )}
               </button>
             </form>
-          </>
         )}
 
         {/* STEP 2: 6-DIGIT OTP VERIFICATION FORM */}

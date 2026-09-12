@@ -78,7 +78,7 @@ export function LandingPage() {
         <div className="hero-content">
           <div className="hero-pill-badge">
             <Sparkles size={14} className="text-teal" />
-            <span>Smart India Hackathon 2026 Innovation</span>
+            <span>Next-Gen Quantum Learning Innovation</span>
           </div>
 
           <h1 className="hero-headline">
@@ -298,7 +298,7 @@ export function LandingPage() {
               <Atom size={22} className="spin-slow" />
               <span>SAMBHAV</span>
             </div>
-            <p>Smart India Hackathon 2026 — AI-Powered Interactive Quantum Learning Platform.</p>
+            <p>SAMBHAV — AI-Powered Interactive Quantum Learning & Research Platform.</p>
           </div>
           <div className="footer-links-group">
             <div className="footer-col">
@@ -317,7 +317,7 @@ export function LandingPage() {
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© 2026 SAMBHAV Quantum Platform. Built for SIH 2026.</span>
+          <span>© 2026 SAMBHAV Quantum Platform. All rights reserved.</span>
         </div>
       </footer>
     </div>

@@ -2,7 +2,7 @@
 
 Date: 2026-09-12
 
-Project: SAMBHAV - AI-Based Interactive Quantum Algorithm Learning Platform for Smart India Hackathon 2026
+Project: SAMBHAV - AI-Based Interactive Quantum Algorithm Learning Platform
 
 Repository: https://github.com/pnukadas-cloud/SAMBHAV
 
@@ -10,7 +10,7 @@ Local folder: `C:\Users\Punith Venkat Sai\OneDrive\Desktop\SAMBHAV`
 
 ## Summary
 
-The initial SIH 2026 prototype foundation has been created as a real full-stack web application. The project now contains a React frontend, a FastAPI backend, a neutral quantum circuit representation, a working educational quantum simulator, API boundaries for quantum execution and AI tutoring, documentation, database schema draft, and Docker deployment scaffolding.
+The initial prototype foundation has been created as a real full-stack web application. The project now contains a React frontend, a FastAPI backend, a neutral quantum circuit representation, a working educational quantum simulator, API boundaries for quantum execution and AI tutoring, documentation, database schema draft, and Docker deployment scaffolding.
 
 The current prototype demonstrates a Bell-state learning flow: a student can view a lesson, inspect/build a simple circuit, run a simulation, receive normalized quantum results, view generated Qiskit-style code, and ask the tutor for an explanation.
 
@@ -287,7 +287,7 @@ Created files:
 
 ### Main Application Shell
 
-- SIH 2026 branded prototype shell.
+- SAMBHAV branded prototype shell.
 - Three-column desktop layout:
   - Lesson panel.
   - Circuit builder and code panel.
@@ -366,7 +366,7 @@ Docker Compose services:
 - `postgres`
 - `redis`
 
-This prepares the project for a more realistic SIH demo deployment while allowing local development now.
+This prepares the project for a realistic production demo deployment while allowing local development now.
 
 ## Verification Completed
 
@@ -421,5 +421,5 @@ Runtime:
 7. Add LLM-based AI tutor with retrieval over curated lesson content.
 8. Add Bloch sphere visualization for one-qubit circuits.
 9. Add Qiskit Aer dependency and verify native execution.
-10. Prepare a polished SIH judge demo flow.
+10. Prepare a polished interactive demo flow.
 

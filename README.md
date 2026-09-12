@@ -1,6 +1,6 @@
 # SAMBHAV
-
-AI-based interactive quantum algorithm learning platform for Smart India Hackathon 2026.
+ 
+AI-based interactive quantum algorithm learning and experimentation platform.
 
 This repository is being built as a serious full-stack prototype with:
 
