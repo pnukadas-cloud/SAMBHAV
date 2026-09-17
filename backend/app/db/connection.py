@@ -42,13 +42,51 @@ def get_db_connection() -> Generator[sqlite3.Connection, None, None]:
 
 def _translate_schema_to_sqlite(sql: str) -> str:
     """Translates PostgreSQL schema types to SQLite equivalents."""
-    sql = re.sub(r"\bCREATE\s+TABLE\b", "CREATE TABLE IF NOT EXISTS", sql, flags=re.IGNORECASE)
+    sql = re.sub(r"\bCREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?\b", "CREATE TABLE IF NOT EXISTS", sql, flags=re.IGNORECASE)
     sql = re.sub(r"\bUUID\b", "TEXT", sql, flags=re.IGNORECASE)
     sql = re.sub(r"\bTIMESTAMPTZ\b", "TIMESTAMP", sql, flags=re.IGNORECASE)
     sql = re.sub(r"\bJSONB\b", "TEXT", sql, flags=re.IGNORECASE)
     sql = re.sub(r"\bnow\(\)", "CURRENT_TIMESTAMP", sql, flags=re.IGNORECASE)
     sql = re.sub(r"\bNUMERIC\b", "REAL", sql, flags=re.IGNORECASE)
     return sql
+
+
+def _migrate_sqlite_columns(cursor: sqlite3.Cursor) -> None:
+    """Safely adds new columns to existing SQLite tables if not already present."""
+    tables_columns = {
+        "lessons": [
+            ("description", "TEXT"),
+            ("difficulty", "TEXT DEFAULT 'Beginner'"),
+            ("prerequisites", "TEXT"),
+            ("learning_objectives_json", "TEXT"),
+            ("structured_sections_json", "TEXT"),
+            ("quantum_config_json", "TEXT"),
+            ("assessment_json", "TEXT"),
+            ("ai_context_json", "TEXT"),
+            ("status", "TEXT DEFAULT 'published'"),
+            ("created_by", "TEXT"),
+            ("is_canonical", "INTEGER DEFAULT 0"),
+        ],
+        "assessments": [
+            ("module_id", "TEXT"),
+            ("description", "TEXT"),
+            ("duration_minutes", "INTEGER DEFAULT 30"),
+            ("passing_score", "REAL DEFAULT 70.0"),
+            ("questions_json", "TEXT"),
+            ("created_by", "TEXT"),
+            ("published", "INTEGER DEFAULT 1"),
+        ],
+    }
+
+    for table, columns in tables_columns.items():
+        try:
+            cursor.execute(f"PRAGMA table_info({table});")
+            existing = {row["name"] for row in cursor.fetchall()}
+            for col_name, col_type in columns:
+                if col_name not in existing:
+                    cursor.execute(f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type};")
+        except Exception:
+            pass
 
 
 def init_db(force: bool = False) -> None:
@@ -73,3 +111,4 @@ def init_db(force: bool = False) -> None:
             cleaned = stmt.strip()
             if cleaned:
                 cursor.execute(cleaned)
+        _migrate_sqlite_columns(cursor)

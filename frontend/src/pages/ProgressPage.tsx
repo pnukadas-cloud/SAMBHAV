@@ -14,7 +14,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { AppShell } from "../components/layout/AppShell";
 import { useAuth } from "../context/AuthContext";
-import { fetchProgress } from "../api/client";
+import { fetchProgress, getCompletedLessonsCache } from "../api/client";
 
 import { UNIFIED_CURRICULUM_MODULES } from "../data/lessonsData";
 
@@ -36,14 +36,17 @@ export function ProgressPage() {
       });
   }, []);
 
-  const totalLessons = UNIFIED_CURRICULUM_MODULES.reduce((sum, m) => sum + m.lessons.length, 0);
-  const xp = progress?.xp ?? user?.xp ?? 0;
-  const streak = progress?.streakDays ?? user?.streakDays ?? 0;
-  const level = progress?.level ?? user?.level ?? 1;
-  const completedLessons = progress?.completedLessons ?? 0;
+  const totalLessons = UNIFIED_CURRICULUM_MODULES.reduce((sum, m) => sum + m.lessons.length, 0); // 31
+  const cachedCompleted = getCompletedLessonsCache().size;
+  const completedLessons = Math.max(progress?.completedLessons ?? 0, cachedCompleted);
   const simulationsRun = progress?.simulationsRun ?? 0;
   const challengesSolved = progress?.challengesSolved ?? 0;
   const avgScore = progress?.averageScore ?? 0;
+
+  // Genuine XP calculation: 100 XP per lesson, 150 per challenge, 20 per simulation
+  const xp = progress?.xp ?? (completedLessons * 100 + challengesSolved * 150 + simulationsRun * 20);
+  const streak = progress?.streakDays ?? (completedLessons > 0 || simulationsRun > 0 || challengesSolved > 0 ? 1 : 0);
+  const level = progress?.level ?? Math.max(1, Math.floor(xp / 500) + 1);
 
   // Level Progression XP calculation (500 XP per level)
   const currentLevelBaseXP = (level - 1) * 500;
@@ -52,82 +55,83 @@ export function ProgressPage() {
 
   // Calculate total time invested from recorded progress sessions
   const records = progress?.records || [];
-  const totalSeconds = records.reduce((sum: number, r: any) => sum + (r.time_spent_seconds || 120), 0);
+  const totalSeconds = records.reduce((sum: number, r: any) => sum + (r.time_spent_seconds || 120), completedLessons * 180);
   const totalHours = (totalSeconds / 3600).toFixed(1);
 
   const badges = [
     {
       id: "b1",
       title: "First Circuit Run",
-      desc: "Executed your first statevector simulation",
+      desc: "Execute your first statevector simulation in Quantum Lab",
       icon: Zap,
-      unlocked: simulationsRun > 0,
-      date: "Active",
+      unlocked: simulationsRun >= 1,
+      condition: `${Math.min(1, simulationsRun)}/1 Simulated`,
     },
     {
       id: "b2",
-      title: "Superposition Master",
-      desc: "Successfully finished 2 quantum foundation lessons",
+      title: "Superposition Explorer",
+      desc: "Successfully complete at least 2 foundational curriculum lessons",
       icon: Sparkles,
       unlocked: completedLessons >= 2,
-      date: "Earned",
+      condition: `${Math.min(2, completedLessons)}/2 Lessons`,
     },
     {
       id: "b3",
       title: "Consistent Explorer",
-      desc: "Maintained an active 4-day learning streak",
+      desc: "Maintain an active 3-day learning streak",
       icon: Flame,
-      unlocked: streak >= 4,
-      date: "Active",
+      unlocked: streak >= 3,
+      condition: `${Math.min(3, streak)}/3 Days`,
     },
     {
       id: "b4",
       title: "Entanglement Pioneer",
-      desc: "Completed Bell State and multi-qubit curriculum",
+      desc: "Complete Bell State and multi-qubit curriculum (5+ lessons)",
       icon: BrainCircuit,
-      unlocked: completedLessons >= 4,
-      date: "Earned",
+      unlocked: completedLessons >= 5,
+      condition: `${Math.min(5, completedLessons)}/5 Lessons`,
     },
     {
       id: "b5",
       title: "Challenge Champion",
-      desc: "Solved at least 3 algorithmic challenges",
+      desc: "Solve at least 3 algorithmic quantum challenges",
       icon: Award,
       unlocked: challengesSolved >= 3,
-      date: "Earned",
+      condition: `${Math.min(3, challengesSolved)}/3 Solved`,
     },
     {
       id: "b6",
       title: "Quantum Master",
       desc: `Complete all ${totalLessons} canonical curriculum lessons`,
       icon: Trophy,
-      unlocked: completedLessons >= totalLessons,
+      unlocked: completedLessons >= totalLessons && totalLessons > 0,
+      condition: `${completedLessons}/${totalLessons} Completed`,
     },
   ];
 
   const skillBreakdown = [
     {
-      name: "Single-Qubit Gates (Pauli, H)",
+      name: "Mathematical Foundations (Module 0)",
       level: completedLessons >= 2 ? "Proficient" : completedLessons >= 1 ? "Learning" : "Not Started",
-      score: Math.min(100, completedLessons * 30),
+      score: Math.min(100, completedLessons >= 2 ? 100 : completedLessons >= 1 ? 50 : 0),
       color: "bg-teal",
     },
     {
-      name: "Entanglement & Multi-Qubit Operations",
-      level: completedLessons >= 4 ? "Proficient" : completedLessons >= 2 ? "Intermediate" : "Not Started",
-      score: Math.min(100, Math.max(0, (completedLessons - 1) * 25)),
+      name: "Single-Qubit Gates & Superposition (Module 1)",
+      level: completedLessons >= 5 ? "Proficient" : completedLessons >= 3 ? "Intermediate" : completedLessons >= 1 ? "Learning" : "Not Started",
+      score: Math.min(100, Math.max(0, completedLessons * 25)),
       color: "bg-blue",
     },
     {
-      name: "Quantum Phase & Kickback",
-      level: completedLessons >= 6 ? "Proficient" : completedLessons >= 3 ? "In Progress" : "Not Started",
+      name: "Entanglement & Quantum Circuits (Module 2)",
+      level: completedLessons >= 8 ? "Proficient" : completedLessons >= 5 ? "Intermediate" : "Not Started",
       score: Math.min(100, Math.max(0, (completedLessons - 2) * 20)),
       color: "bg-amber",
     },
     {
-      name: "Quantum Algorithms (Grover, DJ)",
-      level: challengesSolved >= 2 ? "Proficient" : challengesSolved >= 1 ? "Exploring" : "Not Started",
-      score: Math.min(100, challengesSolved * 35),
+      name: "Quantum Algorithms (Module 4)",
+      level: challengesSolved >= 2 || completedLessons >= 12 ? "Proficient" : challengesSolved >= 1 ? "Exploring" : "Not Started",
+      score: Math.min(100, Math.max(challengesSolved * 35, (completedLessons - 5) * 15)),
       color: "bg-purple",
     },
   ];
@@ -259,8 +263,11 @@ export function ProgressPage() {
                       <div className="badge-info">
                         <h5>{b.title}</h5>
                         <p>{b.desc}</p>
-                        {b.unlocked && <span className="unlock-date">Unlocked</span>}
-                        {!b.unlocked && <span className="locked-text">Locked</span>}
+                        {b.unlocked ? (
+                          <span className="unlock-date">✓ Unlocked</span>
+                        ) : (
+                          <span className="locked-text">🔒 {b.condition || "Locked"}</span>
+                        )}
                       </div>
                     </div>
                   );

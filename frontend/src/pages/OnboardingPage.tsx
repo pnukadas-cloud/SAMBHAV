@@ -44,7 +44,7 @@ export function OnboardingPage() {
       experienceLevel: level,
       interests: selectedInterests,
       enrolledCourseId: "quantum-foundations",
-      currentLessonId: "bell-state",
+      currentLessonId: "qubit-basics",
     });
     showToast("Personalized learning path generated!", "success", "Welcome Aboard");
     navigate(returnToDestination || "/dashboard");

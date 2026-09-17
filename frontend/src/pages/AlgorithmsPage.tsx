@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   Atom,
+  BookOpen,
   BrainCircuit,
   CheckCircle2,
   Code2,
@@ -21,7 +22,10 @@ import type { CircuitIR, SimulationResult } from "../types";
 export type AlgorithmItem = {
   id: string;
   name: string;
-  category: "Foundations" | "Entanglement" | "Protocols" | "Search & Estimation";
+  moduleTitle: string;
+  moduleId: string;
+  lessonId: string;
+  category: "Foundations" | "Entanglement" | "Protocols" | "Search & Estimation" | "Applications" | "Error Correction";
   description: string;
   complexity: "O(1)" | "O(√N)" | "O(log N)" | "O(poly(n))";
   qubits: number;
@@ -35,6 +39,9 @@ export const ALGORITHMS_DATA: AlgorithmItem[] = [
   {
     id: "bell-state",
     name: "Bell State Generation (|Φ⁺⟩)",
+    moduleTitle: "Module 2: Multi-Qubit Systems",
+    moduleId: "module-2",
+    lessonId: "bell-state",
     category: "Foundations",
     description: "Creates maximally entangled 2-qubit Einstein-Podolsky-Rosen (EPR) pairs with perfect correlation.",
     complexity: "O(1)",
@@ -60,6 +67,9 @@ export const ALGORITHMS_DATA: AlgorithmItem[] = [
   {
     id: "ghz-state",
     name: "GHZ 3-Qubit Entangled State",
+    moduleTitle: "Module 2: Multi-Qubit Systems",
+    moduleId: "module-2",
+    lessonId: "ghz-state",
     category: "Entanglement",
     description: "Generates the Greenberger-Horne-Zeilinger state demonstrating non-local multipartite quantum correlation.",
     complexity: "O(1)",
@@ -87,6 +97,9 @@ export const ALGORITHMS_DATA: AlgorithmItem[] = [
   {
     id: "deutsch-jozsa",
     name: "Deutsch-Jozsa Algorithm",
+    moduleTitle: "Module 4: Fundamental Algorithms",
+    moduleId: "module-4",
+    lessonId: "deutsch-jozsa",
     category: "Search & Estimation",
     description: "Determines if an oracle boolean function is constant or balanced in a single quantum query.",
     complexity: "O(1)",
@@ -116,6 +129,9 @@ export const ALGORITHMS_DATA: AlgorithmItem[] = [
   {
     id: "quantum-teleportation",
     name: "Quantum Teleportation Protocol",
+    moduleTitle: "Module 5: Quantum Information",
+    moduleId: "module-5",
+    lessonId: "teleportation",
     category: "Protocols",
     description: "Transfers an unknown quantum state |ψ⟩ from Alice to Bob using a shared Bell pair and 2 classical bits.",
     complexity: "O(1)",
@@ -144,6 +160,9 @@ export const ALGORITHMS_DATA: AlgorithmItem[] = [
   {
     id: "superdense-coding",
     name: "Superdense Coding Protocol",
+    moduleTitle: "Module 5: Quantum Information",
+    moduleId: "module-5",
+    lessonId: "superdense-coding",
     category: "Protocols",
     description: "Transmits two classical bits of information by sending only one physical quantum bit over a pre-shared Bell state.",
     complexity: "O(1)",
@@ -174,6 +193,9 @@ export const ALGORITHMS_DATA: AlgorithmItem[] = [
   {
     id: "grovers-search",
     name: "Grover's Search Algorithm (2-Qubit)",
+    moduleTitle: "Module 4: Fundamental Algorithms",
+    moduleId: "module-4",
+    lessonId: "grovers-search",
     category: "Search & Estimation",
     description: "Locates a marked item in an unsorted database of N elements in O(√N) queries via amplitude amplification.",
     complexity: "O(√N)",
@@ -209,6 +231,9 @@ export const ALGORITHMS_DATA: AlgorithmItem[] = [
   {
     id: "qpe",
     name: "Quantum Phase Estimation (QPE)",
+    moduleTitle: "Module 4: Fundamental Algorithms",
+    moduleId: "module-4",
+    lessonId: "qpe-shor",
     category: "Search & Estimation",
     description: "Estimates the unknown phase θ in the eigenvalue e^(2πiθ) of a unitary operator acting on an eigenstate.",
     complexity: "O(poly(n))",
@@ -233,6 +258,36 @@ export const ALGORITHMS_DATA: AlgorithmItem[] = [
       "Measure counting qubit: deterministic binary readout of θ = 0.5 (binary .1)",
     ],
     significance: "The core quantum subroutine behind Shor's factoring algorithm, quantum chemistry simulations, and HHL linear system solver.",
+  },
+  {
+    id: "shor-error-code",
+    name: "3-Qubit Bit-Flip Error Correction",
+    moduleTitle: "Module 6: Error Correction",
+    moduleId: "module-6",
+    lessonId: "shor-error-code",
+    category: "Error Correction",
+    description: "Protects a single quantum bit against arbitrary bit-flip noise using a 3-qubit repetition encoding.",
+    complexity: "O(1)",
+    qubits: 3,
+    circuit: {
+      qubits: 3,
+      classicalBits: 3,
+      operations: [
+        { gate: "x", targets: [0] },
+        { gate: "cx", controls: [0], targets: [1] },
+        { gate: "cx", controls: [0], targets: [2] },
+        { gate: "measure", targets: [0, 1, 2], classicalTargets: [0, 1, 2] },
+      ],
+    },
+    theory: "Encodes logical |0⟩_L = |000⟩ and |1⟩_L = |111⟩ to identify and correct single-qubit bit-flip faults without collapsing quantum superposition.",
+    steps: [
+      "Initialize data qubit |ψ⟩ = α|0⟩ + β|1⟩",
+      "Apply CX(0, 1) and CX(0, 2) to encode into α|000⟩ + β|111⟩",
+      "Simulate noisy environment / error occurrence",
+      "Measure syndrome parity to isolate flipped qubit without disturbing superposition",
+      "Apply corrective Pauli-X to restore ideal state",
+    ],
+    significance: "The foundational building block of fault-tolerant quantum computing and stabilizer codes.",
   },
 ];
 
@@ -306,7 +361,12 @@ export function AlgorithmsPage() {
           <div className="algo-detail-pane">
             <div className="algo-detail-header">
               <div className="detail-title-group">
-                <span className="detail-cat">{selectedAlgo.category}</span>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "4px" }}>
+                  <span className="detail-cat">{selectedAlgo.category}</span>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "#0d9488", background: "rgba(13, 148, 136, 0.1)", padding: "2px 8px", borderRadius: "999px" }}>
+                    {selectedAlgo.moduleTitle}
+                  </span>
+                </div>
                 <h3>{selectedAlgo.name}</h3>
                 <span className="detail-speedup">Computational Speedup: {selectedAlgo.complexity}</span>
               </div>
@@ -319,6 +379,13 @@ export function AlgorithmsPage() {
                 >
                   <Play size={16} /> {isSimulating ? "Simulating..." : "Simulate Algorithm"}
                 </button>
+                <Link
+                  to={`/learn/${selectedAlgo.moduleId}/${selectedAlgo.lessonId}`}
+                  className="algo-action-btn"
+                  style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "6px", background: "#f0fdf4", color: "#166534", border: "1.5px solid #bbf7d0" }}
+                >
+                  <BookOpen size={16} /> Study Theory
+                </Link>
                 <button
                   className="algo-action-btn secondary"
                   onClick={() => handleOpenInLab(selectedAlgo)}

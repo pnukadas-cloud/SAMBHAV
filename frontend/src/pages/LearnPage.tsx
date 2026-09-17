@@ -19,12 +19,11 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "../router/Router";
 import { AppShell } from "../components/layout/AppShell";
 import { UNIFIED_CURRICULUM_MODULES, CurriculumModule } from "../data/lessonsData";
-import { fetchProgress } from "../api/client";
+import { fetchProgress, getCompletedLessonsCache } from "../api/client";
 
 export function LearnPage() {
   const navigate = useNavigate();
-  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set(["qubit-basics", "superposition"]));
-  const [activeLessonId, setActiveLessonId] = useState<string>("bell-state");
+  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(() => getCompletedLessonsCache());
   const [progressData, setProgressData] = useState<any>(null);
 
   useEffect(() => {
@@ -40,16 +39,19 @@ export function LearnPage() {
               }
             });
           }
-          if (completedSet.size > 0) {
-            setCompletedLessonIds(completedSet);
-          }
+          // Also merge any localStorage completed items
+          getCompletedLessonsCache().forEach((id) => completedSet.add(id));
+          setCompletedLessonIds(completedSet);
         }
       })
       .catch(() => {});
   }, []);
 
   const totalModules = UNIFIED_CURRICULUM_MODULES.length; // 10
-  const totalLessons = UNIFIED_CURRICULUM_MODULES.reduce((sum, m) => sum + m.lessons.length, 0); // 33
+  const activeLessonId =
+    UNIFIED_CURRICULUM_MODULES.flatMap((m) => m.lessons).find((l) => !completedLessonIds.has(l.id))?.id ||
+    "complex-vectors";
+  const totalLessons = UNIFIED_CURRICULUM_MODULES.reduce((sum, m) => sum + m.lessons.length, 0); // 31
   const completedCount = completedLessonIds.size;
   const overallProgressPct = Math.min(100, Math.round((completedCount / totalLessons) * 100));
 

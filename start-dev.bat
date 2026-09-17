@@ -12,7 +12,7 @@ start "SAMBHAV Frontend (Vite)" cmd /k "cd /d ""%~dp0frontend"" && npm run dev"
 
 echo.
 echo Launching browser in 2 seconds...
-timeout /t 2 /nobreak >nul
+ping 127.0.0.1 -n 3 >nul
 start http://127.0.0.1:5173
 
 echo ===================================================

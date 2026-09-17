@@ -18,17 +18,38 @@ class LessonProgressPayload(BaseModel):
 
 
 @router.get("/me")
-def get_my_progress(current_user: dict = Depends(get_current_user)) -> dict[str, Any]:
-    return repository.get_user_progress(current_user["sub"])
+def get_my_progress(current_user: Optional[dict] = Depends(get_optional_current_user)) -> dict[str, Any]:
+    if current_user and current_user.get("sub"):
+        return repository.get_user_progress(current_user["sub"])
+    demo_user = repository.get_user_by_email("student@sambhav.edu")
+    if demo_user:
+        return repository.get_user_progress(demo_user["id"])
+    return {
+        "userId": "guest-student",
+        "xp": 0,
+        "level": 1,
+        "streakDays": 0,
+        "completedLessons": 0,
+        "simulationsRun": 0,
+        "challengesSolved": 0,
+        "averageScore": 0.0,
+        "records": [],
+    }
 
 
 @router.post("/record")
 def record_lesson_progress(
     payload: LessonProgressPayload,
-    current_user: dict = Depends(get_current_user),
+    current_user: Optional[dict] = Depends(get_optional_current_user),
 ) -> dict[str, str]:
+    if current_user and current_user.get("sub"):
+        user_id = current_user["sub"]
+    else:
+        demo_user = repository.get_user_by_email("student@sambhav.edu")
+        user_id = demo_user["id"] if demo_user else "guest-student"
+
     repository.record_progress(
-        user_id=current_user["sub"],
+        user_id=user_id,
         course_id=payload.course_id,
         lesson_id=payload.lesson_id,
         status=payload.status,

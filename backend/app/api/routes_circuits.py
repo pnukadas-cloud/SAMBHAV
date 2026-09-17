@@ -23,6 +23,11 @@ class SaveCircuitRequest(BaseModel):
     framework: str = "qiskit"
 
 
+class SubmitLabRequest(BaseModel):
+    circuit: CircuitIR
+    simulation_result: Optional[dict[str, Any]] = None
+
+
 @router.get("/backends")
 def list_backends() -> dict[str, list[str]]:
     return {
@@ -91,3 +96,24 @@ def delete_user_circuit(circuit_id: str, current_user: dict = Depends(get_curren
     if not deleted:
         raise HTTPException(status_code=404, detail="Circuit not found or unauthorized")
     return {"status": "deleted"}
+
+
+@router.get("/assigned-labs")
+def list_student_assigned_labs(current_user: dict = Depends(get_current_user)) -> list[dict[str, Any]]:
+    """List Quantum Lab experiment assignments assigned to the current student's cohorts."""
+    return repository.list_assigned_labs_for_student(current_user["sub"])
+
+
+@router.post("/assigned-labs/{lab_id}/submit")
+def submit_student_assigned_lab(
+    lab_id: str,
+    payload: SubmitLabRequest,
+    current_user: dict = Depends(get_current_user),
+) -> dict[str, Any]:
+    """Submit a student's solution to an assigned Quantum Lab experiment."""
+    return repository.submit_student_lab(
+        student_id=current_user["sub"],
+        lab_assignment_id=lab_id,
+        circuit=payload.circuit.model_dump(),
+        sim_result=payload.simulation_result,
+    )

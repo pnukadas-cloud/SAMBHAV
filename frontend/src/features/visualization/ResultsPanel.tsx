@@ -35,15 +35,25 @@ export function ResultsPanel({ result }: Props) {
       )}
 
       <div className="probability-list">
-        {probabilities.map(([basis, probability]) => (
-          <div className="probability-row" key={basis}>
-            <span className="basis-state">|{basis}⟩</span>
-            <div className="bar-track">
-              <span className="bar-fill" style={{ width: `${(probability / maxProbability) * 100}%` }} />
+        {probabilities.map(([basis, probability]) => {
+          const pct = Math.round((probability / maxProbability) * 100);
+          const displayPct = Math.round(probability * 100);
+          return (
+            <div className="probability-row" key={basis}>
+              <span className="basis-state">|{basis}⟩</span>
+              <div className="bar-track" title={`Probability for |${basis}⟩: ${(probability * 100).toFixed(1)}%`}>
+                <div
+                  className="bar-fill"
+                  style={{
+                    width: `${pct}%`,
+                    "--target-width": `${pct}%`,
+                  } as React.CSSProperties}
+                />
+              </div>
+              <span className="probability-value">{displayPct}%</span>
             </div>
-            <span>{Math.round(probability * 100)}%</span>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <h3>Statevector Amplitudes</h3>
       <div className="state-table">

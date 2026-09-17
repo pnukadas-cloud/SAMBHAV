@@ -18,7 +18,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "../router/Router";
 import { AppShell } from "../components/layout/AppShell";
 import { useAuth } from "../context/AuthContext";
-import { fetchProgress } from "../api/client";
+import { fetchProgress, getCompletedLessonsCache } from "../api/client";
 
 import { UNIFIED_CURRICULUM_MODULES } from "../data/lessonsData";
 
@@ -42,27 +42,41 @@ export function DashboardPage() {
       });
   }, []);
 
+  const allLessons = UNIFIED_CURRICULUM_MODULES.flatMap((m) =>
+    m.lessons.map((l) => ({ ...l, moduleId: m.id, moduleTitle: m.title }))
+  );
+  const totalLessons = allLessons.length; // 31
+
+  const completedSet = new Set<string>();
+  if (progress?.records && Array.isArray(progress.records)) {
+    progress.records.forEach((r: any) => {
+      if (r.status === "completed" && r.lesson_id) completedSet.add(r.lesson_id);
+    });
+  }
+  getCompletedLessonsCache().forEach((id) => completedSet.add(id));
+  const completedLessons = Math.max(progress?.completedLessons ?? 0, completedSet.size);
+
   const userName = user?.name || "Quantum Explorer";
-  const userXP = progress?.xp ?? user?.xp ?? 0;
-  const userStreak = progress?.streakDays ?? user?.streakDays ?? 0;
-  const userLevel = progress?.level ?? user?.level ?? 1;
-
-  const completedLessons = progress?.completedLessons ?? 0;
-  const totalLessons = UNIFIED_CURRICULUM_MODULES.reduce((sum, m) => sum + m.lessons.length, 0);
-  const lessonPct = Math.min(100, Math.round((completedLessons / totalLessons) * 100));
-
+  const simulationsRun = progress?.simulationsRun ?? 0;
   const challengesSolved = progress?.challengesSolved ?? 0;
+  const avgScore = progress?.averageScore ?? 0;
+
+  const userXP = progress?.xp ?? (completedLessons * 100 + challengesSolved * 150 + simulationsRun * 20);
+  const userStreak = progress?.streakDays ?? (completedLessons > 0 || simulationsRun > 0 || challengesSolved > 0 ? 1 : 0);
+  const userLevel = progress?.level ?? Math.max(1, Math.floor(userXP / 500) + 1);
+
+  const lessonPct = Math.min(100, Math.round((completedLessons / totalLessons) * 100));
   const totalChallenges = 8;
   const challengePct = Math.min(100, Math.round((challengesSolved / totalChallenges) * 100));
 
-  const simulationsRun = progress?.simulationsRun ?? 0;
-  const avgScore = progress?.averageScore ?? 0;
-
-  const rec = progress?.recommendations?.[0] || {
-    title: "Quantum Foundations: 1.1 The Qubit, Dirac Notation & Bloch Sphere",
-    to: "/learn/module-1/qubit-basics",
-    reason: "Start your quantum journey by mastering single-qubit superpositions and Bloch sphere states.",
-    action: "Start Lesson 1.1",
+  const nextUncompletedLesson = allLessons.find((l) => !completedSet.has(l.id)) || allLessons[0];
+  const rec = {
+    title: `${nextUncompletedLesson.moduleTitle}: ${nextUncompletedLesson.title}`,
+    to: `/learn/${nextUncompletedLesson.moduleId}/${nextUncompletedLesson.id}`,
+    reason: completedLessons === 0
+      ? "Start your quantum journey by mastering mathematical foundations, vectors, and complex amplitudes."
+      : "Continue progressing step-by-step through your canonical quantum curriculum.",
+    action: completedLessons === 0 ? "Start Lesson 0.1" : "Continue Learning",
   };
 
   const hasActivity = completedLessons > 0 || simulationsRun > 0 || challengesSolved > 0;
@@ -302,30 +316,30 @@ export function DashboardPage() {
                 <h4>Unlocked Badges</h4>
               </div>
               <div className="badges-grid">
-                <div className={`badge-item ${simulationsRun > 0 ? "" : "locked"}`} title="First Circuit Run">
-                  <div className={`badge-icon-circle ${simulationsRun > 0 ? "active" : ""}`}>
-                    <Zap size={20} className={simulationsRun > 0 ? "text-teal" : "text-muted"} />
+                <div className={`badge-item ${simulationsRun >= 1 ? "" : "locked"}`} title="First Circuit Run (Simulate in Quantum Lab)">
+                  <div className={`badge-icon-circle ${simulationsRun >= 1 ? "active" : ""}`}>
+                    <Zap size={20} className={simulationsRun >= 1 ? "text-teal" : "text-muted"} />
                   </div>
                   <span>First Circuit</span>
                 </div>
 
-                <div className={`badge-item ${completedLessons >= 2 ? "" : "locked"}`} title="Superposition Master">
+                <div className={`badge-item ${completedLessons >= 2 ? "" : "locked"}`} title="Superposition Explorer (Complete 2 Lessons)">
                   <div className={`badge-icon-circle ${completedLessons >= 2 ? "active" : ""}`}>
                     <Atom size={20} className={completedLessons >= 2 ? "text-amber" : "text-muted"} />
                   </div>
-                  <span>Hadamard Star</span>
+                  <span>Superposition</span>
                 </div>
 
-                <div className={`badge-item ${userStreak >= 4 ? "" : "locked"}`} title="4-Day Streak">
-                  <div className={`badge-icon-circle ${userStreak >= 4 ? "active" : ""}`}>
-                    <Flame size={20} className={userStreak >= 4 ? "text-orange" : "text-muted"} />
+                <div className={`badge-item ${userStreak >= 3 ? "" : "locked"}`} title="Consistent Learner (3-Day Streak)">
+                  <div className={`badge-icon-circle ${userStreak >= 3 ? "active" : ""}`}>
+                    <Flame size={20} className={userStreak >= 3 ? "text-orange" : "text-muted"} />
                   </div>
-                  <span>4d Streak</span>
+                  <span>3d Streak</span>
                 </div>
 
-                <div className={`badge-item ${completedLessons >= 4 ? "" : "locked"}`} title="Complete Entanglement Course">
-                  <div className={`badge-icon-circle ${completedLessons >= 4 ? "active" : ""}`}>
-                    <BrainCircuit size={20} className={completedLessons >= 4 ? "text-teal" : "text-muted"} />
+                <div className={`badge-item ${completedLessons >= 5 ? "" : "locked"}`} title="Entanglement Pioneer (Complete 5 Lessons)">
+                  <div className={`badge-icon-circle ${completedLessons >= 5 ? "active" : ""}`}>
+                    <BrainCircuit size={20} className={completedLessons >= 5 ? "text-teal" : "text-muted"} />
                   </div>
                   <span>Entangled</span>
                 </div>

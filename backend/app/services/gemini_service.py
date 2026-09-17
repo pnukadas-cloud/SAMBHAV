@@ -31,7 +31,6 @@ def _clean_plain_text(text: str) -> str:
     """Helper to clean unnecessary markdown syntax into clean readable text."""
     if not text:
         return ""
-    # Strip markdown headers like ### or ##
     cleaned = re.sub(r"^#{1,6}\s*", "", text, flags=re.MULTILINE)
     return cleaned.strip()
 
@@ -176,6 +175,55 @@ class GeminiService:
             f"{sim_desc}"
         )
         return prompt
+
+    def generate_raw(self, prompt: str, system_instruction: Optional[str] = None) -> str:
+        """
+        Invokes Gemini with a custom prompt and system instruction.
+        Returns the raw generated text response.
+        """
+        key = self.api_key
+        if not key or not key.strip():
+            return "Gemini API Key is not configured in backend/.env."
+
+        models_to_try = [self.model]
+        for fallback_m in ["gemini-flash-lite-latest", "gemini-3.5-flash", "gemini-flash-latest", "gemini-pro-latest"]:
+            if fallback_m not in models_to_try:
+                models_to_try.append(fallback_m)
+
+        sys_inst = system_instruction or SYSTEM_INSTRUCTION
+        last_error = ""
+
+        for current_model in models_to_try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{current_model}:generateContent?key={key}"
+            headers = {"Content-Type": "application/json"}
+            payload = {
+                "system_instruction": {"parts": [{"text": sys_inst}]},
+                "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                "generationConfig": {"temperature": 0.4, "topP": 0.95, "maxOutputTokens": 2048},
+            }
+
+            try:
+                req_data = json.dumps(payload).encode("utf-8")
+                req = urllib.request.Request(url, data=req_data, headers=headers, method="POST")
+                with urllib.request.urlopen(req, timeout=self.timeout) as response:
+                    if response.status == 200:
+                        res_body = response.read().decode("utf-8")
+                        data = json.loads(res_body)
+                        candidates = data.get("candidates", [])
+                        if candidates:
+                            parts = candidates[0].get("content", {}).get("parts", [])
+                            if parts and "text" in parts[0]:
+                                return parts[0]["text"].strip()
+            except urllib.error.HTTPError as e:
+                last_error = f"HTTP {e.code}"
+                if e.code in (401, 403):
+                    return f"Gemini API authentication error ({last_error}). Please check your GEMINI_API_KEY."
+                continue
+            except Exception as e:
+                last_error = str(e)
+                continue
+
+        return f"Could not generate AI draft ({last_error or 'timeout'}). Please try again."
 
     def generate_explanation(
         self,

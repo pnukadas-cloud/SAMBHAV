@@ -22,9 +22,9 @@ import { AppShell } from "../components/layout/AppShell";
 import { CircuitBuilder } from "../features/circuit-builder/CircuitBuilder";
 import { ResultsPanel } from "../features/visualization/ResultsPanel";
 import { TutorPanel } from "../features/ai-tutor/TutorPanel";
-import { explainCircuitWithAI, runSimulation } from "../api/client";
+import { explainCircuitWithAI, getCompletedLessonsCache, recordLessonProgress, runSimulation } from "../api/client";
 import { useToast } from "../context/ToastContext";
-import { LESSONS_DATABASE, type LessonData } from "../data/lessonsData";
+import { LESSONS_DATABASE, UNIFIED_CURRICULUM_MODULES, type LessonData } from "../data/lessonsData";
 import type { AITutorResponse, CircuitIR, SimulationResult } from "../types";
 
 export function LessonPage() {
@@ -32,8 +32,16 @@ export function LessonPage() {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  const lessonKey = lessonId || "bell-state";
-  const lessonData: LessonData = LESSONS_DATABASE[lessonKey] || LESSONS_DATABASE["bell-state"];
+  const lessonKey = lessonId || "complex-vectors";
+  const lessonData: LessonData = LESSONS_DATABASE[lessonKey] || LESSONS_DATABASE["complex-vectors"] || LESSONS_DATABASE["qubit-basics"];
+
+  // Compute canonical linear curriculum index
+  const allLessons = UNIFIED_CURRICULUM_MODULES.flatMap((m) =>
+    m.lessons.map((l) => ({ ...l, moduleId: m.id, moduleTitle: m.title }))
+  );
+  const currentIndex = allLessons.findIndex((l) => l.id === lessonData.id);
+  const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
+  const nextLesson = currentIndex >= 0 && currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
 
   const [circuit, setCircuit] = useState<CircuitIR>(lessonData.initialCircuit);
   const [result, setResult] = useState<SimulationResult | null>(null);
@@ -44,18 +52,18 @@ export function LessonPage() {
   // Quiz state
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
-  const [isLessonCompleted, setIsLessonCompleted] = useState(false);
+  const [isLessonCompleted, setIsLessonCompleted] = useState(() => getCompletedLessonsCache().has(lessonData.id));
   const [activeTab, setActiveTab] = useState<"theory" | "math" | "sandbox" | "quiz">("sandbox");
 
-  // Sync initial circuit whenever lesson changes
+  // Sync initial circuit and state whenever lesson changes
   useEffect(() => {
     setCircuit(lessonData.initialCircuit);
     setResult(null);
     setTutorResponse(null);
     setSelectedAnswer(null);
     setQuizSubmitted(false);
-    setIsLessonCompleted(false);
-  }, [lessonId]);
+    setIsLessonCompleted(getCompletedLessonsCache().has(lessonData.id));
+  }, [lessonId, lessonData.id]);
 
   async function handleSimulate() {
     setIsSimulating(true);
@@ -95,9 +103,14 @@ export function LessonPage() {
     }
   }
 
-  function handleCompleteLesson() {
+  async function handleCompleteLesson() {
     setIsLessonCompleted(true);
-    showToast(`Lesson Completed! +100 XP Earned!`, "success", "Achievement");
+    try {
+      await recordLessonProgress(courseId || lessonData.moduleId || "quantum-foundations", lessonData.id, 100.0, 180);
+      showToast(`Lesson Completed! +100 XP Earned!`, "success", "Achievement Unlocked");
+    } catch {
+      showToast(`Lesson Completed! +100 XP Earned!`, "success", "Achievement");
+    }
   }
 
   const isQuizCorrect = selectedAnswer === lessonData.quiz.correctIndex;
@@ -274,6 +287,49 @@ export function LessonPage() {
                   </div>
                 </div>
               </section>
+
+              {/* Linear Lesson Navigation Footer */}
+              <div className="lesson-footer-nav" style={{ display: "flex", justifyContent: "space-between", gap: "12px", marginTop: "24px", paddingTop: "18px", borderTop: "1px solid #d6e0d9" }}>
+                {prevLesson ? (
+                  <Link
+                    to={`/learn/${prevLesson.moduleId}/${prevLesson.id}`}
+                    className="lesson-nav-btn prev-btn"
+                    style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", color: "#14342f", fontWeight: 600, fontSize: "0.88rem", padding: "10px 14px", background: "#ffffff", border: "1px solid #d6e0d9", borderRadius: "8px" }}
+                  >
+                    <ArrowLeft size={16} className="text-teal" />
+                    <div style={{ textAlign: "left" }}>
+                      <div style={{ fontSize: "0.72rem", color: "#64748b", textTransform: "uppercase" }}>Previous Lesson</div>
+                      <div>{prevLesson.title}</div>
+                    </div>
+                  </Link>
+                ) : <div />}
+
+                {nextLesson ? (
+                  <Link
+                    to={`/learn/${nextLesson.moduleId}/${nextLesson.id}`}
+                    className="lesson-nav-btn next-btn"
+                    style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", color: "#ffffff", fontWeight: 600, fontSize: "0.88rem", padding: "10px 16px", background: "linear-gradient(135deg, #0d9488 0%, #0f766e 100%)", borderRadius: "8px", marginLeft: "auto" }}
+                  >
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.8)", textTransform: "uppercase" }}>Next Lesson</div>
+                      <div>{nextLesson.title}</div>
+                    </div>
+                    <ArrowRight size={16} />
+                  </Link>
+                ) : (
+                  <Link
+                    to="/progress"
+                    className="lesson-nav-btn next-btn"
+                    style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", color: "#ffffff", fontWeight: 600, fontSize: "0.88rem", padding: "10px 16px", background: "linear-gradient(135deg, #d97706 0%, #b45309 100%)", borderRadius: "8px", marginLeft: "auto" }}
+                  >
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.8)", textTransform: "uppercase" }}>Curriculum Mastered!</div>
+                      <div>View Progress & Badges</div>
+                    </div>
+                    <Trophy size={16} />
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
 

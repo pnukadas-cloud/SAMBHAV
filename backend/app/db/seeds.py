@@ -1,3 +1,4 @@
+import json
 import uuid
 from app.auth.security import hash_password
 from app.db.connection import get_db_connection, init_db
@@ -195,8 +196,8 @@ def seed_database() -> None:
                     for l_id, l_title, l_min, l_ord in mod["lessons"]:
                         cursor.execute(
                             """
-                            INSERT OR REPLACE INTO lessons (id, module_id, title, content_markdown, estimated_minutes, order_index)
-                            VALUES (?, ?, ?, ?, ?, ?)
+                            INSERT OR REPLACE INTO lessons (id, module_id, title, content_markdown, estimated_minutes, order_index, is_canonical, status)
+                            VALUES (?, ?, ?, ?, ?, ?, 1, 'published')
                             """,
                             (
                                 l_id,
@@ -208,39 +209,106 @@ def seed_database() -> None:
                             ),
                         )
 
-            # 4. Seed student initial progress (for demo student)
-            cursor.execute("SELECT COUNT(*) as prog_count FROM progress WHERE user_id = ?", (student_id,))
-            if cursor.fetchone()["prog_count"] == 0:
-                seed_progress = [
-                    (student_id, "quantum-foundations", "complex-vectors", "completed", 100.0, 720),
-                    (student_id, "quantum-foundations", "qubit-basics", "completed", 100.0, 900),
-                    (student_id, "quantum-foundations", "superposition", "completed", 100.0, 950),
-                    (student_id, "quantum-foundations", "bell-state", "in_progress", 80.0, 450),
-                ]
-                for u_id, c_id, l_id, stat, sc, ts in seed_progress:
-                    cursor.execute(
-                        """
-                        INSERT INTO progress (id, user_id, course_id, lesson_id, status, score, time_spent_seconds)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)
-                        """,
-                        (str(uuid.uuid4()), u_id, c_id, l_id, stat, sc, ts),
-                    )
+        # 4. Ensure canonical lessons are properly marked
+        cursor.execute("UPDATE lessons SET is_canonical = 1, status = 'published' WHERE is_canonical IS NULL OR is_canonical = 0")
 
-            # 5. Seed student saved circuit (for demo student)
-            cursor.execute("SELECT COUNT(*) as circ_count FROM circuits WHERE owner_id = ?", (student_id,))
-            if cursor.fetchone()["circ_count"] == 0:
-                bell_ir_json = '{"qubits":2,"classicalBits":2,"operations":[{"gate":"h","targets":[0]},{"gate":"cx","controls":[0],"targets":[1]},{"gate":"measure","targets":[0,1],"classicalTargets":[0,1]}]}'
+        # 5. Seed student initial progress (for demo student)
+        cursor.execute("SELECT COUNT(*) as prog_count FROM progress WHERE user_id = ?", (student_id,))
+        if cursor.fetchone()["prog_count"] == 0:
+            seed_progress = [
+                (student_id, "quantum-foundations", "complex-vectors", "completed", 100.0, 720),
+                (student_id, "quantum-foundations", "qubit-basics", "completed", 100.0, 900),
+                (student_id, "quantum-foundations", "superposition", "completed", 100.0, 950),
+                (student_id, "quantum-foundations", "bell-state", "in_progress", 80.0, 450),
+            ]
+            for u_id, c_id, l_id, stat, sc, ts in seed_progress:
                 cursor.execute(
                     """
-                    INSERT INTO circuits (id, owner_id, title, description, circuit_ir_json, framework)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    INSERT INTO progress (id, user_id, course_id, lesson_id, status, score, time_spent_seconds)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                     """,
-                    (
-                        str(uuid.uuid4()),
-                        student_id,
-                        "Maximally Entangled Bell State (|Φ⁺⟩)",
-                        "Standard 2-qubit Einstein-Podolsky-Rosen (EPR) pair.",
-                        bell_ir_json,
-                        "qiskit",
-                    ),
+                    (str(uuid.uuid4()), u_id, c_id, l_id, stat, sc, ts),
                 )
+
+        # 6. Seed student saved circuit (for demo student)
+        cursor.execute("SELECT COUNT(*) as circ_count FROM circuits WHERE owner_id = ?", (student_id,))
+        if cursor.fetchone()["circ_count"] == 0:
+            bell_ir_json = '{"qubits":2,"classicalBits":2,"operations":[{"gate":"h","targets":[0]},{"gate":"cx","controls":[0],"targets":[1]},{"gate":"measure","targets":[0,1],"classicalTargets":[0,1]}]}'
+            cursor.execute(
+                """
+                INSERT INTO circuits (id, owner_id, title, description, circuit_ir_json, framework)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(uuid.uuid4()),
+                    student_id,
+                    "Maximally Entangled Bell State (|Φ⁺⟩)",
+                    "Standard 2-qubit Einstein-Podolsky-Rosen (EPR) pair.",
+                    bell_ir_json,
+                    "qiskit",
+                ),
+            )
+
+        # 7. Seed initial class for demo instructor if none exists
+        cursor.execute("SELECT COUNT(*) as class_count FROM classes WHERE instructor_id = ?", (instructor_id,))
+        if cursor.fetchone()["class_count"] == 0:
+            sample_class_id = "class-qc-2026"
+            cursor.execute(
+                """
+                INSERT OR IGNORE INTO classes (id, instructor_id, name, description, enrollment_code)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    sample_class_id,
+                    instructor_id,
+                    "Quantum Computing & Algorithms - Batch 2026",
+                    "Undergraduate cohort mastering quantum foundations, circuits, and algorithms.",
+                    "QC2026",
+                ),
+            )
+            # Enroll demo student
+            cursor.execute(
+                """
+                INSERT OR IGNORE INTO class_enrollments (id, class_id, student_id)
+                VALUES (?, ?, ?)
+                """,
+                (str(uuid.uuid4()), sample_class_id, student_id),
+            )
+
+            # Assign a lesson
+            cursor.execute(
+                """
+                INSERT OR IGNORE INTO class_assignments (id, class_id, title, type, target_id)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (str(uuid.uuid4()), sample_class_id, "Module 2: Building a Bell State (|Φ⁺⟩)", "lesson", "bell-state"),
+            )
+
+        # 8. Seed sample Quantum Lab assignment if none exists
+        cursor.execute("SELECT COUNT(*) as lab_count FROM lab_assignments WHERE instructor_id = ?", (instructor_id,))
+        if cursor.fetchone()["lab_count"] == 0:
+            starter_bell_ir = json.dumps({"qubits": 2, "classicalBits": 2, "operations": [{"gate": "h", "targets": [0]}]})
+            req_gates = json.dumps(["h", "cx", "measure"])
+            hints = json.dumps(["Apply Hadamard (H) on Qubit 0 first to create superposition.", "Apply CNOT with Qubit 0 as control and Qubit 1 as target.", "Measure both qubits to confirm equal probabilities for |00⟩ and |11⟩."])
+            cursor.execute(
+                """
+                INSERT OR IGNORE INTO lab_assignments (id, instructor_id, class_id, title, description, learning_objective, qubits, starter_circuit_json, required_gates_json, expected_result, hints_json, difficulty, marks, instructions)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    "lab-bell-state",
+                    instructor_id,
+                    "class-qc-2026",
+                    "Quantum Lab 1: Entangled Bell State Synthesis",
+                    "Synthesize a 2-qubit maximally entangled Bell state (|Φ⁺⟩) and verify non-local correlations.",
+                    "Understand how single-qubit superposition combined with entangling two-qubit CNOT operations generates maximal quantum entanglement.",
+                    2,
+                    starter_bell_ir,
+                    req_gates,
+                    "50% |00⟩ and 50% |11⟩ measurement outcomes with 0% |01⟩ or |10⟩.",
+                    hints,
+                    "Beginner",
+                    100,
+                    "1. Open Quantum Lab.\n2. Complete the circuit by adding CX (control: 0, target: 1) and measurement gates.\n3. Run 1024 simulation shots.\n4. Submit your circuit and verify matching probability amplitudes.",
+                ),
+            )

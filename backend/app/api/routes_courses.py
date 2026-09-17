@@ -35,8 +35,8 @@ def list_courses() -> list[dict[str, Any]]:
         return [
             {
                 "id": "quantum-foundations",
-                "title": "Quantum Foundations",
-                "description": "From Classical Bits to Quantum Superposition and the Bloch Sphere",
+                "title": "SAMBHAV Quantum Learning Journey",
+                "description": "Unified 10-module interactive curriculum from mathematical foundations to algorithms, hardware, and simulation",
                 "difficulty": "Beginner",
                 "modules": [],
             }

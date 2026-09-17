@@ -13,17 +13,18 @@ import {
   XCircle,
   Zap,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AppShell } from "../components/layout/AppShell";
 import { CircuitBuilder } from "../features/circuit-builder/CircuitBuilder";
 import { ResultsPanel } from "../features/visualization/ResultsPanel";
-import { evaluateChallenge, runSimulation } from "../api/client";
+import { addSolvedChallengeToCache, evaluateChallenge, fetchProgress, getSolvedChallengesCache, runSimulation } from "../api/client";
 import { useToast } from "../context/ToastContext";
 import type { CircuitIR, SimulationResult } from "../types";
 
 export type Challenge = {
   id: string;
   title: string;
+  module: string;
   category: "Beginner" | "Intermediate" | "Advanced";
   xp: number;
   description: string;
@@ -32,15 +33,15 @@ export type Challenge = {
   targetExpected: string;
   hint: string;
   verify: (res: SimulationResult) => boolean;
-  completed?: boolean;
 };
 
 export const CHALLENGES_LIST: Challenge[] = [
   {
     id: "create-superposition",
     title: "1. Create an Equal Superposition (|+⟩)",
+    module: "Module 1",
     category: "Beginner",
-    xp: 50,
+    xp: 100,
     description: "Prepare a single qubit in the equal superposition state |+⟩ = (|0⟩ + |1⟩)/√2.",
     task: "Place a Hadamard (H) gate on qubit 0. Measurement should yield ~50% |0⟩ and ~50% |1⟩.",
     initialCircuit: {
@@ -53,15 +54,15 @@ export const CHALLENGES_LIST: Challenge[] = [
     verify: (res) => {
       const p0 = res.probabilities["0"] || 0;
       const p1 = res.probabilities["1"] || 0;
-      return Math.abs(p0 - 0.5) < 0.05 && Math.abs(p1 - 0.5) < 0.05;
+      return Math.abs(p0 - 0.5) <= 0.10 && Math.abs(p1 - 0.5) <= 0.10;
     },
-    completed: true,
   },
   {
     id: "build-bell-state",
     title: "2. Construct the Standard Bell State (|Φ⁺⟩)",
+    module: "Module 2",
     category: "Beginner",
-    xp: 100,
+    xp: 150,
     description: "Generate a 2-qubit maximally entangled Bell state with 50% |00⟩ and 50% |11⟩ correlation.",
     task: "Apply an H gate on qubit 0, followed by a CX gate with control on q0 and target on q1.",
     initialCircuit: {
@@ -74,15 +75,15 @@ export const CHALLENGES_LIST: Challenge[] = [
     verify: (res) => {
       const p00 = res.probabilities["00"] || 0;
       const p11 = res.probabilities["11"] || 0;
-      return Math.abs(p00 - 0.5) < 0.05 && Math.abs(p11 - 0.5) < 0.05;
+      return Math.abs(p00 - 0.5) <= 0.10 && Math.abs(p11 - 0.5) <= 0.10;
     },
-    completed: true,
   },
   {
     id: "construct-ghz-state",
     title: "3. Build a 3-Qubit GHZ State",
+    module: "Module 2",
     category: "Intermediate",
-    xp: 150,
+    xp: 200,
     description: "Entangle three qubits such that measurement yields 50% |000⟩ and 50% |111⟩.",
     task: "Apply H on q0, CX(q0, q1), and CX(q1, q2).",
     initialCircuit: {
@@ -95,16 +96,17 @@ export const CHALLENGES_LIST: Challenge[] = [
     verify: (res) => {
       const p000 = res.probabilities["000"] || 0;
       const p111 = res.probabilities["111"] || 0;
-      return Math.abs(p000 - 0.5) < 0.05 && Math.abs(p111 - 0.5) < 0.05;
+      return Math.abs(p000 - 0.5) <= 0.10 && Math.abs(p111 - 0.5) <= 0.10;
     },
   },
   {
     id: "quantum-bit-flip-swap",
     title: "4. State Transfer via SWAP",
+    module: "Module 2",
     category: "Intermediate",
-    xp: 120,
-    description: "Initialize qubit 0 to |1⟩ and swap it so qubit 1 ends in |1⟩ and qubit 0 in |0⟩.",
-    task: "Apply an X gate on q0, followed by a SWAP(0, 1) gate. Outcome must be 100% |01⟩.",
+    xp: 150,
+    description: "Initialize qubit 0 to |1⟩ using X, then exchange states so qubit 1 becomes |1⟩ and qubit 0 becomes |0⟩ (|01⟩ = 100%).",
+    task: "Apply an X gate on q0, followed by a SWAP(0, 1) gate or 3 alternating CX gates.",
     initialCircuit: {
       qubits: 2,
       classicalBits: 2,
@@ -114,15 +116,16 @@ export const CHALLENGES_LIST: Challenge[] = [
     hint: "Use X on q0 to flip it to |1⟩, then use the SWAP gate between q0 and q1.",
     verify: (res) => {
       const p01 = res.probabilities["01"] || 0;
-      return Math.abs(p01 - 1.0) < 0.05;
+      return p01 > 0.85;
     },
   },
   {
     id: "phase-kickback-interference",
     title: "5. Observable CZ Phase Kickback",
+    module: "Module 3",
     category: "Advanced",
     xp: 200,
-    description: "Demonstrate that CZ creates an observable phase flip when preceded and followed by Hadamard gates.",
+    description: "Demonstrate that CZ creates an observable phase flip when target qubit is surrounded by Hadamard gates.",
     task: "Apply X on q0, H on q1, CZ(0, 1), and H on q1. Output must be 100% |11⟩.",
     initialCircuit: {
       qubits: 2,
@@ -130,13 +133,74 @@ export const CHALLENGES_LIST: Challenge[] = [
       operations: [],
     },
     targetExpected: "100% |11⟩",
-    hint: "X(0) sets the control to 1 so CZ triggers a phase flip on q1; the second H on q1 converts the phase into |1⟩.",
+    hint: "X(0) sets control=1; CZ triggers a phase flip on q1; the second H on q1 converts the phase into |1⟩.",
     verify: (res) => {
       const p11 = res.probabilities["11"] || 0;
-      return Math.abs(p11 - 1.0) < 0.05;
+      return p11 > 0.85;
+    },
+  },
+  {
+    id: "deutsch-oracle-query",
+    title: "6. Deutsch's Algorithm Balanced Oracle",
+    module: "Module 4",
+    category: "Advanced",
+    xp: 250,
+    description: "Evaluate a balanced oracle in a single query using quantum parallelism and phase kickback.",
+    task: "Apply X(1), H(0), H(1), CX(0, 1), H(0). Measure q0 -> must yield 100% |1⟩.",
+    initialCircuit: {
+      qubits: 2,
+      classicalBits: 2,
+      operations: [],
+    },
+    targetExpected: "Measurement on q0 yields |1⟩ with 100% certainty",
+    hint: "Ancilla in |−⟩ induces phase kickback (-1)^x when CX is evaluated; final H on q0 interferes constructively to |1⟩.",
+    verify: (res) => {
+      const p1 = (res.probabilities["10"] || 0) + (res.probabilities["11"] || 0) + (res.probabilities["1"] || 0);
+      return p1 > 0.80;
+    },
+  },
+  {
+    id: "teleportation-protocol",
+    title: "7. Quantum Teleportation Protocol",
+    module: "Module 5",
+    category: "Advanced",
+    xp: 300,
+    description: "Synthesize the 3-qubit quantum teleportation circuit transferring state |1⟩ on q0 to Bob's qubit q2.",
+    task: "Apply X on q0, prepare Bell state H(q1)+CX(q1,q2), apply Alice's CX(q0,q1)+H(q0).",
+    initialCircuit: {
+      qubits: 3,
+      classicalBits: 2,
+      operations: [],
+    },
+    targetExpected: "Bell measurement state prepared across 3 qubits",
+    hint: "Prepare unknown state on q0, pre-shared Bell pair on q1,q2, and Bell basis measurement on q0,q1.",
+    verify: (res) => {
+      return Object.keys(res.probabilities).length >= 2;
+    },
+  },
+  {
+    id: "bit-flip-correction",
+    title: "8. 3-Qubit Bit-Flip Repetition Code",
+    module: "Module 6",
+    category: "Advanced",
+    xp: 250,
+    description: "Encode a logical qubit |1⟩ into 3 physical qubits using CX encoding gates: (|1⟩ -> |111⟩).",
+    task: "Apply X on q0, then CX(0, 1) and CX(0, 2). Output must be 100% |111⟩.",
+    initialCircuit: {
+      qubits: 3,
+      classicalBits: 3,
+      operations: [],
+    },
+    targetExpected: "100% |111⟩",
+    hint: "X flips q0 to |1⟩; the two CX gates duplicate the computational state across q1 and q2.",
+    verify: (res) => {
+      const p111 = res.probabilities["111"] || 0;
+      return p111 > 0.85;
     },
   },
 ];
+
+
 
 export function ChallengesPage() {
   const { showToast } = useToast();
@@ -146,6 +210,27 @@ export function ChallengesPage() {
   const [evaluationStatus, setEvaluationStatus] = useState<"untested" | "passed" | "failed">("untested");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [solvedIds, setSolvedIds] = useState<Set<string>>(() => getSolvedChallengesCache());
+
+  // Sync backend solved challenges on mount
+  useEffect(() => {
+    fetchProgress()
+      .then((data) => {
+        if (data) {
+          const solvedSet = getSolvedChallengesCache();
+          // Check if any submission or records exists
+          if (data.records && Array.isArray(data.records)) {
+            data.records.forEach((r: any) => {
+              if (r.assessment_id && (r.score >= 80 || r.status === "completed")) {
+                solvedSet.add(r.assessment_id);
+              }
+            });
+          }
+          setSolvedIds(new Set(solvedSet));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   function handleSelectChallenge(c: Challenge) {
     setSelectedChallenge(c);
@@ -172,6 +257,8 @@ export function ChallengesPage() {
         if (evalRes.passed) {
           setEvaluationStatus("passed");
           setFeedback(evalRes.feedback || `🎉 Excellent work! Your circuit meets all target requirements. +${evalRes.xp_earned} XP awarded.`);
+          addSolvedChallengeToCache(selectedChallenge.id);
+          setSolvedIds((prev) => new Set(prev).add(selectedChallenge.id));
           showToast(`Challenge Passed! +${evalRes.xp_earned} XP`, "success", "Challenge Complete");
         } else {
           setEvaluationStatus("failed");
@@ -184,6 +271,8 @@ export function ChallengesPage() {
         if (isPassed) {
           setEvaluationStatus("passed");
           setFeedback(`🎉 Excellent work! Your circuit meets the target state requirements. +${selectedChallenge.xp} XP awarded.`);
+          addSolvedChallengeToCache(selectedChallenge.id);
+          setSolvedIds((prev) => new Set(prev).add(selectedChallenge.id));
           showToast(`Challenge Passed! +${selectedChallenge.xp} XP`, "success", "Challenge Complete");
         } else {
           setEvaluationStatus("failed");
@@ -197,6 +286,8 @@ export function ChallengesPage() {
       setIsEvaluating(false);
     }
   }
+
+  const totalAvailableXP = CHALLENGES_LIST.reduce((sum, c) => sum + c.xp, 0);
 
   return (
     <AppShell activeTitle="Challenges & Assessments" activeCategory="Practice">
@@ -213,7 +304,11 @@ export function ChallengesPage() {
           <div className="challenges-header-stats">
             <div className="xp-pill">
               <Trophy size={16} className="text-amber" />
-              <strong>620 Total XP Available</strong>
+              <strong>{totalAvailableXP} Total XP Available</strong>
+            </div>
+            <div className="xp-pill" style={{ background: "rgba(13, 148, 136, 0.15)", borderColor: "#0d9488" }}>
+              <CheckCircle2 size={16} className="text-teal" />
+              <strong style={{ color: "#0f766e" }}>{solvedIds.size}/{CHALLENGES_LIST.length} Solved</strong>
             </div>
           </div>
         </div>
@@ -222,32 +317,38 @@ export function ChallengesPage() {
         <div className="challenges-split-layout">
           {/* Challenge Selector Column */}
           <div className="challenges-list-col">
-            {CHALLENGES_LIST.map((item) => (
-              <div
-                key={item.id}
-                className={`challenge-card ${selectedChallenge.id === item.id ? "selected" : ""}`}
-                onClick={() => handleSelectChallenge(item)}
-              >
-                <div className="challenge-card-header">
-                  <span className={`diff-pill ${item.category.toLowerCase()}`}>{item.category}</span>
-                  <span className="xp-badge">+{item.xp} XP</span>
+            {CHALLENGES_LIST.map((item) => {
+              const isSolved = solvedIds.has(item.id);
+              return (
+                <div
+                  key={item.id}
+                  className={`challenge-card ${selectedChallenge.id === item.id ? "selected" : ""}`}
+                  onClick={() => handleSelectChallenge(item)}
+                >
+                  <div className="challenge-card-header">
+                    <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                      <span className={`diff-pill ${item.category.toLowerCase()}`}>{item.category}</span>
+                      <span style={{ fontSize: "11px", fontWeight: 700, color: "#0d9488" }}>{item.module}</span>
+                    </div>
+                    <span className="xp-badge">+{item.xp} XP</span>
+                  </div>
+                  <h4>{item.title}</h4>
+                  <p>{item.description}</p>
+                  <div className="challenge-card-footer">
+                    <span className="challenge-status">
+                      {isSolved ? (
+                        <span className="completed-text" style={{ color: "#0d9488", display: "flex", alignItems: "center", gap: 4, fontWeight: 700 }}>
+                          <CheckCircle2 size={14} className="text-teal" /> Solved
+                        </span>
+                      ) : (
+                        <span style={{ color: "#94a3b8" }}>Unsolved</span>
+                      )}
+                    </span>
+                    <span className="select-arrow">Solve →</span>
+                  </div>
                 </div>
-                <h4>{item.title}</h4>
-                <p>{item.description}</p>
-                <div className="challenge-card-footer">
-                  <span className="challenge-status">
-                    {item.completed ? (
-                      <span className="completed-text">
-                        <CheckCircle2 size={14} className="text-teal" /> Solved
-                      </span>
-                    ) : (
-                      "Unsolved"
-                    )}
-                  </span>
-                  <span className="select-arrow">Solve →</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Interactive Challenge Solver Pane */}
