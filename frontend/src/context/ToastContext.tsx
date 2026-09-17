@@ -31,15 +31,22 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   };
 
   const showToast = (message: string, type: ToastType = "info", title?: string, duration = 4000) => {
-    const id = `toast-${Date.now()}-${Math.random()}`;
-    const newToast: Toast = { id, message, type, title, duration };
-    setToasts((prev) => [...prev, newToast]);
+    if (!message) return;
+    setToasts((prev) => {
+      // Prevent showing identical toast messages simultaneously
+      if (prev.some((t) => t.message === message && t.type === type)) {
+        return prev;
+      }
+      const id = `toast-${Date.now()}-${Math.random()}`;
+      const newToast: Toast = { id, message, type, title, duration };
 
-    if (duration > 0) {
-      setTimeout(() => {
-        removeToast(id);
-      }, duration);
-    }
+      if (duration > 0) {
+        setTimeout(() => {
+          removeToast(id);
+        }, duration);
+      }
+      return [...prev, newToast];
+    });
   };
 
   return (

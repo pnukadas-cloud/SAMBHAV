@@ -1,17 +1,21 @@
 import {
   Atom,
   Award,
+  BarChart3,
   BookOpen,
   Bot,
   BrainCircuit,
   ChevronRight,
+  FilePlus,
   Flame,
   GraduationCap,
+  Layers,
   LayoutDashboard,
   LogOut,
   Menu,
   Search,
   Settings,
+  Sparkles,
   Trophy,
   Users,
   X,
@@ -43,7 +47,7 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const isInstructor = user?.role === "instructor";
+  const isInstructor = user?.role === "instructor" || location.pathname.startsWith("/instructor");
 
   const navItemsStudent: NavItem[] = [
     { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
@@ -57,10 +61,15 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
   ];
 
   const navItemsInstructor: NavItem[] = [
-    { label: "Classroom Dashboard", to: "/instructor", icon: LayoutDashboard },
-    { label: "Student Roster", to: "/instructor/students", icon: Users },
-    { label: "Curriculum Manager", to: "/instructor/courses", icon: BookOpen },
-    { label: "Quantum Lab", to: "/lab", icon: BrainCircuit },
+    { label: "Dashboard", to: "/instructor", icon: LayoutDashboard },
+    { label: "Curriculum", to: "/instructor/curriculum", icon: Layers },
+    { label: "Lesson Builder", to: "/instructor/authoring", icon: FilePlus },
+    { label: "Classes & Cohorts", to: "/instructor/classes", icon: GraduationCap },
+    { label: "Learners", to: "/instructor/learners", icon: Users },
+    { label: "Assessments", to: "/instructor/assessments", icon: Trophy },
+    { label: "Lab Assignments", to: "/instructor/labs", icon: BrainCircuit },
+    { label: "Analytics", to: "/instructor/analytics", icon: BarChart3 },
+    { label: "AI Copilot", to: "/instructor/ai-copilot", icon: Sparkles, highlight: true },
     { label: "Settings", to: "/settings", icon: Settings },
   ];
 
@@ -68,12 +77,21 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
 
   return (
     <div className={`app-container ${isSidebarOpen ? "sidebar-expanded" : "sidebar-collapsed"}`}>
-      {/* Sidebar Navigation */}
+      {/* Mobile Backdrop */}
+      {isMobileOpen && (
+        <div
+          className="mobile-backdrop"
+          onClick={() => setIsMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Primary Unified Sidebar Navigation */}
       <aside className={`app-sidebar ${isMobileOpen ? "mobile-open" : ""}`} aria-label="Sidebar Navigation">
         <div className="sidebar-header">
-          <Link to="/" className="sidebar-brand">
+          <Link to="/" className="sidebar-brand" title="SAMBHAV Quantum Learning">
             <div className="sidebar-logo-badge">
-              <Atom size={24} className="spin-slow" />
+              <Atom size={22} className="spin-slow" />
             </div>
             {isSidebarOpen && (
               <div className="sidebar-brand-text">
@@ -85,7 +103,8 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
           <button
             className="sidebar-toggle-btn"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            aria-label="Toggle sidebar width"
+            aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
             <Menu size={18} />
           </button>
@@ -96,7 +115,7 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
           <div className="sidebar-role-selector">
             <div className="role-selector-card">
               <div className="role-current-info">
-                <span className="role-label">Authenticated Role</span>
+                <span className="role-label">Workspace Role</span>
                 <span className={`role-badge ${isInstructor ? "badge-instructor" : "badge-student"}`}>
                   {isInstructor ? <GraduationCap size={13} /> : <Zap size={13} />}
                   {isInstructor ? "Instructor / Educator" : "Student Learner"}
@@ -108,16 +127,24 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
 
         {/* Main Nav Links */}
         <nav className="sidebar-nav" aria-label="Portal Navigation">
-          <div className="nav-section-title">{isSidebarOpen ? (isInstructor ? "TEACHING" : "LEARNING") : "•"}</div>
+          {isSidebarOpen && (
+            <div className="nav-section-title">
+              {isInstructor ? "TEACHING" : "LEARNING"}
+            </div>
+          )}
           {currentNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to));
+            // Exact match for /instructor, prefix match for subpaths
+            const isActive =
+              location.pathname === item.to ||
+              (item.to !== "/instructor" && item.to !== "/dashboard" && location.pathname.startsWith(item.to));
+
             return (
               <Link
                 key={item.to}
                 to={item.to}
                 className={`sidebar-nav-item ${isActive ? "item-active" : ""} ${item.highlight ? "item-highlight" : ""}`}
-                title={!isSidebarOpen ? item.label : undefined}
+                title={item.label}
                 onClick={() => setIsMobileOpen(false)}
               >
                 <Icon size={19} className="nav-item-icon" />
@@ -132,17 +159,21 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
         {user && (
           <div className="sidebar-user-footer">
             <div className="user-profile-summary">
-              <div className="user-avatar-circle">
+              <div className="user-avatar-circle" title={user.name}>
                 {user.name.charAt(0).toUpperCase()}
               </div>
               {isSidebarOpen && (
                 <div className="user-details">
                   <span className="user-name">{user.name}</span>
                   <div className="user-stats-row">
-                    <span className="user-level">Lvl {user.level}</span>
-                    <span className="user-streak">
-                      <Flame size={12} className="text-orange" /> {user.streakDays}d
+                    <span className="user-level">
+                      {isInstructor ? "Educator" : `Lvl ${user.level || 1}`}
                     </span>
+                    {!isInstructor && (
+                      <span className="user-streak">
+                        <Flame size={12} className="text-orange" /> {user.streakDays || 0}d
+                      </span>
+                    )}
                   </div>
                 </div>
               )}
@@ -163,18 +194,20 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
       <div className="app-main-layout">
         {/* Top Header */}
         <header className="app-topbar">
-          <button
-            className="mobile-menu-btn"
-            onClick={() => setIsMobileOpen(!isMobileOpen)}
-            aria-label="Open navigation menu"
-          >
-            {isMobileOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <button
+              className="mobile-menu-btn"
+              onClick={() => setIsMobileOpen(!isMobileOpen)}
+              aria-label="Open navigation menu"
+            >
+              {isMobileOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
 
-          <div className="topbar-breadcrumbs">
-            {activeCategory && <span className="breadcrumb-cat">{activeCategory}</span>}
-            {activeCategory && <ChevronRight size={14} className="breadcrumb-sep" />}
-            <h1 className="topbar-page-title">{activeTitle || "Dashboard"}</h1>
+            <div className="topbar-breadcrumbs">
+              <span className="breadcrumb-cat">{activeCategory || (isInstructor ? "Teaching" : "Learning")}</span>
+              <ChevronRight size={14} className="breadcrumb-sep" />
+              <h1 className="topbar-page-title">{activeTitle || (isInstructor ? "Instructor Dashboard" : "Dashboard")}</h1>
+            </div>
           </div>
 
           <div className="topbar-right-actions">
@@ -183,12 +216,16 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
               <Search size={16} className="search-icon" />
               <input
                 type="text"
-                placeholder="Search lessons, algorithms, gates..."
+                placeholder={isInstructor ? "Search classes, learners, quizzes..." : "Search lessons, algorithms, gates..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && searchQuery.trim()) {
-                    navigate(`/learn?q=${encodeURIComponent(searchQuery.trim())}`);
+                    if (isInstructor) {
+                      navigate(`/instructor/curriculum?q=${encodeURIComponent(searchQuery.trim())}`);
+                    } else {
+                      navigate(`/learn?q=${encodeURIComponent(searchQuery.trim())}`);
+                    }
                   }
                 }}
               />

@@ -199,7 +199,7 @@ export function App() {
             }
           />
           <Route
-            path="/instructor/students"
+            path="/instructor/curriculum"
             element={
               <InstructorRoute>
                 <InstructorPage />
@@ -215,7 +215,39 @@ export function App() {
             }
           />
           <Route
-            path="/instructor/analytics"
+            path="/instructor/authoring"
+            element={
+              <InstructorRoute>
+                <InstructorPage />
+              </InstructorRoute>
+            }
+          />
+          <Route
+            path="/instructor/classes"
+            element={
+              <InstructorRoute>
+                <InstructorPage />
+              </InstructorRoute>
+            }
+          />
+          <Route
+            path="/instructor/learners"
+            element={
+              <InstructorRoute>
+                <InstructorPage />
+              </InstructorRoute>
+            }
+          />
+          <Route
+            path="/instructor/students"
+            element={
+              <InstructorRoute>
+                <InstructorPage />
+              </InstructorRoute>
+            }
+          />
+          <Route
+            path="/instructor/assessments"
             element={
               <InstructorRoute>
                 <InstructorPage />
@@ -224,6 +256,30 @@ export function App() {
           />
           <Route
             path="/instructor/challenges"
+            element={
+              <InstructorRoute>
+                <InstructorPage />
+              </InstructorRoute>
+            }
+          />
+          <Route
+            path="/instructor/labs"
+            element={
+              <InstructorRoute>
+                <InstructorPage />
+              </InstructorRoute>
+            }
+          />
+          <Route
+            path="/instructor/analytics"
+            element={
+              <InstructorRoute>
+                <InstructorPage />
+              </InstructorRoute>
+            }
+          />
+          <Route
+            path="/instructor/ai-copilot"
             element={
               <InstructorRoute>
                 <InstructorPage />
