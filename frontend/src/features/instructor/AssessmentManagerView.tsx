@@ -7,6 +7,20 @@ import {
   fetchAssessmentSubmissionsApi,
   gradeAssessmentSubmissionApi,
 } from "../../api/client";
+import {
+  Plus,
+  FileText,
+  Users,
+  Edit3,
+  Trash2,
+  CheckCircle2,
+  Clock,
+  Award,
+  AlertCircle,
+  X,
+  HelpCircle,
+  RefreshCw,
+} from "lucide-react";
 
 interface Question {
   id?: string;
@@ -101,7 +115,7 @@ export const AssessmentManagerView: React.FC = () => {
             "|1⟩",
             "(|0⟩ + |1⟩) / √2",
             "(|0⟩ - |1⟩) / √2",
-            "|0⟩"
+            "|0⟩",
           ],
           correct_option_index: 1,
           explanation: "The Hadamard gate creates an equal superposition (|0⟩ + |1⟩)/√2 when applied to |0⟩.",
@@ -178,7 +192,6 @@ export const AssessmentManagerView: React.FC = () => {
         score: gradeScore,
         feedback: gradeFeedback,
       });
-      // Refresh submissions
       const subs = await fetchAssessmentSubmissionsApi(selectedAssessmentForSubs.id);
       setSubmissions(subs || []);
       setGradingSubmission(null);
@@ -245,30 +258,31 @@ export const AssessmentManagerView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <span>📝</span> Assessment & Quiz Manager
-          </h2>
-          <p className="text-slate-400 text-sm mt-1">
-            Create and manage quantum quizzes, exam modules, and circuit-based evaluations with automated or manual grading.
-          </p>
+    <div className="instructor-content-area">
+      {/* Header Banner */}
+      <div className="instructor-header-banner">
+        <div className="instructor-header-titles">
+          <h1>📝 Assessment & Quiz Manager</h1>
+          <p>Create and manage quantum quizzes, exam modules, and circuit-based evaluations with automated or manual grading.</p>
         </div>
-        <button
-          onClick={handleOpenCreate}
-          className="px-4 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-medium rounded-xl shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
-        >
-          <span>➕</span> Create Assessment
-        </button>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button type="button" className="instructor-btn-secondary" onClick={loadAssessments}>
+            <RefreshCw size={15} /> Refresh
+          </button>
+          <button type="button" className="instructor-btn-primary" onClick={handleOpenCreate}>
+            <Plus size={16} /> Create Assessment
+          </button>
+        </div>
       </div>
 
-      {/* Error state */}
+      {/* Error state with Styled Banner */}
       {error && (
-        <div className="p-4 bg-rose-950/40 border border-rose-800/50 rounded-xl text-rose-300 text-sm flex items-center justify-between">
-          <span>{error}</span>
-          <button onClick={loadAssessments} className="text-rose-200 underline text-xs">
+        <div className="instructor-error-banner">
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <AlertCircle size={18} color="#e11d48" />
+            <span className="instructor-error-banner-text">{error}</span>
+          </div>
+          <button type="button" onClick={loadAssessments} className="instructor-btn-secondary" style={{ padding: "5px 12px", fontSize: "12px" }}>
             Retry
           </button>
         </div>
@@ -276,100 +290,93 @@ export const AssessmentManagerView: React.FC = () => {
 
       {/* Loading state */}
       {loading ? (
-        <div className="p-12 text-center text-slate-400">
-          <div className="inline-block w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-          <p>Loading assessment bank...</p>
+        <div className="instructor-loading-box">
+          <div className="instructor-spinner"></div>
+          <span>Loading assessment bank...</span>
         </div>
       ) : assessments.length === 0 ? (
-        <div className="p-12 text-center bg-slate-900/40 border border-slate-800 rounded-2xl">
-          <div className="text-4xl mb-3">📋</div>
-          <h3 className="text-lg font-semibold text-white mb-1">No Assessments Created Yet</h3>
-          <p className="text-slate-400 text-sm max-w-md mx-auto mb-6">
+        <div className="instructor-panel-card" style={{ textAlign: "center", padding: "48px 24px" }}>
+          <div style={{ fontSize: "40px", marginBottom: "12px" }}>📋</div>
+          <h3 style={{ justifyContent: "center", marginBottom: "8px" }}>No Assessments Created Yet</h3>
+          <p style={{ color: "#64748b", fontSize: "13px", maxWidth: "480px", margin: "0 auto 20px" }}>
             Assessments test student comprehension with MCQs, numerical calculations, and quantum circuit tasks.
           </p>
-          <button
-            onClick={handleOpenCreate}
-            className="px-4 py-2 bg-teal-500 hover:bg-teal-400 text-white text-sm font-medium rounded-lg transition-all"
-          >
-            Create Your First Assessment
+          <button type="button" className="instructor-btn-primary" onClick={handleOpenCreate}>
+            <Plus size={16} /> Create Your First Assessment
           </button>
         </div>
       ) : (
         /* Assessment Cards Grid */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="instructor-card-grid">
           {assessments.map((a) => (
-            <div
-              key={a.id}
-              className="bg-slate-900/60 border border-slate-800 hover:border-slate-700/80 rounded-2xl p-5 flex flex-col justify-between transition-all group"
-            >
+            <div key={a.id} className="instructor-item-card">
               <div>
-                <div className="flex items-center justify-between gap-2 mb-3">
+                <div className="instructor-item-card-header">
                   <span
-                    className={`px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                    className={`badge-pill ${
                       a.type === "quiz"
-                        ? "bg-indigo-500/10 text-indigo-300 border border-indigo-500/20"
+                        ? "badge-pill-purple"
                         : a.type === "coding_challenge"
-                        ? "bg-amber-500/10 text-amber-300 border border-amber-500/20"
-                        : "bg-purple-500/10 text-purple-300 border border-purple-500/20"
+                        ? "badge-pill-amber"
+                        : "badge-pill-teal"
                     }`}
                   >
                     {a.type.replace("_", " ")}
                   </span>
                   <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      a.published
-                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                        : "bg-slate-800 text-slate-400 border border-slate-700"
-                    }`}
+                    className={`badge-pill ${a.published ? "badge-pill-green" : "badge-pill-amber"}`}
                   >
                     {a.published ? "● Published" : "○ Draft"}
                   </span>
                 </div>
 
-                <h3 className="text-lg font-bold text-white group-hover:text-teal-300 transition-colors line-clamp-1 mb-1">
-                  {a.title}
-                </h3>
-                <p className="text-slate-400 text-xs line-clamp-2 mb-4">
+                <h3 className="instructor-item-card-title">{a.title}</h3>
+                <p className="instructor-item-card-desc">
                   {a.description || "No description provided."}
                 </p>
 
-                <div className="grid grid-cols-3 gap-2 py-3 border-y border-slate-800/80 text-center mb-4">
-                  <div>
-                    <span className="text-xs text-slate-500 block">Duration</span>
-                    <span className="text-sm font-semibold text-slate-200">{a.duration_minutes}m</span>
+                <div className="instructor-item-card-meta">
+                  <div className="instructor-meta-item">
+                    <span className="meta-label">Duration</span>
+                    <span className="meta-value">{a.duration_minutes}m</span>
                   </div>
-                  <div>
-                    <span className="text-xs text-slate-500 block">Passing</span>
-                    <span className="text-sm font-semibold text-emerald-400">{a.passing_score}%</span>
+                  <div className="instructor-meta-item">
+                    <span className="meta-label">Passing</span>
+                    <span className="meta-value" style={{ color: "#16a34a" }}>{a.passing_score}%</span>
                   </div>
-                  <div>
-                    <span className="text-xs text-slate-500 block">Questions</span>
-                    <span className="text-sm font-semibold text-teal-300">{a.questions?.length || 0}</span>
+                  <div className="instructor-meta-item">
+                    <span className="meta-label">Questions</span>
+                    <span className="meta-value" style={{ color: "#0d9488" }}>{a.questions?.length || 0}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-2 pt-2">
+              <div className="instructor-item-card-actions">
                 <button
+                  type="button"
                   onClick={() => handleOpenSubmissions(a)}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5"
+                  className="instructor-btn-secondary"
+                  style={{ fontSize: "12px", padding: "6px 12px" }}
                 >
-                  <span>👥</span> Submissions
+                  <Users size={14} /> Submissions
                 </button>
-                <div className="flex items-center gap-1">
+                <div style={{ display: "flex", gap: "6px" }}>
                   <button
+                    type="button"
                     onClick={() => handleOpenEdit(a)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                    className="instructor-btn-secondary"
+                    style={{ padding: "6px 10px" }}
                     title="Edit Assessment"
                   >
-                    ✏️
+                    <Edit3 size={14} />
                   </button>
                   <button
+                    type="button"
                     onClick={() => handleDeleteAssessment(a.id, a.title)}
-                    className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition-colors"
+                    className="instructor-btn-danger"
                     title="Delete Assessment"
                   >
-                    🗑️
+                    <Trash2 size={14} />
                   </button>
                 </div>
               </div>
@@ -380,274 +387,268 @@ export const AssessmentManagerView: React.FC = () => {
 
       {/* CREATE / EDIT ASSESSMENT MODAL */}
       {editingAssessment && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl my-auto">
-            {/* Modal Header */}
-            <div className="p-6 border-b border-slate-800 flex items-center justify-between">
+        <div className="instructor-modal-overlay">
+          <div className="instructor-modal-box">
+            <div className="instructor-modal-header">
               <div>
-                <h3 className="text-xl font-bold text-white">
-                  {isCreating ? "Create Assessment" : "Edit Assessment"}
-                </h3>
-                <p className="text-slate-400 text-xs mt-0.5">
-                  Configure assessment parameters and build your question bank.
-                </p>
+                <h3>{isCreating ? "Create Assessment" : "Edit Assessment"}</h3>
+                <p>Configure assessment parameters and build your question bank.</p>
               </div>
               <button
+                type="button"
                 onClick={() => setEditingAssessment(null)}
-                className="text-slate-400 hover:text-white text-xl p-1"
+                className="instructor-modal-close"
               >
-                ✕
+                <X size={20} />
               </button>
             </div>
 
-            {/* Modal Body */}
-            <form onSubmit={handleSaveAssessment} className="p-6 overflow-y-auto space-y-6 flex-1">
-              {/* Basic Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                    Assessment Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editingAssessment.title || ""}
-                    onChange={(e) => setEditingAssessment({ ...editingAssessment, title: e.target.value })}
-                    placeholder="e.g., Mid-Term Quantum Mechanics & Superposition Quiz"
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-600 outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                    Assessment Type
-                  </label>
-                  <select
-                    value={editingAssessment.type || "quiz"}
-                    onChange={(e) =>
-                      setEditingAssessment({
-                        ...editingAssessment,
-                        type: e.target.value as "quiz" | "coding_challenge" | "exam",
-                      })
-                    }
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none"
-                  >
-                    <option value="quiz">Concept Quiz (Multiple Choice & Conceptual)</option>
-                    <option value="coding_challenge">Quantum Circuit Coding Challenge</option>
-                    <option value="exam">Comprehensive Exam (Mixed Formats)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Description / Instructions
-                </label>
-                <textarea
-                  rows={2}
-                  value={editingAssessment.description || ""}
-                  onChange={(e) => setEditingAssessment({ ...editingAssessment, description: e.target.value })}
-                  placeholder="Instructions for students taking this assessment..."
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-600 outline-none"
-                />
-              </div>
-
-              {/* Assessment Settings */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">
-                    Duration (Minutes)
-                  </label>
-                  <input
-                    type="number"
-                    min={5}
-                    max={180}
-                    value={editingAssessment.duration_minutes || 30}
-                    onChange={(e) =>
-                      setEditingAssessment({
-                        ...editingAssessment,
-                        duration_minutes: parseInt(e.target.value) || 30,
-                      })
-                    }
-                    className="w-full bg-slate-900 border border-slate-800 focus:border-teal-500 rounded-lg px-3 py-1.5 text-sm text-white outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">
-                    Passing Score (%)
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={100}
-                    value={editingAssessment.passing_score || 70}
-                    onChange={(e) =>
-                      setEditingAssessment({
-                        ...editingAssessment,
-                        passing_score: parseFloat(e.target.value) || 70,
-                      })
-                    }
-                    className="w-full bg-slate-900 border border-slate-800 focus:border-teal-500 rounded-lg px-3 py-1.5 text-sm text-white outline-none"
-                  />
-                </div>
-                <div className="flex items-center gap-3 pt-4">
-                  <input
-                    type="checkbox"
-                    id="assessPublished"
-                    checked={editingAssessment.published ?? true}
-                    onChange={(e) =>
-                      setEditingAssessment({ ...editingAssessment, published: e.target.checked })
-                    }
-                    className="w-4 h-4 rounded bg-slate-900 border-slate-700 text-teal-500 focus:ring-teal-500 focus:ring-offset-slate-900"
-                  />
-                  <label htmlFor="assessPublished" className="text-sm font-medium text-slate-200 cursor-pointer">
-                    Published to Students
-                  </label>
-                </div>
-              </div>
-
-              {/* Question Bank Builder */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                    <span>❓</span> Question Bank ({editingAssessment.questions?.length || 0})
-                  </h4>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-500">Add:</span>
-                    <button
-                      type="button"
-                      onClick={() => addQuestion("mcq")}
-                      className="px-2.5 py-1 bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 text-xs font-medium rounded-lg transition-colors"
+            <form onSubmit={handleSaveAssessment} style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
+              <div className="instructor-modal-body">
+                {/* Basic Details */}
+                <div className="instructor-form-row">
+                  <div className="instructor-form-group">
+                    <label className="instructor-form-label">Assessment Title *</label>
+                    <input
+                      type="text"
+                      required
+                      value={editingAssessment.title || ""}
+                      onChange={(e) => setEditingAssessment({ ...editingAssessment, title: e.target.value })}
+                      placeholder="e.g., Mid-Term Quantum Mechanics & Superposition Quiz"
+                      className="instructor-form-input"
+                    />
+                  </div>
+                  <div className="instructor-form-group">
+                    <label className="instructor-form-label">Assessment Type</label>
+                    <select
+                      value={editingAssessment.type || "quiz"}
+                      onChange={(e) =>
+                        setEditingAssessment({
+                          ...editingAssessment,
+                          type: e.target.value as "quiz" | "coding_challenge" | "exam",
+                        })
+                      }
+                      className="instructor-form-select"
                     >
-                      + Multiple Choice
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => addQuestion("numerical")}
-                      className="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 text-xs font-medium rounded-lg transition-colors"
-                    >
-                      + Numerical
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => addQuestion("circuit")}
-                      className="px-2.5 py-1 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 text-xs font-medium rounded-lg transition-colors"
-                    >
-                      + Circuit Task
-                    </button>
+                      <option value="quiz">Concept Quiz (Multiple Choice & Conceptual)</option>
+                      <option value="coding_challenge">Quantum Circuit Coding Challenge</option>
+                      <option value="exam">Comprehensive Exam (Mixed Formats)</option>
+                    </select>
                   </div>
                 </div>
 
-                {(!editingAssessment.questions || editingAssessment.questions.length === 0) ? (
-                  <p className="text-xs text-slate-500 text-center py-6 bg-slate-950/40 rounded-xl border border-dashed border-slate-800">
-                    No questions added yet. Click one of the buttons above to add questions.
-                  </p>
-                ) : (
-                  <div className="space-y-4">
-                    {editingAssessment.questions.map((q, idx) => (
-                      <div
-                        key={idx}
-                        className="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3 relative group"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs font-bold text-teal-400">
-                            Q{idx + 1} • <span className="uppercase text-slate-400 font-semibold">{q.type}</span>
-                          </span>
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-1.5">
-                              <label className="text-xs text-slate-500">Points:</label>
-                              <input
-                                type="number"
-                                min={1}
-                                max={100}
-                                value={q.points || 10}
-                                onChange={(e) =>
-                                  updateQuestion(idx, { points: parseInt(e.target.value) || 10 })
-                                }
-                                className="w-16 bg-slate-900 border border-slate-800 text-xs text-white rounded px-2 py-0.5 outline-none"
-                              />
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => removeQuestion(idx)}
-                              className="text-slate-500 hover:text-rose-400 text-xs p-1"
-                              title="Delete Question"
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        </div>
+                <div className="instructor-form-group">
+                  <label className="instructor-form-label">Description / Instructions</label>
+                  <textarea
+                    rows={2}
+                    value={editingAssessment.description || ""}
+                    onChange={(e) => setEditingAssessment({ ...editingAssessment, description: e.target.value })}
+                    placeholder="Instructions for students taking this assessment..."
+                    className="instructor-form-textarea"
+                  />
+                </div>
 
-                        {/* Prompt */}
-                        <div>
+                {/* Parameters */}
+                <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0", marginBottom: "20px" }}>
+                  <div className="instructor-form-row" style={{ margin: 0 }}>
+                    <div className="instructor-form-group" style={{ margin: 0 }}>
+                      <label className="instructor-form-label">Duration (Minutes)</label>
+                      <input
+                        type="number"
+                        min={5}
+                        max={180}
+                        value={editingAssessment.duration_minutes || 30}
+                        onChange={(e) =>
+                          setEditingAssessment({
+                            ...editingAssessment,
+                            duration_minutes: parseInt(e.target.value) || 30,
+                          })
+                        }
+                        className="instructor-form-input"
+                      />
+                    </div>
+                    <div className="instructor-form-group" style={{ margin: 0 }}>
+                      <label className="instructor-form-label">Passing Score (%)</label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={editingAssessment.passing_score || 70}
+                        onChange={(e) =>
+                          setEditingAssessment({
+                            ...editingAssessment,
+                            passing_score: parseFloat(e.target.value) || 70,
+                          })
+                        }
+                        className="instructor-form-input"
+                      />
+                    </div>
+                    <div className="instructor-form-group" style={{ margin: 0, justifyContent: "center" }}>
+                      <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", fontWeight: 600, color: "#1e293b", cursor: "pointer", marginTop: "16px" }}>
+                        <input
+                          type="checkbox"
+                          checked={editingAssessment.published ?? true}
+                          onChange={(e) =>
+                            setEditingAssessment({ ...editingAssessment, published: e.target.checked })
+                          }
+                          style={{ width: "16px", height: "16px", accentColor: "#0d9488" }}
+                        />
+                        Published to Students
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Question Bank Builder */}
+                <div style={{ marginTop: "16px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: "10px", borderBottom: "1px solid #e2e8f0", marginBottom: "14px" }}>
+                    <h4 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <HelpCircle size={16} color="#0d9488" /> Question Bank ({editingAssessment.questions?.length || 0})
+                    </h4>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <button
+                        type="button"
+                        onClick={() => addQuestion("mcq")}
+                        className="instructor-btn-secondary"
+                        style={{ fontSize: "11px", padding: "4px 8px" }}
+                      >
+                        + Multiple Choice
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => addQuestion("numerical")}
+                        className="instructor-btn-secondary"
+                        style={{ fontSize: "11px", padding: "4px 8px" }}
+                      >
+                        + Numerical
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => addQuestion("circuit")}
+                        className="instructor-btn-secondary"
+                        style={{ fontSize: "11px", padding: "4px 8px" }}
+                      >
+                        + Circuit Task
+                      </button>
+                    </div>
+                  </div>
+
+                  {(!editingAssessment.questions || editingAssessment.questions.length === 0) ? (
+                    <div className="instructor-empty-state">
+                      <p>No questions added yet. Click one of the buttons above to add questions.</p>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                      {editingAssessment.questions.map((q, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            background: "#f8fafc",
+                            border: "1px solid #e2e8f0",
+                            borderRadius: "10px",
+                            padding: "14px",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "10px",
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <span style={{ fontSize: "12px", fontWeight: 700, color: "#0d9488" }}>
+                              Q{idx + 1} • <span style={{ textTransform: "uppercase", color: "#64748b" }}>{q.type}</span>
+                            </span>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                <label style={{ fontSize: "11px", color: "#64748b" }}>Points:</label>
+                                <input
+                                  type="number"
+                                  min={1}
+                                  max={100}
+                                  value={q.points || 10}
+                                  onChange={(e) =>
+                                    updateQuestion(idx, { points: parseInt(e.target.value) || 10 })
+                                  }
+                                  style={{ width: "60px", padding: "3px 6px", fontSize: "12px", borderRadius: "4px", border: "1px solid #cbd5e1" }}
+                                />
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeQuestion(idx)}
+                                className="instructor-btn-danger"
+                                title="Delete Question"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          </div>
+
                           <input
                             type="text"
                             value={q.prompt}
                             onChange={(e) => updateQuestion(idx, { prompt: e.target.value })}
                             placeholder="Enter question prompt..."
-                            className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-600 outline-none"
+                            className="instructor-form-input"
+                            style={{ fontSize: "13px", padding: "7px 10px" }}
                           />
-                        </div>
 
-                        {/* MCQ Options */}
-                        {q.type === "mcq" && (
-                          <div className="space-y-2 pl-2 border-l-2 border-slate-800">
-                            <span className="text-[11px] text-slate-400 block font-medium">
-                              Options (Select radio for correct answer):
-                            </span>
-                            {q.options?.map((opt, optIdx) => (
-                              <div key={optIdx} className="flex items-center gap-2">
-                                <input
-                                  type="radio"
-                                  name={`correct_opt_${idx}`}
-                                  checked={q.correct_option_index === optIdx}
-                                  onChange={() => updateQuestion(idx, { correct_option_index: optIdx })}
-                                  className="text-teal-500 bg-slate-900 border-slate-700"
-                                />
-                                <input
-                                  type="text"
-                                  value={opt}
-                                  onChange={(e) => {
-                                    const newOpts = [...(q.options || [])];
-                                    newOpts[optIdx] = e.target.value;
-                                    updateQuestion(idx, { options: newOpts });
-                                  }}
-                                  placeholder={`Option ${String.fromCharCode(65 + optIdx)}`}
-                                  className="flex-1 bg-slate-900 border border-slate-800 text-xs text-white rounded px-2.5 py-1 outline-none"
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                          {/* MCQ Options */}
+                          {q.type === "mcq" && (
+                            <div style={{ paddingLeft: "10px", borderLeft: "2px solid #cbd5e1", display: "flex", flexDirection: "column", gap: "6px" }}>
+                              <span style={{ fontSize: "11px", fontWeight: 600, color: "#64748b" }}>
+                                Options (Select radio for correct answer):
+                              </span>
+                              {q.options?.map((opt, optIdx) => (
+                                <div key={optIdx} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                  <input
+                                    type="radio"
+                                    name={`correct_opt_${idx}`}
+                                    checked={q.correct_option_index === optIdx}
+                                    onChange={() => updateQuestion(idx, { correct_option_index: optIdx })}
+                                    style={{ accentColor: "#0d9488" }}
+                                  />
+                                  <input
+                                    type="text"
+                                    value={opt}
+                                    onChange={(e) => {
+                                      const newOpts = [...(q.options || [])];
+                                      newOpts[optIdx] = e.target.value;
+                                      updateQuestion(idx, { options: newOpts });
+                                    }}
+                                    placeholder={`Option ${String.fromCharCode(65 + optIdx)}`}
+                                    className="instructor-form-input"
+                                    style={{ fontSize: "12px", padding: "5px 8px" }}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
 
-                        {/* Explanation / Solution Key */}
-                        <div>
                           <input
                             type="text"
                             value={q.explanation || ""}
                             onChange={(e) => updateQuestion(idx, { explanation: e.target.value })}
                             placeholder="Pedagogical explanation / Solution key shown after grading..."
-                            className="w-full bg-slate-900/50 border border-slate-800/80 rounded-lg px-3 py-1 text-[11px] text-slate-300 placeholder-slate-600 outline-none"
+                            className="instructor-form-input"
+                            style={{ fontSize: "11px", padding: "5px 8px", background: "#ffffff" }}
                           />
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Modal Actions */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+              <div className="instructor-modal-footer">
                 <button
                   type="button"
                   onClick={() => setEditingAssessment(null)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-xl transition-colors"
+                  className="instructor-btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white text-sm font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50"
+                  className="instructor-btn-primary"
                 >
                   {saving ? "Saving..." : isCreating ? "Create Assessment" : "Save Changes"}
                 </button>
@@ -659,80 +660,74 @@ export const AssessmentManagerView: React.FC = () => {
 
       {/* SUBMISSIONS LIST MODAL */}
       {selectedAssessmentForSubs && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl my-auto">
-            {/* Submissions Header */}
-            <div className="p-6 border-b border-slate-800 flex items-center justify-between">
+        <div className="instructor-modal-overlay">
+          <div className="instructor-modal-box">
+            <div className="instructor-modal-header">
               <div>
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <span>👥</span> Submissions: {selectedAssessmentForSubs.title}
-                </h3>
-                <p className="text-slate-400 text-xs mt-0.5">
-                  Review student submissions and assign grades with personalized feedback.
-                </p>
+                <h3>👥 Submissions: {selectedAssessmentForSubs.title}</h3>
+                <p>Review student submissions and assign grades with personalized feedback.</p>
               </div>
               <button
+                type="button"
                 onClick={() => setSelectedAssessmentForSubs(null)}
-                className="text-slate-400 hover:text-white text-xl p-1"
+                className="instructor-modal-close"
               >
-                ✕
+                <X size={20} />
               </button>
             </div>
 
-            {/* Submissions Body */}
-            <div className="p-6 overflow-y-auto flex-1">
+            <div className="instructor-modal-body">
               {loadingSubs ? (
-                <div className="p-8 text-center text-slate-400">
-                  <div className="inline-block w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mb-2"></div>
-                  <p className="text-xs">Loading learner submissions...</p>
+                <div className="instructor-loading-box">
+                  <div className="instructor-spinner"></div>
+                  <span>Loading learner submissions...</span>
                 </div>
               ) : submissions.length === 0 ? (
-                <div className="text-center py-10 bg-slate-950/40 rounded-xl border border-slate-800/80">
-                  <div className="text-3xl mb-2">📭</div>
-                  <h4 className="text-sm font-semibold text-white">No Submissions Yet</h4>
-                  <p className="text-xs text-slate-500 mt-1">
-                    When students take this assessment, their attempts will appear here for grading and review.
-                  </p>
+                <div className="instructor-empty-state">
+                  <div style={{ fontSize: "28px" }}>📭</div>
+                  <h4>No Submissions Yet</h4>
+                  <p>When students take this assessment, their attempts will appear here for grading and review.</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {submissions.map((sub) => (
                     <div
                       key={sub.id}
-                      className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                      style={{
+                        background: "#f8fafc",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "10px",
+                        padding: "14px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
                     >
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-bold text-white">
-                            {sub.student_name || "Learner"}
-                          </span>
-                          <span className="text-xs text-slate-500">
+                        <div style={{ fontWeight: 700, fontSize: "14px", color: "#0f172a" }}>
+                          {sub.student_name || "Learner"}
+                          <span style={{ fontSize: "12px", color: "#64748b", fontWeight: 400, marginLeft: "6px" }}>
                             ({sub.student_email || sub.user_id})
                           </span>
                         </div>
-                        <div className="flex items-center gap-3 text-xs text-slate-400">
-                          <span>
-                            Submitted: {new Date(sub.created_at).toLocaleDateString()}
-                          </span>
-                          <span>•</span>
-                          <span
-                            className={`font-semibold ${
-                              sub.status === "graded" ? "text-emerald-400" : "text-amber-400"
-                            }`}
-                          >
+                        <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>
+                          Submitted: {new Date(sub.created_at).toLocaleDateString()} •{" "}
+                          <span style={{ fontWeight: 700, color: sub.status === "graded" ? "#16a34a" : "#d97706" }}>
                             {sub.status === "graded" ? `Score: ${sub.score}%` : "Needs Review"}
                           </span>
                         </div>
                         {sub.feedback && (
-                          <p className="text-xs text-slate-400 mt-2 bg-slate-900/60 p-2 rounded border border-slate-800">
-                            <span className="text-slate-500 font-medium">Feedback:</span> {sub.feedback}
+                          <p style={{ margin: "6px 0 0 0", fontSize: "12px", color: "#475569", background: "#ffffff", padding: "6px 10px", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
+                            <strong>Feedback:</strong> {sub.feedback}
                           </p>
                         )}
                       </div>
 
                       <button
+                        type="button"
                         onClick={() => handleOpenGrading(sub)}
-                        className="px-3 py-1.5 bg-teal-500/20 text-teal-300 hover:bg-teal-500/30 text-xs font-semibold rounded-lg transition-colors self-start sm:self-auto cursor-pointer"
+                        className="instructor-btn-primary"
+                        style={{ fontSize: "12px", padding: "6px 12px" }}
                       >
                         {sub.status === "graded" ? "Edit Grade" : "Grade Attempt"}
                       </button>
@@ -742,10 +737,11 @@ export const AssessmentManagerView: React.FC = () => {
               )}
             </div>
 
-            <div className="p-4 border-t border-slate-800 text-right">
+            <div className="instructor-modal-footer">
               <button
+                type="button"
                 onClick={() => setSelectedAssessmentForSubs(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-xl transition-colors"
+                className="instructor-btn-secondary"
               >
                 Close
               </button>
@@ -756,44 +752,52 @@ export const AssessmentManagerView: React.FC = () => {
 
       {/* GRADING SUBMISSION MODAL */}
       {gradingSubmission && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
-            <h4 className="text-lg font-bold text-white">
-              Grade Submission: {gradingSubmission.student_name || "Learner"}
-            </h4>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">
-                Score (0 - 100%)
-              </label>
-              <input
-                type="number"
-                min={0}
-                max={100}
-                value={gradeScore}
-                onChange={(e) => setGradeScore(Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)))}
-                className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-2 text-sm text-white outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">
-                Instructor Feedback
-              </label>
-              <textarea
-                rows={3}
-                value={gradeFeedback}
-                onChange={(e) => setGradeFeedback(e.target.value)}
-                placeholder="Constructive feedback, misconception remediation..."
-                className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-600 outline-none"
-              />
-            </div>
-
-            <div className="flex items-center justify-end gap-2 pt-2">
+        <div className="instructor-modal-overlay">
+          <div className="instructor-modal-box" style={{ maxWidth: "480px" }}>
+            <div className="instructor-modal-header">
+              <div>
+                <h3>Grade Submission</h3>
+                <p>{gradingSubmission.student_name || "Learner"}</p>
+              </div>
               <button
                 type="button"
                 onClick={() => setGradingSubmission(null)}
-                className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-xl transition-colors"
+                className="instructor-modal-close"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="instructor-modal-body">
+              <div className="instructor-form-group">
+                <label className="instructor-form-label">Score (0 - 100%)</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={gradeScore}
+                  onChange={(e) => setGradeScore(Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)))}
+                  className="instructor-form-input"
+                />
+              </div>
+
+              <div className="instructor-form-group">
+                <label className="instructor-form-label">Instructor Feedback</label>
+                <textarea
+                  rows={3}
+                  value={gradeFeedback}
+                  onChange={(e) => setGradeFeedback(e.target.value)}
+                  placeholder="Constructive feedback, misconception remediation..."
+                  className="instructor-form-textarea"
+                />
+              </div>
+            </div>
+
+            <div className="instructor-modal-footer">
+              <button
+                type="button"
+                onClick={() => setGradingSubmission(null)}
+                className="instructor-btn-secondary"
               >
                 Cancel
               </button>
@@ -801,7 +805,7 @@ export const AssessmentManagerView: React.FC = () => {
                 type="button"
                 disabled={savingGrade}
                 onClick={handleSaveGrade}
-                className="px-4 py-2 bg-teal-500 hover:bg-teal-400 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+                className="instructor-btn-primary"
               >
                 {savingGrade ? "Saving..." : "Submit Grade"}
               </button>

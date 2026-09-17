@@ -1,5 +1,21 @@
 import React, { useState } from "react";
 import { generateAIEducatorDraftApi } from "../../api/client";
+import {
+  Sparkles,
+  BookOpen,
+  HelpCircle,
+  FlaskConical,
+  Zap,
+  Clock,
+  BrainCircuit,
+  Target,
+  BarChart3,
+  Copy,
+  Check,
+  Download,
+  AlertTriangle,
+  Lock,
+} from "lucide-react";
 
 interface AIEducatorCopilotViewProps {
   onImportToLessonBuilder?: (content: string, topic: string) => void;
@@ -69,77 +85,71 @@ export const AIEducatorCopilotView: React.FC<AIEducatorCopilotViewProps> = ({
     "Shor's Period-Finding Algorithm",
   ];
 
+  const tasks = [
+    { id: "generate_lesson", icon: <BookOpen size={16} color="#0d9488" />, label: "Lesson Draft", desc: "Structured 5-section lesson" },
+    { id: "generate_quiz", icon: <HelpCircle size={16} color="#7c3aed" />, label: "Quiz Bank", desc: "5 MCQs with explanations" },
+    { id: "generate_lab", icon: <FlaskConical size={16} color="#2563eb" />, label: "Lab Experiment", desc: "Circuit task & instructions" },
+    { id: "generate_challenge", icon: <Zap size={16} color="#d97706" />, label: "Circuit Challenge", desc: "Problem statement & hints" },
+    { id: "teaching_plan", icon: <Clock size={16} color="#059669" />, label: "60-Min Plan", desc: "Classroom agenda & timings" },
+    { id: "explain_weakness", icon: <BrainCircuit size={16} color="#ea580c" />, label: "Misconception Fix", desc: "Diagnose student error" },
+    { id: "remediation_plan", icon: <Target size={16} color="#e11d48" />, label: "Remediation Plan", desc: "Targeted support roadmap" },
+    { id: "class_summary", icon: <BarChart3 size={16} color="#4361ee" />, label: "Cohort Briefing", desc: "Pedagogical summary" },
+  ];
+
   return (
-    <div className="space-y-6">
+    <div className="instructor-content-area">
       {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-          <span>🤖</span> AI Educator Copilot
-        </h2>
-        <p className="text-slate-400 text-sm mt-1">
-          Generate pedagogically structured lesson drafts, quizzes, Quantum Lab experiments, and teaching plans powered by server-side Gemini.
-        </p>
+      <div className="instructor-header-banner">
+        <div className="instructor-header-titles">
+          <h1>🤖 AI Educator Copilot</h1>
+          <p>Generate pedagogically structured lesson drafts, quizzes, Quantum Lab experiments, and teaching plans powered by server-side Gemini.</p>
+        </div>
       </div>
 
       {/* Generator Form Card */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl">
-        <form onSubmit={handleGenerate} className="space-y-5">
+      <div className="instructor-panel-card">
+        <form onSubmit={handleGenerate}>
           {/* Action Selector */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+          <div style={{ marginBottom: "20px" }}>
+            <label className="instructor-form-label" style={{ marginBottom: "10px", display: "block" }}>
               Select Copilot Task
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {[
-                { id: "generate_lesson", label: "📖 Lesson Draft", desc: "Structured 5-section lesson" },
-                { id: "generate_quiz", label: "❓ Quiz Bank", desc: "5 MCQs with explanations" },
-                { id: "generate_lab", label: "🔬 Lab Experiment", desc: "Circuit task & instructions" },
-                { id: "generate_challenge", label: "⚡ Circuit Challenge", desc: "Problem statement & hints" },
-                { id: "teaching_plan", label: "⏱️ 60-Min Plan", desc: "Classroom agenda & timings" },
-                { id: "explain_weakness", label: "🧠 Misconception Fix", desc: "Diagnose student error" },
-                { id: "remediation_plan", label: "🎯 Remediation Plan", desc: "Targeted support roadmap" },
-                { id: "class_summary", label: "📊 Cohort Briefing", desc: "Pedagogical summary" },
-              ].map((item) => (
+            <div className="copilot-task-grid">
+              {tasks.map((item) => (
                 <button
                   key={item.id}
                   type="button"
                   onClick={() => setAction(item.id)}
-                  className={`p-3 rounded-xl text-left border transition-all cursor-pointer ${
-                    action === item.id
-                      ? "bg-teal-500/10 border-teal-500 text-teal-300 shadow-md shadow-teal-500/10"
-                      : "bg-slate-950/80 border-slate-800 hover:border-slate-700 text-slate-400"
-                  }`}
+                  className={`copilot-task-btn ${action === item.id ? "active" : ""}`}
                 >
-                  <span className="text-xs font-bold block text-white">{item.label}</span>
-                  <span className="text-[11px] text-slate-500 block mt-0.5">{item.desc}</span>
+                  <span className="copilot-task-title">
+                    {item.icon} {item.label}
+                  </span>
+                  <span className="copilot-task-desc">{item.desc}</span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Topic & Target Level */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                Quantum Topic / Concept *
-              </label>
+          <div className="instructor-form-row">
+            <div className="instructor-form-group" style={{ gridColumn: "span 2" }}>
+              <label className="instructor-form-label">Quantum Topic / Concept *</label>
               <input
                 type="text"
                 required
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="e.g., Quantum Teleportation and Entanglement Swapping"
-                className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-600 outline-none"
+                className="instructor-form-input"
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                Target Difficulty
-              </label>
+            <div className="instructor-form-group">
+              <label className="instructor-form-label">Target Difficulty</label>
               <select
                 value={level}
                 onChange={(e) => setLevel(e.target.value as "Beginner" | "Intermediate" | "Advanced")}
-                className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none"
+                className="instructor-form-select"
               >
                 <option value="Beginner">Beginner (Undergraduate / Intro)</option>
                 <option value="Intermediate">Intermediate (Core Quantum Mechanics)</option>
@@ -149,14 +159,14 @@ export const AIEducatorCopilotView: React.FC<AIEducatorCopilotViewProps> = ({
           </div>
 
           {/* Quick Topic Chips */}
-          <div className="flex flex-wrap items-center gap-1.5 pt-1">
-            <span className="text-[11px] text-slate-500">Quick suggestions:</span>
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px", marginBottom: "18px" }}>
+            <span style={{ fontSize: "11px", color: "#64748b", fontWeight: 600 }}>Quick suggestions:</span>
             {quickTopics.slice(0, 5).map((qt, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => setTopic(qt)}
-                className="px-2 py-0.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px] rounded-lg border border-slate-700 transition-colors"
+                className="copilot-chip"
               >
                 {qt}
               </button>
@@ -164,37 +174,36 @@ export const AIEducatorCopilotView: React.FC<AIEducatorCopilotViewProps> = ({
           </div>
 
           {/* Optional context */}
-          <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1">
-              Optional Context / Specific Requirements
-            </label>
+          <div className="instructor-form-group">
+            <label className="instructor-form-label">Optional Context / Specific Requirements</label>
             <textarea
               rows={2}
               value={customPromptContext}
               onChange={(e) => setCustomPromptContext(e.target.value)}
               placeholder="e.g., Include specific emphasis on complex amplitudes; focus on IBM Q hardware constraints..."
-              className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-1.5 text-xs text-white placeholder-slate-600 outline-none"
+              className="instructor-form-textarea"
             />
           </div>
 
           {/* Submit Button */}
-          <div className="flex items-center justify-between pt-2 border-t border-slate-800">
-            <span className="text-[11px] text-slate-500 flex items-center gap-1">
-              <span>🔒</span> Server-side Gemini • All drafts require educator review
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "14px", borderTop: "1px solid #e2e8f0" }}>
+            <span style={{ fontSize: "12px", color: "#64748b", display: "flex", alignItems: "center", gap: "6px" }}>
+              <Lock size={14} color="#94a3b8" /> Server-side Gemini • All drafts require educator review
             </span>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-teal-500/20 transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+              className="instructor-btn-primary"
+              style={{ padding: "10px 20px", fontSize: "14px" }}
             >
               {loading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="instructor-spinner" style={{ width: "16px", height: "16px", borderWidth: "2px", borderTopColor: "#ffffff" }}></div>
                   <span>Generating Draft...</span>
                 </>
               ) : (
                 <>
-                  <span>✨</span>
+                  <Sparkles size={16} />
                   <span>Generate AI Draft</span>
                 </>
               )}
@@ -205,53 +214,56 @@ export const AIEducatorCopilotView: React.FC<AIEducatorCopilotViewProps> = ({
 
       {/* Error state */}
       {error && (
-        <div className="p-4 bg-rose-950/40 border border-rose-800/50 rounded-xl text-rose-300 text-sm">
-          {error}
+        <div className="instructor-error-banner">
+          <span className="instructor-error-banner-text">{error}</span>
         </div>
       )}
 
       {/* Generated Result Output */}
       {generatedResult && (
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-2xl relative">
+        <div className="instructor-panel-card" style={{ marginTop: "24px", border: "1.5px solid #0d9488" }}>
           {/* Result Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
-            <div className="flex items-center gap-2.5">
-              <span className="px-2.5 py-1 bg-amber-500/10 text-amber-300 border border-amber-500/20 rounded-lg text-xs font-bold tracking-wider uppercase">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "14px", borderBottom: "1px solid #e2e8f0", marginBottom: "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span className="badge-pill badge-pill-amber">
                 DRAFT PROPOSAL
               </span>
-              <span className="text-sm font-bold text-white">
+              <span style={{ fontSize: "15px", fontWeight: 700, color: "#0f172a" }}>
                 {generatedResult.topic} ({generatedResult.level})
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <button
                 type="button"
                 onClick={handleCopy}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="instructor-btn-secondary"
+                style={{ fontSize: "12px", padding: "6px 12px" }}
               >
-                <span>{copied ? "✓ Copied" : "📋 Copy"}</span>
+                {copied ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
+                <span>{copied ? "Copied" : "Copy"}</span>
               </button>
               {onImportToLessonBuilder && (
                 <button
                   type="button"
                   onClick={handleImport}
-                  className="px-3.5 py-1.5 bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-bold rounded-lg border border-teal-500/30 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="instructor-btn-primary"
+                  style={{ fontSize: "12px", padding: "6px 12px" }}
                 >
-                  <span>📥</span> Import to Lesson Builder
+                  <Download size={14} /> Import to Lesson Builder
                 </button>
               )}
             </div>
           </div>
 
           {/* Draft Watermark Banner */}
-          <div className="p-3 bg-slate-950/80 rounded-xl border border-dashed border-amber-500/30 text-[11px] text-amber-200/80 flex items-center gap-2">
-            <span>⚠️</span>
+          <div style={{ padding: "10px 14px", background: "rgba(217, 119, 6, 0.08)", borderRadius: "8px", border: "1px solid rgba(217, 119, 6, 0.2)", fontSize: "12px", color: "#92400e", display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+            <AlertTriangle size={16} color="#d97706" />
             <span>{generatedResult.disclaimer}</span>
           </div>
 
           {/* Draft Content */}
-          <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 text-slate-200 text-sm leading-relaxed whitespace-pre-wrap font-sans overflow-x-auto max-h-[500px]">
+          <div style={{ background: "#f8fafc", padding: "18px", borderRadius: "10px", border: "1px solid #e2e8f0", color: "#1e293b", fontSize: "14px", lineHeight: 1.65, whiteSpace: "pre-wrap", maxHeight: "550px", overflowY: "auto" }}>
             {generatedResult.content}
           </div>
         </div>

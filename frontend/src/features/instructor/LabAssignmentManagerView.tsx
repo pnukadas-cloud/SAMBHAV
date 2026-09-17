@@ -8,6 +8,19 @@ import {
   gradeLabSubmissionApi,
   fetchInstructorClasses,
 } from "../../api/client";
+import {
+  Plus,
+  FlaskConical,
+  Users,
+  Edit3,
+  Trash2,
+  Cpu,
+  AlertCircle,
+  X,
+  RefreshCw,
+  Award,
+  Layers,
+} from "lucide-react";
 
 interface LabAssignment {
   id: string;
@@ -98,9 +111,9 @@ export const LabAssignmentManagerView: React.FC = () => {
       expected_result: "Equal probability measurement distribution between |00⟩ (50%) and |11⟩ (50%).",
       hints: [
         "Apply a Hadamard gate to qubit 0 to create a superposition.",
-        "Use qubit 0 as the control and qubit 1 as target in a CNOT gate."
+        "Add a CNOT gate with qubit 0 as control and qubit 1 as target.",
       ],
-      instructions: "1. Open the Quantum Lab circuit editor.\n2. Place an H gate on wire 0.\n3. Place a CNOT gate with control on wire 0 and target on wire 1.\n4. Attach measurement gates to both qubits.\n5. Run simulation and verify the output statevector.",
+      instructions: "1. Place H gate on Q0.\n2. Place CNOT with control Q0 and target Q1.\n3. Run simulation with 1024 shots.",
     });
   };
 
@@ -111,8 +124,8 @@ export const LabAssignmentManagerView: React.FC = () => {
 
   const handleSaveLab = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingLab?.title || !editingLab?.description) {
-      alert("Title and Description are required.");
+    if (!editingLab?.title) {
+      alert("Lab title is required.");
       return;
     }
 
@@ -133,7 +146,7 @@ export const LabAssignmentManagerView: React.FC = () => {
   };
 
   const handleDeleteLab = async (id: string, title: string) => {
-    if (!window.confirm(`Are you sure you want to delete lab assignment "${title}"?`)) return;
+    if (!window.confirm(`Are you sure you want to delete lab experiment "${title}"?`)) return;
     try {
       await deleteInstructorLabApi(id);
       await loadData();
@@ -142,7 +155,7 @@ export const LabAssignmentManagerView: React.FC = () => {
     }
   };
 
-  // Submissions Handling
+  // Submissions modal handlers
   const handleOpenSubmissions = async (lab: LabAssignment) => {
     setSelectedLabForSubs(lab);
     setLoadingSubs(true);
@@ -150,7 +163,7 @@ export const LabAssignmentManagerView: React.FC = () => {
       const subs = await fetchLabSubmissionsApi(lab.id);
       setSubmissions(subs || []);
     } catch (err: any) {
-      alert(err.message || "Failed to load submissions.");
+      alert(err.message || "Failed to load lab submissions.");
     } finally {
       setLoadingSubs(false);
     }
@@ -220,30 +233,31 @@ export const LabAssignmentManagerView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="instructor-content-area">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <span>🔬</span> Quantum Lab Assignments
-          </h2>
-          <p className="text-slate-400 text-sm mt-1">
-            Author and assign hands-on quantum circuit experiments integrated directly with SAMBHAV's Quantum Lab simulator.
-          </p>
+      <div className="instructor-header-banner">
+        <div className="instructor-header-titles">
+          <h1>🔬 Quantum Lab Assignments</h1>
+          <p>Author and assign hands-on quantum circuit experiments integrated directly with SAMBHAV's Quantum Lab simulator.</p>
         </div>
-        <button
-          onClick={handleOpenCreate}
-          className="px-4 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-medium rounded-xl shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
-        >
-          <span>➕</span> Create Lab Assignment
-        </button>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button type="button" className="instructor-btn-secondary" onClick={loadData}>
+            <RefreshCw size={15} /> Refresh
+          </button>
+          <button type="button" className="instructor-btn-primary" onClick={handleOpenCreate}>
+            <Plus size={16} /> Create Lab Assignment
+          </button>
+        </div>
       </div>
 
       {/* Error state */}
       {error && (
-        <div className="p-4 bg-rose-950/40 border border-rose-800/50 rounded-xl text-rose-300 text-sm flex items-center justify-between">
-          <span>{error}</span>
-          <button onClick={loadData} className="text-rose-200 underline text-xs">
+        <div className="instructor-error-banner">
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <AlertCircle size={18} color="#e11d48" />
+            <span className="instructor-error-banner-text">{error}</span>
+          </div>
+          <button type="button" onClick={loadData} className="instructor-btn-secondary" style={{ padding: "5px 12px", fontSize: "12px" }}>
             Retry
           </button>
         </div>
@@ -251,65 +265,64 @@ export const LabAssignmentManagerView: React.FC = () => {
 
       {/* Loading state */}
       {loading ? (
-        <div className="p-12 text-center text-slate-400">
-          <div className="inline-block w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-          <p>Loading lab assignments...</p>
+        <div className="instructor-loading-box">
+          <div className="instructor-spinner"></div>
+          <span>Loading lab assignments...</span>
         </div>
       ) : labs.length === 0 ? (
-        <div className="p-12 text-center bg-slate-900/40 border border-slate-800 rounded-2xl">
-          <div className="text-4xl mb-3">⚡</div>
-          <h3 className="text-lg font-semibold text-white mb-1">No Quantum Lab Assignments Yet</h3>
-          <p className="text-slate-400 text-sm max-w-md mx-auto mb-6">
+        <div className="instructor-panel-card" style={{ textAlign: "center", padding: "48px 24px" }}>
+          <div style={{ fontSize: "40px", marginBottom: "12px" }}>⚡</div>
+          <h3 style={{ justifyContent: "center", marginBottom: "8px" }}>No Quantum Lab Assignments Yet</h3>
+          <p style={{ color: "#64748b", fontSize: "13px", maxWidth: "480px", margin: "0 auto 20px" }}>
             Create circuit-building experiments for your students to design, simulate, and verify quantum algorithms.
           </p>
-          <button
-            onClick={handleOpenCreate}
-            className="px-4 py-2 bg-teal-500 hover:bg-teal-400 text-white text-sm font-medium rounded-lg transition-all"
-          >
-            Create Your First Lab
+          <button type="button" className="instructor-btn-primary" onClick={handleOpenCreate}>
+            <Plus size={16} /> Create Your First Lab
           </button>
         </div>
       ) : (
         /* Lab Cards Grid */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="instructor-card-grid">
           {labs.map((lab) => (
-            <div
-              key={lab.id}
-              className="bg-slate-900/60 border border-slate-800 hover:border-slate-700/80 rounded-2xl p-5 flex flex-col justify-between transition-all group"
-            >
+            <div key={lab.id} className="instructor-item-card">
               <div>
-                <div className="flex items-center justify-between gap-2 mb-3">
+                <div className="instructor-item-card-header">
                   <span
-                    className={`px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                    className={`badge-pill ${
                       lab.difficulty === "Beginner"
-                        ? "bg-teal-500/10 text-teal-300 border border-teal-500/20"
+                        ? "badge-pill-teal"
                         : lab.difficulty === "Intermediate"
-                        ? "bg-amber-500/10 text-amber-300 border border-amber-500/20"
-                        : "bg-rose-500/10 text-rose-300 border border-rose-500/20"
+                        ? "badge-pill-amber"
+                        : "badge-pill-rose"
                     }`}
                   >
                     {lab.difficulty}
                   </span>
-                  <span className="text-xs font-medium text-slate-400">
+                  <span style={{ fontSize: "12px", color: "#64748b", fontWeight: 600 }}>
                     {lab.qubits} Qubits • {lab.marks} Pts
                   </span>
                 </div>
 
-                <h3 className="text-lg font-bold text-white group-hover:text-teal-300 transition-colors line-clamp-1 mb-1">
-                  {lab.title}
-                </h3>
-                <p className="text-slate-400 text-xs line-clamp-2 mb-3">
-                  {lab.description}
-                </p>
+                <h3 className="instructor-item-card-title">{lab.title}</h3>
+                <p className="instructor-item-card-desc">{lab.description}</p>
 
                 {/* Required Gates Tags */}
                 {lab.required_gates && lab.required_gates.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-1.5 mb-4">
-                    <span className="text-[11px] text-slate-500">Required:</span>
+                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px", marginBottom: "14px" }}>
+                    <span style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 600 }}>Required:</span>
                     {lab.required_gates.map((g, i) => (
                       <span
                         key={i}
-                        className="px-1.5 py-0.5 bg-slate-800 text-teal-300 text-[10px] font-mono font-bold rounded border border-slate-700"
+                        style={{
+                          background: "rgba(13, 148, 136, 0.1)",
+                          color: "#0d9488",
+                          border: "1px solid rgba(13, 148, 136, 0.25)",
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          fontSize: "11px",
+                          fontFamily: "monospace",
+                          fontWeight: 700,
+                        }}
                       >
                         {g}
                       </span>
@@ -319,32 +332,37 @@ export const LabAssignmentManagerView: React.FC = () => {
               </div>
 
               <div>
-                <div className="flex items-center justify-between text-xs text-slate-500 py-2 border-t border-slate-800/80 mb-3">
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#94a3b8", padding: "8px 0", borderTop: "1px solid #f1f5f9", marginBottom: "12px" }}>
                   <span>{lab.class_name ? `Class: ${lab.class_name}` : "All Cohorts"}</span>
                   {lab.deadline && <span>Due: {new Date(lab.deadline).toLocaleDateString()}</span>}
                 </div>
 
-                <div className="flex items-center justify-between gap-2">
+                <div className="instructor-item-card-actions">
                   <button
+                    type="button"
                     onClick={() => handleOpenSubmissions(lab)}
-                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5"
+                    className="instructor-btn-secondary"
+                    style={{ fontSize: "12px", padding: "6px 12px" }}
                   >
-                    <span>📊</span> Submissions
+                    <FlaskConical size={14} /> Submissions
                   </button>
-                  <div className="flex items-center gap-1">
+                  <div style={{ display: "flex", gap: "6px" }}>
                     <button
+                      type="button"
                       onClick={() => handleOpenEdit(lab)}
-                      className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                      className="instructor-btn-secondary"
+                      style={{ padding: "6px 10px" }}
                       title="Edit Lab Assignment"
                     >
-                      ✏️
+                      <Edit3 size={14} />
                     </button>
                     <button
+                      type="button"
                       onClick={() => handleDeleteLab(lab.id, lab.title)}
-                      className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition-colors"
+                      className="instructor-btn-danger"
                       title="Delete Lab Assignment"
                     >
-                      🗑️
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
@@ -356,240 +374,238 @@ export const LabAssignmentManagerView: React.FC = () => {
 
       {/* CREATE / EDIT LAB MODAL */}
       {editingLab && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl my-auto">
-            {/* Modal Header */}
-            <div className="p-6 border-b border-slate-800 flex items-center justify-between">
+        <div className="instructor-modal-overlay">
+          <div className="instructor-modal-box">
+            <div className="instructor-modal-header">
               <div>
-                <h3 className="text-xl font-bold text-white">
-                  {isCreating ? "Create Quantum Lab Assignment" : "Edit Lab Assignment"}
-                </h3>
-                <p className="text-slate-400 text-xs mt-0.5">
-                  Define quantum circuit requirements, simulation objectives, and learner guidelines.
-                </p>
+                <h3>{isCreating ? "Create Quantum Lab Assignment" : "Edit Lab Assignment"}</h3>
+                <p>Define quantum circuit requirements, simulation objectives, and learner guidelines.</p>
               </div>
               <button
+                type="button"
                 onClick={() => setEditingLab(null)}
-                className="text-slate-400 hover:text-white text-xl p-1"
+                className="instructor-modal-close"
               >
-                ✕
+                <X size={20} />
               </button>
             </div>
 
-            {/* Modal Form */}
-            <form onSubmit={handleSaveLab} className="p-6 overflow-y-auto space-y-5 flex-1">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                    Experiment Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editingLab.title || ""}
-                    onChange={(e) => setEditingLab({ ...editingLab, title: e.target.value })}
-                    placeholder="e.g., Lab 2: Entanglement & Bell State Generation"
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-600 outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                    Assign to Class Cohort
-                  </label>
-                  <select
-                    value={editingLab.class_id || ""}
-                    onChange={(e) => setEditingLab({ ...editingLab, class_id: e.target.value || undefined })}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none"
-                  >
-                    <option value="">-- Available to All My Classes --</option>
-                    {classes.map((cls) => (
-                      <option key={cls.id} value={cls.id}>
-                        {cls.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Description & Scientific Motivation *
-                </label>
-                <textarea
-                  rows={2}
-                  required
-                  value={editingLab.description || ""}
-                  onChange={(e) => setEditingLab({ ...editingLab, description: e.target.value })}
-                  placeholder="Explain the physical principle and significance of this quantum circuit experiment..."
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-600 outline-none"
-                />
-              </div>
-
-              {/* Lab Parameters */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">
-                    Number of Qubits
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={16}
-                    value={editingLab.qubits || 2}
-                    onChange={(e) =>
-                      setEditingLab({ ...editingLab, qubits: parseInt(e.target.value) || 2 })
-                    }
-                    className="w-full bg-slate-900 border border-slate-800 focus:border-teal-500 rounded-lg px-3 py-1.5 text-sm text-white outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">
-                    Difficulty Level
-                  </label>
-                  <select
-                    value={editingLab.difficulty || "Beginner"}
-                    onChange={(e) =>
-                      setEditingLab({
-                        ...editingLab,
-                        difficulty: e.target.value as "Beginner" | "Intermediate" | "Advanced",
-                      })
-                    }
-                    className="w-full bg-slate-900 border border-slate-800 focus:border-teal-500 rounded-lg px-3 py-1.5 text-sm text-white outline-none"
-                  >
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">
-                    Total Marks
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={1000}
-                    value={editingLab.marks || 100}
-                    onChange={(e) =>
-                      setEditingLab({ ...editingLab, marks: parseInt(e.target.value) || 100 })
-                    }
-                    className="w-full bg-slate-900 border border-slate-800 focus:border-teal-500 rounded-lg px-3 py-1.5 text-sm text-white outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Required Gates */}
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Required Quantum Gates
-                </label>
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                  {editingLab.required_gates?.map((gate) => (
-                    <span
-                      key={gate}
-                      className="px-2.5 py-1 bg-teal-500/20 text-teal-300 border border-teal-500/30 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5"
-                    >
-                      {gate}
-                      <button
-                        type="button"
-                        onClick={() => removeRequiredGate(gate)}
-                        className="text-teal-400 hover:text-rose-300 text-xs"
-                      >
-                        ✕
-                      </button>
-                    </span>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500">Quick add:</span>
-                  {["H", "X", "Y", "Z", "CX", "CZ", "SWAP", "Rz", "Rx", "Measure"].map((g) => (
-                    <button
-                      key={g}
-                      type="button"
-                      onClick={() => addRequiredGate(g)}
-                      className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded border border-slate-700 transition-colors"
-                    >
-                      +{g}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Expected Result & Step-by-Step Instructions */}
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Expected Experimental Outcome / Target State
-                </label>
-                <input
-                  type="text"
-                  value={editingLab.expected_result || ""}
-                  onChange={(e) => setEditingLab({ ...editingLab, expected_result: e.target.value })}
-                  placeholder="e.g., Entangled state (|00⟩ + |11⟩)/√2 with zero probability for |01⟩ and |10⟩"
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-600 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Step-by-Step Experiment Instructions
-                </label>
-                <textarea
-                  rows={3}
-                  value={editingLab.instructions || ""}
-                  onChange={(e) => setEditingLab({ ...editingLab, instructions: e.target.value })}
-                  placeholder="1. Set up initial state&#10;2. Apply transformation gates...&#10;3. Record measurement counts..."
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 font-mono outline-none"
-                />
-              </div>
-
-              {/* Hints */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-medium text-slate-300">
-                    Progressive Hints ({editingLab.hints?.length || 0})
-                  </label>
-                  <button
-                    type="button"
-                    onClick={addHint}
-                    className="text-xs text-teal-400 hover:text-teal-300 font-medium"
-                  >
-                    + Add Hint
-                  </button>
-                </div>
-                {editingLab.hints?.map((hint, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <span className="text-xs text-slate-500">#{idx + 1}</span>
+            <form onSubmit={handleSaveLab} style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
+              <div className="instructor-modal-body">
+                <div className="instructor-form-row">
+                  <div className="instructor-form-group">
+                    <label className="instructor-form-label">Experiment Title *</label>
                     <input
                       type="text"
-                      value={hint}
-                      onChange={(e) => updateHint(idx, e.target.value)}
-                      placeholder={`Hint ${idx + 1}...`}
-                      className="flex-1 bg-slate-950 border border-slate-800 text-xs text-white rounded-lg px-3 py-1.5 outline-none"
+                      required
+                      value={editingLab.title || ""}
+                      onChange={(e) => setEditingLab({ ...editingLab, title: e.target.value })}
+                      placeholder="e.g., Lab 2: Entanglement & Bell State Generation"
+                      className="instructor-form-input"
                     />
+                  </div>
+                  <div className="instructor-form-group">
+                    <label className="instructor-form-label">Assign to Class Cohort</label>
+                    <select
+                      value={editingLab.class_id || ""}
+                      onChange={(e) => setEditingLab({ ...editingLab, class_id: e.target.value || undefined })}
+                      className="instructor-form-select"
+                    >
+                      <option value="">-- Available to All My Classes --</option>
+                      {classes.map((cls) => (
+                        <option key={cls.id} value={cls.id}>
+                          {cls.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="instructor-form-group">
+                  <label className="instructor-form-label">Description & Scientific Motivation *</label>
+                  <textarea
+                    rows={2}
+                    required
+                    value={editingLab.description || ""}
+                    onChange={(e) => setEditingLab({ ...editingLab, description: e.target.value })}
+                    placeholder="Explain the physical principle and significance of this quantum circuit experiment..."
+                    className="instructor-form-textarea"
+                  />
+                </div>
+
+                {/* Parameters */}
+                <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0", marginBottom: "18px" }}>
+                  <div className="instructor-form-row" style={{ margin: 0 }}>
+                    <div className="instructor-form-group" style={{ margin: 0 }}>
+                      <label className="instructor-form-label">Number of Qubits</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={16}
+                        value={editingLab.qubits || 2}
+                        onChange={(e) =>
+                          setEditingLab({ ...editingLab, qubits: parseInt(e.target.value) || 2 })
+                        }
+                        className="instructor-form-input"
+                      />
+                    </div>
+                    <div className="instructor-form-group" style={{ margin: 0 }}>
+                      <label className="instructor-form-label">Difficulty Level</label>
+                      <select
+                        value={editingLab.difficulty || "Beginner"}
+                        onChange={(e) =>
+                          setEditingLab({
+                            ...editingLab,
+                            difficulty: e.target.value as "Beginner" | "Intermediate" | "Advanced",
+                          })
+                        }
+                        className="instructor-form-select"
+                      >
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                      </select>
+                    </div>
+                    <div className="instructor-form-group" style={{ margin: 0 }}>
+                      <label className="instructor-form-label">Total Marks</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={1000}
+                        value={editingLab.marks || 100}
+                        onChange={(e) =>
+                          setEditingLab({ ...editingLab, marks: parseInt(e.target.value) || 100 })
+                        }
+                        className="instructor-form-input"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Required Gates */}
+                <div className="instructor-form-group">
+                  <label className="instructor-form-label">Required Quantum Gates</label>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "8px" }}>
+                    {editingLab.required_gates?.map((gate) => (
+                      <span
+                        key={gate}
+                        style={{
+                          background: "rgba(13, 148, 136, 0.12)",
+                          color: "#0d9488",
+                          border: "1px solid rgba(13, 148, 136, 0.25)",
+                          padding: "3px 8px",
+                          borderRadius: "6px",
+                          fontSize: "12px",
+                          fontFamily: "monospace",
+                          fontWeight: 700,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        {gate}
+                        <button
+                          type="button"
+                          onClick={() => removeRequiredGate(gate)}
+                          style={{ background: "none", border: "none", color: "#e11d48", cursor: "pointer", fontSize: "12px", padding: 0 }}
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                    <span style={{ fontSize: "11px", color: "#64748b" }}>Quick add:</span>
+                    {["H", "X", "Y", "Z", "CX", "CZ", "SWAP", "Rz", "Rx", "Measure"].map((g) => (
+                      <button
+                        key={g}
+                        type="button"
+                        onClick={() => addRequiredGate(g)}
+                        className="instructor-btn-secondary"
+                        style={{ fontSize: "11px", padding: "2px 8px" }}
+                      >
+                        +{g}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Expected Result & Step-by-Step Instructions */}
+                <div className="instructor-form-group">
+                  <label className="instructor-form-label">Expected Experimental Outcome / Target State</label>
+                  <input
+                    type="text"
+                    value={editingLab.expected_result || ""}
+                    onChange={(e) => setEditingLab({ ...editingLab, expected_result: e.target.value })}
+                    placeholder="e.g., Entangled state (|00⟩ + |11⟩)/√2 with zero probability for |01⟩ and |10⟩"
+                    className="instructor-form-input"
+                  />
+                </div>
+
+                <div className="instructor-form-group">
+                  <label className="instructor-form-label">Step-by-Step Experiment Instructions</label>
+                  <textarea
+                    rows={3}
+                    value={editingLab.instructions || ""}
+                    onChange={(e) => setEditingLab({ ...editingLab, instructions: e.target.value })}
+                    placeholder="1. Set up initial state&#10;2. Apply transformation gates...&#10;3. Record measurement counts..."
+                    className="instructor-form-textarea"
+                    style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "12px" }}
+                  />
+                </div>
+
+                {/* Hints */}
+                <div style={{ marginTop: "12px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                    <label className="instructor-form-label" style={{ margin: 0 }}>
+                      Progressive Hints ({editingLab.hints?.length || 0})
+                    </label>
                     <button
                       type="button"
-                      onClick={() => removeHint(idx)}
-                      className="text-slate-500 hover:text-rose-400 text-xs p-1"
+                      onClick={addHint}
+                      className="instructor-btn-secondary"
+                      style={{ fontSize: "11px", padding: "3px 8px" }}
                     >
-                      🗑️
+                      + Add Hint
                     </button>
                   </div>
-                ))}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    {editingLab.hints?.map((hint, idx) => (
+                      <div key={idx} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span style={{ fontSize: "12px", color: "#64748b", width: "24px" }}>#{idx + 1}</span>
+                        <input
+                          type="text"
+                          value={hint}
+                          onChange={(e) => updateHint(idx, e.target.value)}
+                          placeholder={`Hint ${idx + 1}...`}
+                          className="instructor-form-input"
+                          style={{ fontSize: "12px", padding: "6px 10px" }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeHint(idx)}
+                          className="instructor-btn-danger"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              {/* Modal Actions */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+              <div className="instructor-modal-footer">
                 <button
                   type="button"
                   onClick={() => setEditingLab(null)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-xl transition-colors"
+                  className="instructor-btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white text-sm font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 cursor-pointer"
+                  className="instructor-btn-primary"
                 >
                   {saving ? "Saving..." : isCreating ? "Create Lab Assignment" : "Save Changes"}
                 </button>
@@ -601,112 +617,98 @@ export const LabAssignmentManagerView: React.FC = () => {
 
       {/* LAB SUBMISSIONS MODAL */}
       {selectedLabForSubs && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl my-auto">
-            {/* Header */}
-            <div className="p-6 border-b border-slate-800 flex items-center justify-between">
+        <div className="instructor-modal-overlay">
+          <div className="instructor-modal-box">
+            <div className="instructor-modal-header">
               <div>
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <span>🔬</span> Submissions: {selectedLabForSubs.title}
-                </h3>
-                <p className="text-slate-400 text-xs mt-0.5">
-                  Review student circuit simulations and award marks with constructive feedback.
-                </p>
+                <h3>🔬 Submissions: {selectedLabForSubs.title}</h3>
+                <p>Review student circuit simulations and award marks with constructive feedback.</p>
               </div>
               <button
+                type="button"
                 onClick={() => setSelectedLabForSubs(null)}
-                className="text-slate-400 hover:text-white text-xl p-1"
+                className="instructor-modal-close"
               >
-                ✕
+                <X size={20} />
               </button>
             </div>
 
-            {/* Body */}
-            <div className="p-6 overflow-y-auto flex-1">
+            <div className="instructor-modal-body">
               {loadingSubs ? (
-                <div className="p-8 text-center text-slate-400">
-                  <div className="inline-block w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mb-2"></div>
-                  <p className="text-xs">Loading lab submissions...</p>
+                <div className="instructor-loading-box">
+                  <div className="instructor-spinner"></div>
+                  <span>Loading lab submissions...</span>
                 </div>
               ) : submissions.length === 0 ? (
-                <div className="text-center py-10 bg-slate-950/40 rounded-xl border border-slate-800/80">
-                  <div className="text-3xl mb-2">🔭</div>
-                  <h4 className="text-sm font-semibold text-white">No Lab Submissions Yet</h4>
-                  <p className="text-xs text-slate-500 mt-1">
-                    When students submit circuits for this lab experiment, they will appear here for verification and grading.
-                  </p>
+                <div className="instructor-empty-state">
+                  <div style={{ fontSize: "28px" }}>🔭</div>
+                  <h4>No Lab Submissions Yet</h4>
+                  <p>When students submit circuits for this lab experiment, they will appear here for verification and grading.</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   {submissions.map((sub) => (
                     <div
                       key={sub.id}
-                      className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3"
+                      style={{
+                        background: "#f8fafc",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "10px",
+                        padding: "16px",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "10px",
+                      }}
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div>
-                          <span className="text-sm font-bold text-white">
+                          <span style={{ fontWeight: 700, fontSize: "14px", color: "#0f172a" }}>
                             {sub.student_name || "Learner"}
                           </span>
-                          <span className="text-xs text-slate-500 ml-2">
+                          <span style={{ fontSize: "12px", color: "#64748b", marginLeft: "6px" }}>
                             ({sub.student_email || sub.user_id})
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                              sub.status === "graded"
-                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                            }`}
-                          >
-                            {sub.status === "graded" ? `Graded: ${sub.score} / ${selectedLabForSubs.marks}` : "Needs Review"}
-                          </span>
-                          <button
-                            onClick={() => handleOpenGrading(sub)}
-                            className="px-3 py-1 bg-teal-500/20 text-teal-300 hover:bg-teal-500/30 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
-                          >
-                            {sub.status === "graded" ? "Edit Grade" : "Grade Lab"}
-                          </button>
-                        </div>
+                        <span style={{ fontWeight: 700, fontSize: "13px", color: sub.status === "graded" ? "#16a34a" : "#d97706" }}>
+                          {sub.status === "graded" ? `Score: ${sub.score} / ${selectedLabForSubs.marks}` : "Needs Review"}
+                        </span>
                       </div>
 
-                      {/* Submitted Circuit Summary */}
+                      {/* Submitted Circuit Preview */}
                       {sub.circuit && (
-                        <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800/80">
-                          <span className="text-xs text-slate-400 font-medium block mb-1">
-                            Submitted Circuit: {sub.circuit.num_qubits || selectedLabForSubs.qubits} Qubits • {sub.circuit.gates?.length || 0} Gates
-                          </span>
-                          {sub.circuit.gates && sub.circuit.gates.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {sub.circuit.gates.map((g: any, gi: number) => (
-                                <span
-                                  key={gi}
-                                  className="px-1.5 py-0.5 bg-slate-800 text-teal-300 text-[10px] font-mono rounded border border-slate-700"
-                                >
-                                  {g.gate || g.type}(Q{g.targets?.join(",") ?? g.target})
-                                </span>
-                              ))}
-                            </div>
-                          )}
+                        <div style={{ background: "#0f172a", color: "#38bdf8", padding: "10px 12px", borderRadius: "6px", fontSize: "11px", fontFamily: "JetBrains Mono, monospace", overflowX: "auto" }}>
+                          <span style={{ color: "#94a3b8" }}>Circuit IR: </span>
+                          {JSON.stringify(sub.circuit)}
                         </div>
                       )}
 
                       {sub.feedback && (
-                        <p className="text-xs text-slate-400 bg-slate-900/40 p-2.5 rounded border border-slate-800">
-                          <span className="text-slate-500 font-medium">Instructor Feedback:</span> {sub.feedback}
+                        <p style={{ margin: 0, fontSize: "12px", color: "#475569", background: "#ffffff", padding: "6px 10px", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
+                          <strong>Feedback:</strong> {sub.feedback}
                         </p>
                       )}
+
+                      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenGrading(sub)}
+                          className="instructor-btn-primary"
+                          style={{ fontSize: "12px", padding: "6px 12px" }}
+                        >
+                          {sub.status === "graded" ? "Edit Grade" : "Grade Submission"}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            <div className="p-4 border-t border-slate-800 text-right">
+            <div className="instructor-modal-footer">
               <button
+                type="button"
                 onClick={() => setSelectedLabForSubs(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-xl transition-colors"
+                className="instructor-btn-secondary"
               >
                 Close
               </button>
@@ -715,50 +717,56 @@ export const LabAssignmentManagerView: React.FC = () => {
         </div>
       )}
 
-      {/* LAB GRADING MODAL */}
-      {gradingSubmission && selectedLabForSubs && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
-            <h4 className="text-lg font-bold text-white">
-              Grade Lab: {gradingSubmission.student_name || "Learner"}
-            </h4>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">
-                Score (0 to {selectedLabForSubs.marks})
-              </label>
-              <input
-                type="number"
-                min={0}
-                max={selectedLabForSubs.marks}
-                value={gradeScore}
-                onChange={(e) =>
-                  setGradeScore(
-                    Math.min(selectedLabForSubs.marks, Math.max(0, parseFloat(e.target.value) || 0))
-                  )
-                }
-                className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-2 text-sm text-white outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">
-                Laboratory Feedback & Analysis
-              </label>
-              <textarea
-                rows={3}
-                value={gradeFeedback}
-                onChange={(e) => setGradeFeedback(e.target.value)}
-                placeholder="Remarks on circuit correctness, statevector fidelity, gate optimization..."
-                className="w-full bg-slate-950 border border-slate-800 focus:border-teal-500 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-600 outline-none"
-              />
-            </div>
-
-            <div className="flex items-center justify-end gap-2 pt-2">
+      {/* GRADING SUBMISSION MODAL */}
+      {gradingSubmission && (
+        <div className="instructor-modal-overlay">
+          <div className="instructor-modal-box" style={{ maxWidth: "480px" }}>
+            <div className="instructor-modal-header">
+              <div>
+                <h3>Grade Lab Submission</h3>
+                <p>{gradingSubmission.student_name || "Learner"}</p>
+              </div>
               <button
                 type="button"
                 onClick={() => setGradingSubmission(null)}
-                className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-xl transition-colors"
+                className="instructor-modal-close"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="instructor-modal-body">
+              <div className="instructor-form-group">
+                <label className="instructor-form-label">
+                  Score (0 - {selectedLabForSubs?.marks || 100})
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={selectedLabForSubs?.marks || 100}
+                  value={gradeScore}
+                  onChange={(e) => setGradeScore(parseFloat(e.target.value) || 0)}
+                  className="instructor-form-input"
+                />
+              </div>
+
+              <div className="instructor-form-group">
+                <label className="instructor-form-label">Instructor Feedback</label>
+                <textarea
+                  rows={3}
+                  value={gradeFeedback}
+                  onChange={(e) => setGradeFeedback(e.target.value)}
+                  placeholder="Circuit correctness notes, gate efficiency tips..."
+                  className="instructor-form-textarea"
+                />
+              </div>
+            </div>
+
+            <div className="instructor-modal-footer">
+              <button
+                type="button"
+                onClick={() => setGradingSubmission(null)}
+                className="instructor-btn-secondary"
               >
                 Cancel
               </button>
@@ -766,9 +774,9 @@ export const LabAssignmentManagerView: React.FC = () => {
                 type="button"
                 disabled={savingGrade}
                 onClick={handleSaveGrade}
-                className="px-4 py-2 bg-teal-500 hover:bg-teal-400 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50 cursor-pointer"
+                className="instructor-btn-primary"
               >
-                {savingGrade ? "Saving..." : "Submit Lab Grade"}
+                {savingGrade ? "Saving..." : "Submit Grade"}
               </button>
             </div>
           </div>
