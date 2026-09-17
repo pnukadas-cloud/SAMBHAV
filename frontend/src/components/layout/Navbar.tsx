@@ -1,9 +1,15 @@
-import { Atom, Compass, LogIn, Sparkles, UserPlus } from "lucide-react";
+import { Atom, Compass, LogIn, Sparkles } from "lucide-react";
 import { Link } from "../../router/Router";
 import { useAuth } from "../../context/AuthContext";
 
 export function Navbar() {
   const { user } = useAuth();
+
+  const getGatedUrl = (targetPath: string) =>
+    user ? targetPath : `/login?returnTo=${encodeURIComponent(targetPath)}`;
+
+  const getSignupUrl = (targetPath: string) =>
+    user ? targetPath : `/signup?returnTo=${encodeURIComponent(targetPath)}`;
 
   return (
     <header className="public-navbar">
@@ -24,16 +30,16 @@ export function Navbar() {
           <Link to="/" className="nav-link" activeClassName="nav-link-active">
             Home
           </Link>
-          <Link to="/learn" className="nav-link" activeClassName="nav-link-active">
+          <Link to={getGatedUrl("/learn")} className="nav-link" activeClassName="nav-link-active">
             Curriculum
           </Link>
-          <Link to="/lab" className="nav-link" activeClassName="nav-link-active">
+          <Link to={getGatedUrl("/lab")} className="nav-link" activeClassName="nav-link-active">
             Quantum Lab
           </Link>
-          <Link to="/algorithms" className="nav-link" activeClassName="nav-link-active">
+          <Link to={getGatedUrl("/algorithms")} className="nav-link" activeClassName="nav-link-active">
             Algorithms
           </Link>
-          <Link to="/challenges" className="nav-link" activeClassName="nav-link-active">
+          <Link to={getGatedUrl("/challenges")} className="nav-link" activeClassName="nav-link-active">
             Challenges
           </Link>
         </nav>
@@ -52,7 +58,7 @@ export function Navbar() {
               <Link to="/login" className="nav-btn-ghost">
                 <LogIn size={16} /> Sign In
               </Link>
-              <Link to="/signup" className="btn-primary-glow">
+              <Link to={getSignupUrl("/learn")} className="btn-primary-glow">
                 <Sparkles size={16} /> Start Learning Free
               </Link>
             </>
@@ -62,3 +68,4 @@ export function Navbar() {
     </header>
   );
 }
+

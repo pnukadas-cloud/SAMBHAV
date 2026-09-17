@@ -14,19 +14,28 @@ import {
   Zap,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "../router/Router";
+import { Link, useLocation, useNavigate, validateReturnTo } from "../router/Router";
 import { useAuth, UserRole } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { OtpInitiatedResponse } from "../api/client";
 
 export function SignupPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { initiateSignup, verifyOtp, resendOtp, user } = useAuth();
   const { showToast } = useToast();
 
+  const searchParams = new URLSearchParams(location.search || window.location.search);
+  const rawReturnTo = searchParams.get("returnTo") || searchParams.get("redirect") || "";
+  const returnToDestination = validateReturnTo(rawReturnTo, "");
+
+  const getOnboardingUrl = () => {
+    return returnToDestination ? `/onboarding?returnTo=${encodeURIComponent(returnToDestination)}` : "/onboarding";
+  };
+
   useEffect(() => {
     if (user) {
-      navigate("/onboarding");
+      navigate(getOnboardingUrl());
     }
   }, [user]);
 
@@ -131,7 +140,7 @@ export function SignupPage() {
     try {
       await verifyOtp(sessionToken, fullCode);
       showToast(`Welcome to SAMBHAV! Let's personalize your path.`, "success", "Account Verified");
-      navigate("/onboarding");
+      navigate(getOnboardingUrl());
     } catch (err: any) {
       showToast(err?.message || "Invalid or expired verification code.", "error", "Verification Error");
     } finally {
@@ -389,7 +398,9 @@ export function SignupPage() {
         {/* Bottom Link */}
         <div className="auth-footer-link">
           <span>Already have an account? </span>
-          <Link to="/login">Sign in</Link>
+          <Link to={returnToDestination ? `/login?returnTo=${encodeURIComponent(returnToDestination)}` : "/login"}>
+            Sign in
+          </Link>
         </div>
       </div>
     </div>

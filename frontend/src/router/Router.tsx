@@ -2,24 +2,73 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 
 type RouterContextType = {
   path: string;
+  pathname: string;
+  search: string;
   navigate: (to: string) => void;
   params: Record<string, string>;
 };
 
 const RouterContext = createContext<RouterContextType>({
   path: "/",
+  pathname: "/",
+  search: "",
   navigate: () => {},
   params: {},
 });
 
+export function getCleanPathname(fullPath: string): string {
+  if (!fullPath) return "/";
+  const withoutHash = fullPath.split("#")[0];
+  const withoutQuery = withoutHash.split("?")[0];
+  return withoutQuery || "/";
+}
+
+export function getCleanSearch(fullPath: string): string {
+  if (!fullPath || !fullPath.includes("?")) return "";
+  const queryPart = fullPath.split("?")[1];
+  return queryPart ? "?" + queryPart.split("#")[0] : "";
+}
+
+/**
+ * Validates returnTo destinations to strictly prevent open redirects.
+ * Allows only safe internal SAMBHAV paths starting with a single '/' and rejects
+ * external schemas, protocol-relative '//', backslashes, and javascript: URIs.
+ */
+export function validateReturnTo(url: string | null | undefined, fallback: string = "/dashboard"): string {
+  if (!url || typeof url !== "string") {
+    return fallback;
+  }
+  const trimmed = url.trim();
+  // Must start with single slash and not double slash
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//") || trimmed.startsWith("/\\")) {
+    return fallback;
+  }
+  // Reject protocol indicators, backslashes, or control characters
+  if (
+    trimmed.includes("://") ||
+    trimmed.toLowerCase().includes("javascript:") ||
+    trimmed.toLowerCase().includes("data:") ||
+    trimmed.toLowerCase().includes("vbscript:") ||
+    trimmed.includes("\\")
+  ) {
+    return fallback;
+  }
+  // Must match safe relative path pattern
+  const safePathRegex = /^\/[a-zA-Z0-9_\-\/\.\?=&%#~+]*$/;
+  if (!safePathRegex.test(trimmed)) {
+    return fallback;
+  }
+  return trimmed;
+}
+
 export function RouterProvider({ children }: { children: React.ReactNode }) {
   const [path, setPath] = useState<string>(() => {
-    return window.location.pathname || "/";
+    return (window.location.pathname || "/") + (window.location.search || "");
   });
 
   useEffect(() => {
     const handlePopState = () => {
-      setPath(window.location.pathname || "/");
+      setPath((window.location.pathname || "/") + (window.location.search || ""));
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -33,8 +82,11 @@ export function RouterProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const pathname = getCleanPathname(path);
+  const search = getCleanSearch(path);
+
   return (
-    <RouterContext.Provider value={{ path, navigate, params: {} }}>
+    <RouterContext.Provider value={{ path, pathname, search, navigate, params: {} }}>
       {children}
     </RouterContext.Provider>
   );
@@ -50,14 +102,19 @@ export function useNavigate() {
 }
 
 export function useLocation() {
-  const { path } = useContext(RouterContext);
-  return { pathname: path };
+  const { path, pathname, search } = useContext(RouterContext);
+  return {
+    pathname: pathname || getCleanPathname(path),
+    search: search || getCleanSearch(path) || (typeof window !== "undefined" ? window.location.search : ""),
+    fullPath: path,
+  };
 }
 
 // Pattern matcher for routes like /learn/:courseId/:lessonId or /lab/:circuitId
-function matchPath(pattern: string, currentPath: string): { matches: boolean; params: Record<string, string> } {
+function matchPath(pattern: string, currentPathname: string): { matches: boolean; params: Record<string, string> } {
+  const cleanCurrent = getCleanPathname(currentPathname);
   const patternSegments = pattern.split("/").filter(Boolean);
-  const pathSegments = currentPath.split("/").filter(Boolean);
+  const pathSegments = cleanCurrent.split("/").filter(Boolean);
 
   if (patternSegments.length !== pathSegments.length) {
     return { matches: false, params: {} };
@@ -86,16 +143,17 @@ type RouteProps = {
 };
 
 export function Route({ path: routePath, element }: RouteProps) {
-  const { path: currentPath, navigate } = useRouter();
+  const { path, pathname, search, navigate } = useRouter();
+  const currentPathname = pathname || getCleanPathname(path);
 
-  if (routePath === currentPath) {
+  if (routePath === currentPathname) {
     return <>{element}</>;
   }
 
-  const { matches, params } = matchPath(routePath, currentPath);
+  const { matches, params } = matchPath(routePath, currentPathname);
   if (matches) {
     return (
-      <RouterContext.Provider value={{ path: currentPath, navigate, params }}>
+      <RouterContext.Provider value={{ path, pathname: currentPathname, search, navigate, params }}>
         {element}
       </RouterContext.Provider>
     );
@@ -117,8 +175,9 @@ type LinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
 };
 
 export function Link({ to, children, className = "", activeClassName = "", onClick, ...props }: LinkProps) {
-  const { path, navigate } = useRouter();
-  const isActive = path === to || (to !== "/" && path.startsWith(to));
+  const { pathname, navigate } = useRouter();
+  const targetClean = getCleanPathname(to);
+  const isActive = pathname === targetClean || (targetClean !== "/" && pathname.startsWith(targetClean));
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (onClick) onClick(e);

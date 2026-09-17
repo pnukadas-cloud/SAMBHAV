@@ -6,224 +6,198 @@ import {
   BrainCircuit,
   CheckCircle2,
   Clock,
+  Cpu,
   GraduationCap,
+  Layers,
   Play,
+  ShieldCheck,
   Sparkles,
   Trophy,
   Zap,
 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "../router/Router";
 import { AppShell } from "../components/layout/AppShell";
-
-export interface Lesson {
-  id: string;
-  title: string;
-  duration: string;
-  completed?: boolean;
-  current?: boolean;
-}
-
-export interface Module {
-  id: string;
-  title: string;
-  lessons: Lesson[];
-}
-
-export interface Course {
-  id: string;
-  title: string;
-  subtitle: string;
-  difficulty: string;
-  estimatedHours: string;
-  progress: number;
-  modules: Module[];
-}
-
-export const COURSES_DATA: Course[] = [
-  {
-    id: "quantum-foundations",
-    title: "Quantum Foundations",
-    subtitle: "From Classical Bits to Quantum Superposition",
-    difficulty: "Beginner",
-    estimatedHours: "4 Hours",
-    progress: 75,
-    modules: [
-      {
-        id: "m1",
-        title: "Module 1: Qubits & Superposition",
-        lessons: [
-          { id: "qubit-basics", title: "1.1 The Qubit & Bloch Sphere", duration: "12 mins", completed: true },
-          { id: "superposition", title: "1.2 Creating Superposition with Hadamard (H)", duration: "15 mins", completed: true },
-          { id: "measurement", title: "1.3 Measurement Collapse & The Born Rule", duration: "18 mins", completed: true },
-        ],
-      },
-      {
-        id: "m2",
-        title: "Module 2: Entanglement & Bell States",
-        lessons: [
-          { id: "bell-state", title: "2.1 Building a Bell State (|Φ⁺⟩)", duration: "20 mins", current: true },
-          { id: "ghz-state", title: "2.2 Multi-Qubit GHZ Entanglement", duration: "25 mins" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "quantum-gates-logic",
-    title: "Quantum Logic & Unitary Gates",
-    subtitle: "Pauli Gates, Phase Shifts, and Rotations",
-    difficulty: "Intermediate",
-    estimatedHours: "6 Hours",
-    progress: 20,
-    modules: [
-      {
-        id: "m3",
-        title: "Module 1: Single-Qubit Rotations",
-        lessons: [
-          { id: "pauli-gates", title: "1.1 Pauli-X, Y, Z Matrix Transformations", duration: "15 mins", completed: true },
-          { id: "phase-gates", title: "1.2 Phase Shifts: S and T Gates", duration: "20 mins" },
-          { id: "rotations", title: "1.3 Continuous Rotations (Rx, Ry, Rz)", duration: "25 mins" },
-        ],
-      },
-      {
-        id: "m4",
-        title: "Module 2: Two-Qubit Controlled Gates",
-        lessons: [
-          { id: "controlled-gates", title: "2.1 CX, CZ and Phase Kickback", duration: "22 mins" },
-          { id: "swap-gates", title: "2.2 SWAP Networks and Quantum Routing", duration: "18 mins" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "quantum-algorithms",
-    title: "Core Quantum Algorithms",
-    subtitle: "Grover's Search, Deutsch-Jozsa, and Phase Estimation",
-    difficulty: "Advanced",
-    estimatedHours: "8 Hours",
-    progress: 0,
-    modules: [
-      {
-        id: "m5",
-        title: "Module 1: Quantum Oracles & Interference",
-        lessons: [
-          { id: "deutsch-jozsa", title: "1.1 Deutsch-Jozsa Algorithm", duration: "30 mins" },
-          { id: "grovers-search", title: "1.2 Grover's Amplitude Amplification", duration: "45 mins" },
-        ],
-      },
-      {
-        id: "m6",
-        title: "Module 2: Protocols & Estimation",
-        lessons: [
-          { id: "teleportation", title: "2.1 Quantum Teleportation Protocol", duration: "35 mins" },
-          { id: "superdense-coding", title: "2.2 Superdense Coding", duration: "25 mins" },
-          { id: "qpe", title: "2.3 Quantum Phase Estimation (QPE)", duration: "50 mins" },
-        ],
-      },
-    ],
-  },
-];
+import { UNIFIED_CURRICULUM_MODULES, CurriculumModule } from "../data/lessonsData";
+import { fetchProgress } from "../api/client";
 
 export function LearnPage() {
   const navigate = useNavigate();
+  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set(["qubit-basics", "superposition"]));
+  const [activeLessonId, setActiveLessonId] = useState<string>("bell-state");
+  const [progressData, setProgressData] = useState<any>(null);
+
+  useEffect(() => {
+    fetchProgress()
+      .then((data) => {
+        if (data) {
+          setProgressData(data);
+          const completedSet = new Set<string>();
+          if (data.records && Array.isArray(data.records)) {
+            data.records.forEach((r: any) => {
+              if (r.status === "completed" && r.lesson_id) {
+                completedSet.add(r.lesson_id);
+              }
+            });
+          }
+          if (completedSet.size > 0) {
+            setCompletedLessonIds(completedSet);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const totalModules = UNIFIED_CURRICULUM_MODULES.length; // 10
+  const totalLessons = UNIFIED_CURRICULUM_MODULES.reduce((sum, m) => sum + m.lessons.length, 0); // 33
+  const completedCount = completedLessonIds.size;
+  const overallProgressPct = Math.min(100, Math.round((completedCount / totalLessons) * 100));
+
+  function getModuleProgress(mod: CurriculumModule): number {
+    const modTotal = mod.lessons.length;
+    if (modTotal === 0) return 0;
+    const modCompleted = mod.lessons.filter((l) => completedLessonIds.has(l.id)).length;
+    return Math.round((modCompleted / modTotal) * 100);
+  }
 
   return (
-    <AppShell activeTitle="Curriculum" activeCategory="Learning">
+    <AppShell activeTitle="SAMBHAV Curriculum" activeCategory="Learning">
       <div className="learn-page-container">
-        {/* Header Hero */}
+        {/* Header Hero Banner */}
         <div className="learn-header-banner">
           <div className="learn-header-text">
-            <span className="learn-eyebrow">STRUCTURED CURRICULUM</span>
-            <h2>Interactive Quantum Curriculum</h2>
+            <span className="learn-eyebrow">UNIFIED QUANTUM JOURNEY</span>
+            <h2>SAMBHAV Canonical Quantum Curriculum</h2>
             <p>
-              Master quantum computing through structured modules combining theory, hands-on circuit simulation, and AI guidance.
+              Master quantum computing progressively from mathematical foundations to algorithms, information theory, error correction, real-world hardware and research.
             </p>
           </div>
           <div className="learn-header-stats">
             <div className="stat-pill">
-              <strong>3</strong> Courses
+              <strong>{totalModules}</strong> Modules (0–9)
             </div>
             <div className="stat-pill">
-              <strong>12</strong> Interactive Lessons
+              <strong>{totalLessons}</strong> Interactive Lessons
             </div>
             <div className="stat-pill">
-              <strong>18</strong> Hours Content
+              <strong>{completedCount}</strong> Completed ({overallProgressPct}%)
             </div>
           </div>
         </div>
 
-        {/* Course Cards Grid */}
+        {/* 10 Modules List Stack */}
         <div className="courses-list-stack">
-          {COURSES_DATA.map((course) => (
-            <div key={course.id} className="course-card-expanded">
-              {/* Course Header */}
-              <div className="course-card-header">
-                <div className="course-header-left">
-                  <span className={`difficulty-badge ${course.difficulty.toLowerCase()}`}>
-                    {course.difficulty}
-                  </span>
-                  <h3>{course.title}</h3>
-                  <p className="course-subtitle">{course.subtitle}</p>
-                </div>
+          {UNIFIED_CURRICULUM_MODULES.map((mod) => {
+            const modProgress = getModuleProgress(mod);
+            return (
+              <div key={mod.id} className="course-card-expanded">
+                {/* Module Header */}
+                <div className="course-card-header">
+                  <div className="course-header-left">
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
+                      <span className="module-index-badge">
+                        MODULE {mod.moduleNumber}
+                      </span>
+                      <span className={`difficulty-badge ${mod.difficulty.toLowerCase()}`}>
+                        {mod.difficulty}
+                      </span>
+                      {mod.hasLab && (
+                        <span className="pill-badge-indicator" title="Connected to Quantum Lab IDE">
+                          <BrainCircuit size={12} /> Quantum Lab
+                        </span>
+                      )}
+                      {mod.hasAssessment && (
+                        <span className="pill-badge-indicator assessment" title="Includes Knowledge Checks & Challenges">
+                          <Trophy size={12} /> Assessment
+                        </span>
+                      )}
+                    </div>
+                    <h3>{mod.title}</h3>
+                    <p className="course-subtitle">{mod.tagline}</p>
 
-                <div className="course-header-right">
-                  <div className="course-progress-ring">
-                    <span className="prog-val">{course.progress}%</span>
-                    <span className="prog-lbl">Completed</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="course-prog-track">
-                <div className="track-fill" style={{ width: `${course.progress}%` }} />
-              </div>
-
-              {/* Modules & Lessons List */}
-              <div className="course-modules-list">
-                {course.modules.map((mod) => (
-                  <div key={mod.id} className="module-group">
-                    <h4 className="module-title">{mod.title}</h4>
-                    <div className="lessons-grid">
-                      {mod.lessons.map((lesson) => (
-                        <div
-                          key={lesson.id}
-                          className={`lesson-card-item ${lesson.completed ? "completed" : ""} ${
-                            lesson.current ? "current" : ""
-                          }`}
-                          onClick={() => navigate(`/learn/${course.id}/${lesson.id}`)}
-                        >
-                          <div className="lesson-item-left">
-                            {lesson.completed ? (
-                              <CheckCircle2 size={18} className="text-teal" />
-                            ) : lesson.current ? (
-                              <Play size={18} className="text-amber" />
-                            ) : (
-                              <BookOpen size={18} className="text-muted" />
-                            )}
-                            <div className="lesson-item-text">
-                              <span className="lesson-item-title">{lesson.title}</span>
-                              <span className="lesson-item-dur">
-                                <Clock size={12} /> {lesson.duration}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="lesson-item-right">
-                            {lesson.completed && <span className="status-tag completed">Completed</span>}
-                            {lesson.current && <span className="status-tag current">Resume</span>}
-                            {!lesson.completed && !lesson.current && (
-                              <span className="status-tag start">Start</span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                    {/* Prerequisites and info */}
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginTop: "10px", fontSize: "12px", color: "#94a3b8" }}>
+                      <span><strong>Prerequisites:</strong> {mod.prerequisites}</span>
+                      <span><strong>Est. Time:</strong> {mod.estimatedHours}</span>
+                      <span><strong>Lessons:</strong> {mod.lessons.length}</span>
                     </div>
                   </div>
-                ))}
+
+                  <div className="course-header-right">
+                    <div className="course-progress-ring">
+                      <span className="prog-val">{modProgress}%</span>
+                      <span className="prog-lbl">Completed</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="course-prog-track">
+                  <div className="track-fill" style={{ width: `${modProgress}%` }} />
+                </div>
+
+                {/* Topics Preview Row */}
+                <div className="module-topics-preview-row">
+                  <span className="topics-label">Core Concepts:</span>
+                  <div className="topics-chips-list">
+                    {mod.topics.slice(0, 7).map((t, idx) => (
+                      <span key={idx} className="topic-chip">{t}</span>
+                    ))}
+                    {mod.topics.length > 7 && (
+                      <span className="topic-chip more">+{mod.topics.length - 7} more</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Lessons List Grid */}
+                <div className="course-modules-list">
+                  <div className="module-group">
+                    <h4 className="module-title">Interactive Lessons & Labs</h4>
+                    <div className="lessons-grid">
+                      {mod.lessons.map((lesson) => {
+                        const isCompleted = completedLessonIds.has(lesson.id);
+                        const isCurrent = activeLessonId === lesson.id && !isCompleted;
+
+                        return (
+                          <div
+                            key={lesson.id}
+                            className={`lesson-card-item ${isCompleted ? "completed" : ""} ${
+                              isCurrent ? "current" : ""
+                            }`}
+                            onClick={() => navigate(`/learn/${mod.id}/${lesson.id}`)}
+                          >
+                            <div className="lesson-item-left">
+                              {isCompleted ? (
+                                <CheckCircle2 size={18} className="text-teal" />
+                              ) : isCurrent ? (
+                                <Play size={18} className="text-amber" />
+                              ) : (
+                                <BookOpen size={18} className="text-muted" />
+                              )}
+                              <div className="lesson-item-text">
+                                <span className="lesson-item-title">{lesson.title}</span>
+                                <span className="lesson-item-dur">
+                                  <Clock size={12} /> {lesson.duration} • {lesson.difficulty}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="lesson-item-right">
+                              {isCompleted && <span className="status-tag completed">Completed</span>}
+                              {isCurrent && <span className="status-tag current">Resume</span>}
+                              {!isCompleted && !isCurrent && (
+                                <span className="status-tag start">Start Lesson</span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </AppShell>

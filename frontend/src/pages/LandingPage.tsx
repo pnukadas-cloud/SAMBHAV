@@ -5,7 +5,10 @@ import {
   Bot,
   BrainCircuit,
   CheckCircle,
+  Clock,
+  Compass,
   GraduationCap,
+  Layers,
   Play,
   RotateCcw,
   Sparkles,
@@ -18,6 +21,7 @@ import { Navbar } from "../components/layout/Navbar";
 import { CircuitBuilder } from "../features/circuit-builder/CircuitBuilder";
 import { runSimulation } from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import { UNIFIED_CURRICULUM_MODULES } from "../data/lessonsData";
 import type { CircuitIR, SimulationResult } from "../types";
 
 const defaultHeroCircuit: CircuitIR = {
@@ -41,12 +45,16 @@ export function LandingPage() {
     if (user) {
       navigate(targetPath);
     } else {
-      navigate(`/login?redirect=${encodeURIComponent(targetPath)}`);
+      navigate(`/login?returnTo=${encodeURIComponent(targetPath)}`);
     }
   }
 
   function getGatedUrl(targetPath: string): string {
-    return user ? targetPath : `/login?redirect=${encodeURIComponent(targetPath)}`;
+    return user ? targetPath : `/login?returnTo=${encodeURIComponent(targetPath)}`;
+  }
+
+  function getSignupUrl(targetPath: string = "/learn"): string {
+    return user ? targetPath : `/signup?returnTo=${encodeURIComponent(targetPath)}`;
   }
 
   async function handleSimulate() {
@@ -74,25 +82,25 @@ export function LandingPage() {
       <section className="hero-section">
         <div className="hero-grid-bg" />
         <div className="hero-particles" />
-        
+
         <div className="hero-content">
           <div className="hero-pill-badge">
             <Sparkles size={14} className="text-teal" />
-            <span>Next-Gen Quantum Learning Innovation</span>
+            <span>SAMBHAV Quantum Intelligence</span>
           </div>
 
           <h1 className="hero-headline">
-            Master Quantum Computing <br />
-            <span className="hero-gradient-text">By Building, Simulating & Understanding</span>
+            AI-Powered Interactive <br />
+            <span className="hero-gradient-text">Quantum Learning Platform</span>
           </h1>
 
           <p className="hero-subhead">
-            SAMBHAV is an interactive quantum algorithm learning platform. Build circuits on a discrete canvas, simulate real statevectors, inspect Dirac equations, and learn with an AI tutor that explains every step.
+            Learn quantum computing from mathematical foundations to algorithms, quantum information, simulation, hardware and research — through interactive lessons, experiments and AI-guided learning.
           </p>
 
           <div className="hero-actions-row">
-            <Link to={user ? "/dashboard" : "/signup"} className="hero-primary-btn">
-              <Zap size={18} /> {user ? "Go to Dashboard" : "Start Learning Free"} <ArrowRight size={18} />
+            <Link to={getSignupUrl("/learn")} className="hero-primary-btn">
+              <Zap size={18} /> {user ? "Go to Curriculum" : "Start Learning Free"} <ArrowRight size={18} />
             </Link>
             <Link to={getGatedUrl("/lab")} className="hero-secondary-btn">
               <BrainCircuit size={18} /> Open Quantum Lab
@@ -102,15 +110,15 @@ export function LandingPage() {
           <div className="hero-proof-points">
             <div className="proof-item">
               <CheckCircle size={15} className="text-teal" />
+              <span>Unified 10-Module Journey</span>
+            </div>
+            <div className="proof-item">
+              <CheckCircle size={15} className="text-teal" />
               <span>Pure Statevector Simulator</span>
             </div>
             <div className="proof-item">
               <CheckCircle size={15} className="text-teal" />
               <span>Contextual AI Quantum Tutor</span>
-            </div>
-            <div className="proof-item">
-              <CheckCircle size={15} className="text-teal" />
-              <span>Interactive Challenges & Quizzes</span>
             </div>
             <div className="proof-item">
               <CheckCircle size={15} className="text-teal" />
@@ -128,7 +136,7 @@ export function LandingPage() {
                 <span className="dot dot-yellow" />
                 <span className="dot dot-green" />
               </div>
-              <span className="demo-title">Live Quantum Playground — Bell State (|Φ⁺⟩)</span>
+              <span className="demo-title">Live Interactive Playground — Bell State (|Φ⁺⟩)</span>
               <button
                 className="demo-reset-btn"
                 onClick={handleResetHero}
@@ -182,7 +190,7 @@ export function LandingPage() {
             <span className="section-eyebrow">A COMPLETE QUANTUM ECOSYSTEM</span>
             <h2 className="section-title">Everything You Need to Master Quantum Computing</h2>
             <p className="section-description">
-              From intuition to executable algorithms, SAMBHAV transforms complex linear algebra into an intuitive, tactile experience.
+              From intuition and step-by-step mathematical derivations to interactive simulation and AI tutoring, SAMBHAV unifies the complete learning journey.
             </p>
           </div>
 
@@ -248,9 +256,9 @@ export function LandingPage() {
               <div className="feature-icon-wrapper bg-green-soft">
                 <BookOpen size={28} className="text-green" />
               </div>
-              <h3>Structured Curriculum</h3>
+              <h3>Unified SAMBHAV Curriculum</h3>
               <p>
-                From qubit foundations to quantum algorithms, learn with interactive theory, embedded mini-labs, and live knowledge checks.
+                10 structured modules from mathematical foundations to quantum algorithms, information, error correction, hardware, and research.
               </p>
               <div className="feature-link">
                 <span>Start Learning</span> <ArrowRight size={14} />
@@ -274,14 +282,71 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* Curriculum Preview Section */}
+      <section className="curriculum-preview-section" style={{ padding: "80px 24px", background: "rgba(15, 23, 42, 0.6)" }}>
+        <div className="section-container" style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div className="section-header-center" style={{ textAlign: "center", marginBottom: "48px" }}>
+            <span className="section-eyebrow">CANONICAL LEARNING JOURNEY</span>
+            <h2 className="section-title">The Unified SAMBHAV Curriculum</h2>
+            <p className="section-description">
+              A comprehensive 10-module progression bridging theoretical rigor and hands-on quantum lab experimentation.
+            </p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "20px" }}>
+            {UNIFIED_CURRICULUM_MODULES.map((mod) => (
+              <div
+                key={mod.id}
+                onClick={() => navProtected(`/learn`)}
+                style={{
+                  background: "#1e293b",
+                  border: "1px solid rgba(56, 189, 248, 0.15)",
+                  borderRadius: "12px",
+                  padding: "24px",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+                className="hover-card-glow"
+              >
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                    <span style={{ fontSize: "12px", fontWeight: "700", color: "#38bdf8", textTransform: "uppercase", letterSpacing: "1px" }}>
+                      Module {mod.moduleNumber}
+                    </span>
+                    <span className={`difficulty-badge ${mod.difficulty.toLowerCase()}`}>
+                      {mod.difficulty}
+                    </span>
+                  </div>
+                  <h4 style={{ fontSize: "16px", fontWeight: "600", color: "#f8fafc", marginBottom: "8px" }}>
+                    {mod.title}
+                  </h4>
+                  <p style={{ fontSize: "13px", color: "#94a3b8", lineHeight: "1.5", marginBottom: "16px" }}>
+                    {mod.tagline}
+                  </p>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px", fontSize: "12px", color: "#64748b" }}>
+                  <span>{mod.lessons.length} Lessons • {mod.estimatedHours}</span>
+                  <span style={{ color: "#2dd4bf", fontWeight: "600", display: "flex", alignItems: "center", gap: "4px" }}>
+                    Explore <ArrowRight size={12} />
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Footer Banner */}
       <section className="cta-banner-section">
         <div className="cta-banner-card">
           <h2>Ready to Begin Your Quantum Journey?</h2>
-          <p>Join students and educators using SAMBHAV to learn quantum mechanics and algorithms interactively.</p>
+          <p>Learn quantum computing from mathematical foundations to algorithms, quantum information, simulation, hardware and research.</p>
           <div className="cta-buttons">
-            <Link to={user ? "/dashboard" : "/signup"} className="btn-primary-glow large">
-              <Sparkles size={18} /> {user ? "Go to Dashboard" : "Get Started Now"}
+            <Link to={getSignupUrl("/learn")} className="btn-primary-glow large">
+              <Sparkles size={18} /> {user ? "Go to Curriculum" : "Start Learning Free"}
             </Link>
             <Link to={getGatedUrl("/lab")} className="btn-ghost-light large">
               Open Quantum Lab

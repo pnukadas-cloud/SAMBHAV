@@ -16,6 +16,8 @@ import { AppShell } from "../components/layout/AppShell";
 import { useAuth } from "../context/AuthContext";
 import { fetchProgress } from "../api/client";
 
+import { UNIFIED_CURRICULUM_MODULES } from "../data/lessonsData";
+
 export function ProgressPage() {
   const { user } = useAuth();
   const [progress, setProgress] = useState<any>(null);
@@ -34,6 +36,7 @@ export function ProgressPage() {
       });
   }, []);
 
+  const totalLessons = UNIFIED_CURRICULUM_MODULES.reduce((sum, m) => sum + m.lessons.length, 0);
   const xp = progress?.xp ?? user?.xp ?? 0;
   const streak = progress?.streakDays ?? user?.streakDays ?? 0;
   const level = progress?.level ?? user?.level ?? 1;
@@ -96,9 +99,9 @@ export function ProgressPage() {
     {
       id: "b6",
       title: "Quantum Master",
-      desc: "Complete all 12 foundational lessons",
+      desc: `Complete all ${totalLessons} canonical curriculum lessons`,
       icon: Trophy,
-      unlocked: completedLessons >= 12,
+      unlocked: completedLessons >= totalLessons,
     },
   ];
 
@@ -226,7 +229,7 @@ export function ProgressPage() {
                   <span className="lbl">Circuits Simulated</span>
                 </div>
                 <div className="stat-box">
-                  <span className="num">{completedLessons}/12</span>
+                  <span className="num">{completedLessons}/{totalLessons}</span>
                   <span className="lbl">Lessons Finished</span>
                 </div>
                 <div className="stat-box">

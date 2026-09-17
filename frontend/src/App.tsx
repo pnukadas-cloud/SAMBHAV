@@ -28,7 +28,9 @@ export function App() {
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signin" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/verify-otp" element={<LoginPage />} />
           <Route path="/forgot-password" element={<LoginPage />} />
 
           {/* Protected Onboarding */}
@@ -67,6 +69,22 @@ export function App() {
             }
           />
           <Route
+            path="/quantum-lab"
+            element={
+              <ProtectedRoute>
+                <QuantumLabPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/quantum-lab/:circuitId"
+            element={
+              <ProtectedRoute>
+                <QuantumLabPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/learn"
             element={
               <ProtectedRoute>
@@ -75,7 +93,23 @@ export function App() {
             }
           />
           <Route
+            path="/learn/curriculum"
+            element={
+              <ProtectedRoute>
+                <LearnPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/learn/:courseId/:lessonId"
+            element={
+              <ProtectedRoute>
+                <LessonPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/learn/:lessonId"
             element={
               <ProtectedRoute>
                 <LessonPage />
@@ -92,6 +126,14 @@ export function App() {
           />
           <Route
             path="/algorithms/:algorithmId"
+            element={
+              <ProtectedRoute>
+                <AlgorithmsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/learn/algorithms/:algorithmId"
             element={
               <ProtectedRoute>
                 <AlgorithmsPage />
@@ -132,6 +174,14 @@ export function App() {
           />
           <Route
             path="/settings"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
             element={
               <ProtectedRoute>
                 <SettingsPage />

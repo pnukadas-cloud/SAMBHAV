@@ -12,14 +12,19 @@ import {
   Zap,
 } from "lucide-react";
 import React, { useState } from "react";
-import { useNavigate } from "../router/Router";
+import { useLocation, useNavigate, validateReturnTo } from "../router/Router";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 
 export function OnboardingPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, updateUserPreferences } = useAuth();
   const { showToast } = useToast();
+
+  const searchParams = new URLSearchParams(location.search || window.location.search);
+  const rawReturnTo = searchParams.get("returnTo") || searchParams.get("redirect") || "";
+  const returnToDestination = validateReturnTo(rawReturnTo, "");
 
   const [step, setStep] = useState<1 | 2>(1);
   const [level, setLevel] = useState<"beginner" | "intermediate" | "advanced">("beginner");
@@ -42,7 +47,7 @@ export function OnboardingPage() {
       currentLessonId: "bell-state",
     });
     showToast("Personalized learning path generated!", "success", "Welcome Aboard");
-    navigate("/dashboard");
+    navigate(returnToDestination || "/dashboard");
   };
 
   return (

@@ -14,10 +14,24 @@ import {
   Sparkles,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "../router/Router";
+import { Link, useLocation, useNavigate, validateReturnTo } from "../router/Router";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { OtpInitiatedResponse } from "../api/client";
+
+function getDestinationLabel(path: string): string {
+  if (path.startsWith("/quantum-lab") || path.startsWith("/lab")) return "Quantum Lab";
+  if (path.startsWith("/learn/") && path.split("/").length > 2) return "Quantum Lesson";
+  if (path.startsWith("/learn") || path.startsWith("/curriculum")) return "Curriculum";
+  if (path.startsWith("/algorithms")) return "Algorithms";
+  if (path.startsWith("/challenges")) return "Challenges";
+  if (path.startsWith("/ai-tutor")) return "AI Quantum Tutor";
+  if (path.startsWith("/instructor")) return "Instructor Portal";
+  if (path.startsWith("/progress")) return "Progress Tracker";
+  if (path.startsWith("/settings") || path.startsWith("/profile")) return "Profile Settings";
+  if (path.startsWith("/dashboard")) return "Dashboard";
+  return "SAMBHAV Platform";
+}
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -25,20 +39,26 @@ export function LoginPage() {
   const { initiateLogin, verifyOtp, resendOtp, user } = useAuth();
   const { showToast } = useToast();
 
-  // Extract ?redirect=/destination from URL
-  const searchParams = new URLSearchParams(window.location.search);
-  const redirectUrl = searchParams.get("redirect") || "";
+  // Extract ?returnTo=/destination or ?redirect=/destination from URL
+  const searchParams = new URLSearchParams(location.search || window.location.search);
+  const rawReturnTo = searchParams.get("returnTo") || searchParams.get("redirect") || "";
+  const returnToDestination = validateReturnTo(rawReturnTo, "");
+
+  // Safe redirect helper
+  const performRedirect = (role?: string) => {
+    if (returnToDestination) {
+      navigate(returnToDestination);
+    } else if (role === "instructor") {
+      navigate("/instructor");
+    } else {
+      navigate("/dashboard");
+    }
+  };
 
   // If already authenticated, route appropriately
   useEffect(() => {
     if (user) {
-      if (redirectUrl) {
-        navigate(redirectUrl);
-      } else if (user.role === "instructor") {
-        navigate("/instructor");
-      } else {
-        navigate("/dashboard");
-      }
+      performRedirect(user.role);
     }
   }, [user]);
 
@@ -152,14 +172,8 @@ export function LoginPage() {
       const authUser = await verifyOtp(sessionToken, fullCode);
       showToast(`Welcome back, ${authUser.name}!`, "success", "Authentication Complete");
 
-      // Redirect logic
-      if (redirectUrl) {
-        navigate(redirectUrl);
-      } else if (authUser.role === "instructor") {
-        navigate("/instructor");
-      } else {
-        navigate("/dashboard");
-      }
+      // Redirect directly to destination or dashboard
+      performRedirect(authUser.role);
     } catch (err: any) {
       const message = err?.message || "Invalid or expired verification code.";
       showToast(message, "error", "Verification Error");
@@ -195,10 +209,18 @@ export function LoginPage() {
             <Atom size={28} className="spin-slow text-teal" />
             <span>SAMBHAV</span>
           </Link>
-          <h2>{step === "credentials" ? "Sign In to Account" : "Two-Factor Verification"}</h2>
+          <h2>
+            {step === "credentials"
+              ? returnToDestination
+                ? `Sign In to Continue to ${getDestinationLabel(returnToDestination)}`
+                : "Sign In to Account"
+              : "Two-Factor Verification"}
+          </h2>
           <p>
             {step === "credentials"
-              ? "Enter your account credentials to access SAMBHAV."
+              ? returnToDestination
+                ? `Authenticate with your credentials to access your destination.`
+                : "Enter your account credentials to access SAMBHAV."
               : `Enter the 6-digit code dispatched to ${email}`}
           </p>
         </div>
@@ -398,7 +420,9 @@ export function LoginPage() {
         {/* Bottom Link */}
         <div className="auth-footer-link">
           <span>Don't have an account yet? </span>
-          <Link to="/signup">Create an account</Link>
+          <Link to={returnToDestination ? `/signup?returnTo=${encodeURIComponent(returnToDestination)}` : "/signup"}>
+            Create an account
+          </Link>
         </div>
       </div>
     </div>

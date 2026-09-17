@@ -103,7 +103,7 @@ export function LessonPage() {
   const isQuizCorrect = selectedAnswer === lessonData.quiz.correctIndex;
 
   return (
-    <AppShell activeTitle={lessonData.title} activeCategory={lessonData.courseTitle}>
+    <AppShell activeTitle={lessonData.title} activeCategory={lessonData.moduleTitle}>
       <div className="lesson-page-container">
         {/* Top Breadcrumb Navigation */}
         <div className="lesson-nav-header">
@@ -112,7 +112,7 @@ export function LessonPage() {
               <ArrowLeft size={16} /> <span>Curriculum</span>
             </Link>
             <span className="nav-separator">/</span>
-            <span className="course-breadcrumb">{lessonData.courseTitle}</span>
+            <span className="course-breadcrumb">{lessonData.moduleTitle}</span>
             <span className="nav-separator">/</span>
             <span className="lesson-breadcrumb-title">{lessonData.title}</span>
           </div>

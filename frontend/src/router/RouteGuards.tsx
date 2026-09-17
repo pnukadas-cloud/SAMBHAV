@@ -1,6 +1,6 @@
 import { Atom, ShieldAlert } from "lucide-react";
 import React, { useEffect } from "react";
-import { Link, useLocation, useNavigate, useRouter } from "./Router";
+import { Link, useLocation, useNavigate, validateReturnTo } from "./Router";
 import { useAuth } from "../context/AuthContext";
 
 interface GuardProps {
@@ -8,15 +8,17 @@ interface GuardProps {
 }
 
 export function ProtectedRoute({ children }: GuardProps) {
-  const { user, isAuthenticated, isLoading } = useAuth();
-  const { path } = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
+  const { pathname, search, fullPath } = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      navigate(`/login?redirect=${encodeURIComponent(path)}`);
+      const destination = fullPath || (pathname + search);
+      const safeDestination = validateReturnTo(destination, "/dashboard");
+      navigate(`/login?returnTo=${encodeURIComponent(safeDestination)}`);
     }
-  }, [isLoading, isAuthenticated, path, navigate]);
+  }, [isLoading, isAuthenticated, fullPath, pathname, search, navigate]);
 
   if (isLoading) {
     return (
@@ -48,14 +50,16 @@ export function ProtectedRoute({ children }: GuardProps) {
 
 export function InstructorRoute({ children }: GuardProps) {
   const { user, isAuthenticated, isLoading } = useAuth();
-  const { path } = useRouter();
+  const { pathname, search, fullPath } = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      navigate(`/login?redirect=${encodeURIComponent(path)}`);
+      const destination = fullPath || (pathname + search);
+      const safeDestination = validateReturnTo(destination, "/instructor");
+      navigate(`/login?returnTo=${encodeURIComponent(safeDestination)}`);
     }
-  }, [isLoading, isAuthenticated, path, navigate]);
+  }, [isLoading, isAuthenticated, fullPath, pathname, search, navigate]);
 
   if (isLoading) {
     return (

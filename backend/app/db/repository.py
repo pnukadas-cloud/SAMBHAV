@@ -325,7 +325,7 @@ def get_user_progress(user_id: str) -> dict[str, Any]:
         else:
             recommendations.append({
                 "title": "Quantum Logic & Unitary Gates: S & T Phase Shifts",
-                "to": "/learn/quantum-gates-logic/phase-gates",
+                "to": "/learn/quantum-foundations/phase-gates",
                 "reason": "Recommended to master phase shifts and relative phases before algorithm synthesis.",
                 "action": "Continue Course",
             })

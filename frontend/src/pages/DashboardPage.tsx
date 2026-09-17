@@ -20,6 +20,8 @@ import { AppShell } from "../components/layout/AppShell";
 import { useAuth } from "../context/AuthContext";
 import { fetchProgress } from "../api/client";
 
+import { UNIFIED_CURRICULUM_MODULES } from "../data/lessonsData";
+
 export function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -46,7 +48,7 @@ export function DashboardPage() {
   const userLevel = progress?.level ?? user?.level ?? 1;
 
   const completedLessons = progress?.completedLessons ?? 0;
-  const totalLessons = 12;
+  const totalLessons = UNIFIED_CURRICULUM_MODULES.reduce((sum, m) => sum + m.lessons.length, 0);
   const lessonPct = Math.min(100, Math.round((completedLessons / totalLessons) * 100));
 
   const challengesSolved = progress?.challengesSolved ?? 0;
@@ -57,8 +59,8 @@ export function DashboardPage() {
   const avgScore = progress?.averageScore ?? 0;
 
   const rec = progress?.recommendations?.[0] || {
-    title: "Quantum Foundations: 1.1 The Qubit & Bloch Sphere",
-    to: "/learn/quantum-foundations/qubit-basics",
+    title: "Quantum Foundations: 1.1 The Qubit, Dirac Notation & Bloch Sphere",
+    to: "/learn/module-1/qubit-basics",
     reason: "Start your quantum journey by mastering single-qubit superpositions and Bloch sphere states.",
     action: "Start Lesson 1.1",
   };
