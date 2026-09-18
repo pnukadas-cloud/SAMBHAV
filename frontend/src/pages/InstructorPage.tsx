@@ -131,8 +131,8 @@ export function InstructorPage({ activeTab }: InstructorPageProps) {
           <div
             style={{
               padding: "24px",
-              background: "#fff1f2",
-              border: "1px solid #fecdd3",
+              background: "rgba(225, 29, 72, 0.08)",
+              border: "1px solid rgba(225, 29, 72, 0.25)",
               borderRadius: "12px",
               marginBottom: "24px",
               display: "flex",
@@ -142,10 +142,10 @@ export function InstructorPage({ activeTab }: InstructorPageProps) {
             }}
           >
             <div>
-              <h4 style={{ margin: "0 0 4px 0", color: "#e11d48", fontSize: "15px", fontWeight: 700 }}>
+              <h4 style={{ margin: "0 0 4px 0", color: "#f43f5e", fontSize: "15px", fontWeight: 700 }}>
                 Unable to load educator data
               </h4>
-              <p style={{ margin: 0, color: "#881337", fontSize: "13px" }}>
+              <p style={{ margin: 0, color: "var(--text-secondary)", fontSize: "13px" }}>
                 {fetchError}
               </p>
             </div>

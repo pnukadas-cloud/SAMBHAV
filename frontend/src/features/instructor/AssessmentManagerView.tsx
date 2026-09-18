@@ -449,7 +449,7 @@ export const AssessmentManagerView: React.FC = () => {
                 </div>
 
                 {/* Parameters */}
-                <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0", marginBottom: "20px" }}>
+                <div style={{ background: "var(--bg-subtle)", padding: "16px", borderRadius: "10px", border: "1px solid var(--border-subtle)", marginBottom: "20px" }}>
                   <div className="instructor-form-row" style={{ margin: 0 }}>
                     <div className="instructor-form-group" style={{ margin: 0 }}>
                       <label className="instructor-form-label">Duration (Minutes)</label>
@@ -694,8 +694,8 @@ export const AssessmentManagerView: React.FC = () => {
                     <div
                       key={sub.id}
                       style={{
-                        background: "#f8fafc",
-                        border: "1px solid #e2e8f0",
+                        background: "var(--bg-subtle)",
+                        border: "1px solid var(--border-subtle)",
                         borderRadius: "10px",
                         padding: "14px",
                         display: "flex",
@@ -704,20 +704,20 @@ export const AssessmentManagerView: React.FC = () => {
                       }}
                     >
                       <div>
-                        <div style={{ fontWeight: 700, fontSize: "14px", color: "#0f172a" }}>
+                        <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--text-primary)" }}>
                           {sub.student_name || "Learner"}
-                          <span style={{ fontSize: "12px", color: "#64748b", fontWeight: 400, marginLeft: "6px" }}>
+                          <span style={{ fontSize: "12px", color: "var(--text-muted)", fontWeight: 400, marginLeft: "6px" }}>
                             ({sub.student_email || sub.user_id})
                           </span>
                         </div>
-                        <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>
+                        <div style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>
                           Submitted: {new Date(sub.created_at).toLocaleDateString()} •{" "}
                           <span style={{ fontWeight: 700, color: sub.status === "graded" ? "#16a34a" : "#d97706" }}>
                             {sub.status === "graded" ? `Score: ${sub.score}%` : "Needs Review"}
                           </span>
                         </div>
                         {sub.feedback && (
-                          <p style={{ margin: "6px 0 0 0", fontSize: "12px", color: "#475569", background: "#ffffff", padding: "6px 10px", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
+                          <p style={{ margin: "6px 0 0 0", fontSize: "12px", color: "var(--text-secondary)", background: "var(--bg-card)", padding: "6px 10px", borderRadius: "6px", border: "1px solid var(--border-subtle)" }}>
                             <strong>Feedback:</strong> {sub.feedback}
                           </p>
                         )}

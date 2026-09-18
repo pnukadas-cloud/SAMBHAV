@@ -382,7 +382,7 @@ export function AlgorithmsPage() {
                 <Link
                   to={`/learn/${selectedAlgo.moduleId}/${selectedAlgo.lessonId}`}
                   className="algo-action-btn"
-                  style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "6px", background: "#f0fdf4", color: "#166534", border: "1.5px solid #bbf7d0" }}
+                  style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(16, 185, 129, 0.1)", color: "#10b981", border: "1.5px solid rgba(16, 185, 129, 0.3)" }}
                 >
                   <BookOpen size={16} /> Study Theory
                 </Link>

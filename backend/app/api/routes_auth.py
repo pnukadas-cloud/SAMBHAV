@@ -177,6 +177,10 @@ def resend_otp(payload: ResendOTPRequest) -> LoginInitiatedResponse:
     )
 
 
+class UpdateProfileRequest(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100)
+
+
 @router.get("/me")
 def get_me(current_user: dict = Depends(get_current_user)) -> dict:
     user_data = repository.get_user_by_id(current_user["sub"])
@@ -190,6 +194,15 @@ def get_me(current_user: dict = Depends(get_current_user)) -> dict:
     return user_data
 
 
+@router.put("/profile")
+def update_profile(payload: UpdateProfileRequest, current_user: dict = Depends(get_current_user)) -> dict:
+    updated = repository.update_user_profile(current_user["sub"], payload.name)
+    if not updated:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return updated
+
+
 @router.post("/logout")
 def logout() -> dict[str, str]:
     return {"message": "Successfully logged out"}
+

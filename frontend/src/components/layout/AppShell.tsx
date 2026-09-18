@@ -13,10 +13,13 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Moon,
   Search,
   Settings,
   Sparkles,
+  Sun,
   Trophy,
+  User,
   Users,
   X,
   Zap,
@@ -24,6 +27,7 @@ import {
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "../../router/Router";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 
 type Props = {
   children: React.ReactNode;
@@ -41,6 +45,7 @@ interface NavItem {
 
 export function AppShell({ children, activeTitle, activeCategory }: Props) {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -86,7 +91,7 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
         />
       )}
 
-      {/* Primary Unified Sidebar Navigation */}
+      {/* Primary Unified Sidebar Navigation (Fixed in place) */}
       <aside className={`app-sidebar ${isMobileOpen ? "mobile-open" : ""}`} aria-label="Sidebar Navigation">
         <div className="sidebar-header">
           <Link to="/" className="sidebar-brand" title="SAMBHAV Quantum Learning">
@@ -110,7 +115,7 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
           </button>
         </div>
 
-        {/* Static Immutable Role Badge */}
+        {/* Static Role Badge */}
         {isSidebarOpen && (
           <div className="sidebar-role-selector">
             <div className="role-selector-card">
@@ -134,7 +139,6 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
           )}
           {currentNavItems.map((item) => {
             const Icon = item.icon;
-            // Exact match for /instructor, prefix match for subpaths
             const isActive =
               location.pathname === item.to ||
               (item.to !== "/instructor" && item.to !== "/dashboard" && location.pathname.startsWith(item.to));
@@ -155,16 +159,28 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
           })}
         </nav>
 
-        {/* User Profile Footer */}
+        {/* Clickable User Profile Footer - Navigates to /profile */}
         {user && (
           <div className="sidebar-user-footer">
-            <div className="user-profile-summary">
+            <button
+              type="button"
+              className={`user-profile-summary-btn ${location.pathname === "/profile" ? "active-profile" : ""}`}
+              onClick={() => {
+                setIsMobileOpen(false);
+                navigate("/profile");
+              }}
+              title="Click to view & edit your User Profile"
+              aria-label="User Profile"
+            >
               <div className="user-avatar-circle" title={user.name}>
                 {user.name.charAt(0).toUpperCase()}
               </div>
               {isSidebarOpen && (
                 <div className="user-details">
-                  <span className="user-name">{user.name}</span>
+                  <div className="user-name-row">
+                    <span className="user-name">{user.name}</span>
+                    <span className="user-profile-hint">Profile</span>
+                  </div>
                   <div className="user-stats-row">
                     <span className="user-level">
                       {isInstructor ? "Educator" : `Lvl ${user.level || 1}`}
@@ -177,7 +193,7 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
                   </div>
                 </div>
               )}
-            </div>
+            </button>
             <button
               className="user-logout-btn"
               onClick={logout}
@@ -230,10 +246,40 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
                 }}
               />
             </div>
+
+            {/* Dark / Light Theme Toggle Switch */}
+            <button
+              type="button"
+              className="topbar-theme-toggle"
+              onClick={toggleTheme}
+              title={theme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? (
+                <Sun size={18} className="theme-icon sun-icon" />
+              ) : (
+                <Moon size={18} className="theme-icon moon-icon" />
+              )}
+            </button>
+
+            {/* User Profile Quick Avatar Button */}
+            {user && (
+              <button
+                type="button"
+                className={`topbar-profile-btn ${location.pathname === "/profile" ? "active" : ""}`}
+                onClick={() => navigate("/profile")}
+                title={`Logged in as ${user.name} (View Profile)`}
+                aria-label="View user profile"
+              >
+                <div className="topbar-avatar-circle">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              </button>
+            )}
           </div>
         </header>
 
-        {/* Page Content Body */}
+        {/* Page Content Body (Only this area scrolls up and down) */}
         <main className="app-content-view">
           {children}
         </main>
@@ -241,3 +287,4 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
     </div>
   );
 }
+

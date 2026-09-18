@@ -263,7 +263,7 @@ export const AIEducatorCopilotView: React.FC<AIEducatorCopilotViewProps> = ({
           </div>
 
           {/* Draft Content */}
-          <div style={{ background: "#f8fafc", padding: "18px", borderRadius: "10px", border: "1px solid #e2e8f0", color: "#1e293b", fontSize: "14px", lineHeight: 1.65, whiteSpace: "pre-wrap", maxHeight: "550px", overflowY: "auto" }}>
+          <div style={{ background: "var(--bg-subtle)", padding: "18px", borderRadius: "10px", border: "1px solid var(--border-subtle)", color: "var(--text-primary)", fontSize: "14px", lineHeight: 1.65, whiteSpace: "pre-wrap", maxHeight: "550px", overflowY: "auto" }}>
             {generatedResult.content}
           </div>
         </div>

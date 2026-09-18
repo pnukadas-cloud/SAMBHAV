@@ -132,7 +132,7 @@ export const InstructorAnalyticsView: React.FC = () => {
         <div className="instructor-panel-card" style={{ textAlign: "center", padding: "48px 24px" }}>
           <div style={{ fontSize: "40px", marginBottom: "12px" }}>📊</div>
           <h3 style={{ justifyContent: "center", marginBottom: "8px" }}>No Learner Activity Yet</h3>
-          <p style={{ color: "#64748b", fontSize: "13px", maxWidth: "480px", margin: "0 auto" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "13px", maxWidth: "480px", margin: "0 auto" }}>
             Once your enrolled learners start completing modules, running quantum circuits, or submitting quizzes, real performance distributions and insights will appear here.
           </p>
         </div>
@@ -142,7 +142,7 @@ export const InstructorAnalyticsView: React.FC = () => {
           <div className="instructor-kpi-grid">
             <div className="instructor-kpi-card">
               <span className="kpi-label">
-                <Target size={14} color="#0284c7" /> Total Submissions
+                <Target size={14} color="var(--accent-cyan)" /> Total Submissions
               </span>
               <span className="kpi-value">{data?.totalSubmissions ?? 0}</span>
               <span className="kpi-subtext">Quizzes & evaluations</span>
@@ -164,7 +164,7 @@ export const InstructorAnalyticsView: React.FC = () => {
               </span>
               <span className="kpi-value">
                 {data?.moduleCompletions?.filter((m) => m.completions > 0).length ?? 0}
-                <span style={{ fontSize: "14px", fontWeight: 400, color: "#94a3b8" }}> / 10</span>
+                <span style={{ fontSize: "14px", fontWeight: 400, color: "var(--text-muted)" }}> / 10</span>
               </span>
               <span className="kpi-subtext">Modules with completed lessons</span>
             </div>
@@ -185,9 +185,9 @@ export const InstructorAnalyticsView: React.FC = () => {
             {/* Module Completion Distribution */}
             <div className="instructor-panel-card">
               <h3>
-                <BookOpen size={18} color="#0284c7" /> Module Progression Funnel
+                <BookOpen size={18} color="var(--accent-cyan)" /> Module Progression Funnel
               </h3>
-              <p style={{ fontSize: "12px", color: "#64748b", margin: "0 0 18px 0" }}>
+              <p style={{ fontSize: "12px", color: "var(--text-muted)", margin: "0 0 18px 0" }}>
                 Total student lesson completions across the 10-module quantum curriculum.
               </p>
 
@@ -197,21 +197,18 @@ export const InstructorAnalyticsView: React.FC = () => {
                   return (
                     <div key={idx} style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
-                        <span style={{ fontWeight: 600, color: "#334155" }}>
+                        <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
                           {mod.title}
                         </span>
-                        <span style={{ color: "#64748b", fontFamily: "monospace", fontWeight: 700 }}>
+                        <span style={{ color: "var(--text-muted)", fontFamily: "monospace", fontWeight: 700 }}>
                           {mod.completions} {mod.completions === 1 ? "completion" : "completions"}
                         </span>
                       </div>
-                      <div style={{ width: "100%", background: "#f1f5f9", borderRadius: "9999px", height: "8px", overflow: "hidden" }}>
+                      <div className="analytics-prog-track">
                         <div
+                          className="analytics-prog-fill"
                           style={{
-                            background: "linear-gradient(90deg, #0284c7 0%, #2dd4bf 100%)",
-                            height: "100%",
-                            borderRadius: "9999px",
                             width: `${Math.max(mod.completions > 0 ? 5 : 0, pct)}%`,
-                            transition: "width 0.4s ease",
                           }}
                         />
                       </div>
@@ -228,52 +225,52 @@ export const InstructorAnalyticsView: React.FC = () => {
                 <h3>
                   <Target size={18} color="#7c3aed" /> Grade & Score Distribution
                 </h3>
-                <p style={{ fontSize: "12px", color: "#64748b", margin: "0 0 16px 0" }}>
+                <p style={{ fontSize: "12px", color: "var(--text-muted)", margin: "0 0 16px 0" }}>
                   Assessment grade spread for verified submissions.
                 </p>
 
                 {totalScores === 0 ? (
-                  <p style={{ fontSize: "12px", color: "#94a3b8", textAlign: "center", padding: "16px 0" }}>
+                  <p style={{ fontSize: "12px", color: "var(--text-muted)", textAlign: "center", padding: "16px 0" }}>
                     No graded submissions recorded yet.
                   </p>
                 ) : (
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", textAlign: "center" }}>
-                    <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", padding: "12px", borderRadius: "10px" }}>
-                      <span style={{ fontSize: "11px", color: "#16a34a", fontWeight: 700, display: "block" }}>90 - 100%</span>
-                      <span style={{ fontSize: "20px", fontWeight: 800, color: "#0f172a", marginTop: "4px", display: "block" }}>
+                    <div className="analytics-score-card score-tier-green">
+                      <span className="score-tier-label">90 - 100%</span>
+                      <span className="score-tier-val">
                         {data?.scoreDistribution?.["90-100"] || 0}
                       </span>
-                      <span style={{ fontSize: "11px", color: "#64748b" }}>
+                      <span className="score-tier-pct">
                         {Math.round(((data?.scoreDistribution?.["90-100"] || 0) / totalScores) * 100)}%
                       </span>
                     </div>
 
-                    <div style={{ background: "#f0fdfa", border: "1px solid #99f6e4", padding: "12px", borderRadius: "10px" }}>
-                      <span style={{ fontSize: "11px", color: "#0284c7", fontWeight: 700, display: "block" }}>75 - 89%</span>
-                      <span style={{ fontSize: "20px", fontWeight: 800, color: "#0f172a", marginTop: "4px", display: "block" }}>
+                    <div className="analytics-score-card score-tier-cyan">
+                      <span className="score-tier-label">75 - 89%</span>
+                      <span className="score-tier-val">
                         {data?.scoreDistribution?.["75-89"] || 0}
                       </span>
-                      <span style={{ fontSize: "11px", color: "#64748b" }}>
+                      <span className="score-tier-pct">
                         {Math.round(((data?.scoreDistribution?.["75-89"] || 0) / totalScores) * 100)}%
                       </span>
                     </div>
 
-                    <div style={{ background: "#fffbeb", border: "1px solid #fde68a", padding: "12px", borderRadius: "10px" }}>
-                      <span style={{ fontSize: "11px", color: "#d97706", fontWeight: 700, display: "block" }}>60 - 74%</span>
-                      <span style={{ fontSize: "20px", fontWeight: 800, color: "#0f172a", marginTop: "4px", display: "block" }}>
+                    <div className="analytics-score-card score-tier-amber">
+                      <span className="score-tier-label">60 - 74%</span>
+                      <span className="score-tier-val">
                         {data?.scoreDistribution?.["60-74"] || 0}
                       </span>
-                      <span style={{ fontSize: "11px", color: "#64748b" }}>
+                      <span className="score-tier-pct">
                         {Math.round(((data?.scoreDistribution?.["60-74"] || 0) / totalScores) * 100)}%
                       </span>
                     </div>
 
-                    <div style={{ background: "#fff1f2", border: "1px solid #fecdd3", padding: "12px", borderRadius: "10px" }}>
-                      <span style={{ fontSize: "11px", color: "#e11d48", fontWeight: 700, display: "block" }}>&lt; 60%</span>
-                      <span style={{ fontSize: "20px", fontWeight: 800, color: "#0f172a", marginTop: "4px", display: "block" }}>
+                    <div className="analytics-score-card score-tier-rose">
+                      <span className="score-tier-label">&lt; 60%</span>
+                      <span className="score-tier-val">
                         {data?.scoreDistribution?.["<60"] || 0}
                       </span>
-                      <span style={{ fontSize: "11px", color: "#64748b" }}>
+                      <span className="score-tier-pct">
                         {Math.round(((data?.scoreDistribution?.["<60"] || 0) / totalScores) * 100)}%
                       </span>
                     </div>
@@ -286,12 +283,12 @@ export const InstructorAnalyticsView: React.FC = () => {
                 <h3>
                   <BrainCircuit size={18} color="#ea580c" /> Concept Difficulty Breakdown
                 </h3>
-                <p style={{ fontSize: "12px", color: "#64748b", margin: "0 0 14px 0" }}>
+                <p style={{ fontSize: "12px", color: "var(--text-muted)", margin: "0 0 14px 0" }}>
                   Assessment areas ordered by student attempt volume and average accuracy.
                 </p>
 
                 {(!data?.conceptStats || data.conceptStats.length === 0) ? (
-                  <p style={{ fontSize: "12px", color: "#94a3b8", textAlign: "center", padding: "14px 0" }}>
+                  <p style={{ fontSize: "12px", color: "var(--text-muted)", textAlign: "center", padding: "14px 0" }}>
                     No concept assessments completed yet.
                   </p>
                 ) : (
@@ -299,21 +296,13 @@ export const InstructorAnalyticsView: React.FC = () => {
                     {data.conceptStats.map((cs, idx) => (
                       <div
                         key={idx}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          padding: "10px 14px",
-                          background: "#f8fafc",
-                          border: "1px solid #e2e8f0",
-                          borderRadius: "8px",
-                        }}
+                        className="analytics-concept-item"
                       >
                         <div>
-                          <span style={{ fontSize: "13px", fontWeight: 600, color: "#1e293b", display: "block" }}>
+                          <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)", display: "block" }}>
                             {cs.concept}
                           </span>
-                          <span style={{ fontSize: "11px", color: "#64748b" }}>
+                          <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
                             {cs.attempts} {cs.attempts === 1 ? "attempt" : "attempts"}
                           </span>
                         </div>
@@ -341,7 +330,7 @@ export const InstructorAnalyticsView: React.FC = () => {
             <h3>
               <AlertTriangle size={18} color="#e11d48" /> Learners Identified for Support & Remediation
             </h3>
-            <p style={{ fontSize: "12px", color: "#64748b", margin: "0 0 16px 0" }}>
+            <p style={{ fontSize: "12px", color: "var(--text-muted)", margin: "0 0 16px 0" }}>
               Students identified by pedagogical algorithm based on slow pacing or scores below passing threshold.
             </p>
 
@@ -364,8 +353,8 @@ export const InstructorAnalyticsView: React.FC = () => {
                   <tbody>
                     {data.learnersBehind.map((lb) => (
                       <tr key={lb.id}>
-                        <td style={{ fontWeight: 600, color: "#0f172a" }}>{lb.name}</td>
-                        <td style={{ color: "#64748b" }}>{lb.email}</td>
+                        <td style={{ fontWeight: 600, color: "var(--text-primary)" }}>{lb.name}</td>
+                        <td style={{ color: "var(--text-muted)" }}>{lb.email}</td>
                         <td style={{ fontFamily: "monospace", fontWeight: 700 }}>
                           {lb.completedLessons} / 31
                         </td>

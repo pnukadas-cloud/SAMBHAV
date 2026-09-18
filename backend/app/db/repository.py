@@ -44,6 +44,20 @@ def get_user_by_id(user_id: str) -> Optional[dict[str, Any]]:
         return user
 
 
+def update_user_profile(user_id: str, name: str) -> Optional[dict[str, Any]]:
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            UPDATE users
+            SET name = ?
+            WHERE id = ?
+            """,
+            (name.strip(), user_id),
+        )
+    return get_user_by_id(user_id)
+
+
 def list_users_by_role(role: str) -> list[dict[str, Any]]:
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -1457,6 +1471,7 @@ def get_instructor_analytics(instructor_id: str) -> dict[str, Any]:
             FROM modules m
             LEFT JOIN lessons l ON l.module_id = m.id
             LEFT JOIN progress p ON p.lesson_id = l.id AND p.status = 'completed'
+            WHERE m.course_id = 'quantum-foundations'
             GROUP BY m.id
             ORDER BY m.order_index ASC
             """

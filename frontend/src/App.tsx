@@ -2,6 +2,7 @@ import React from "react";
 import { RouterProvider, Route } from "./router/Router";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { ProtectedRoute, InstructorRoute } from "./router/RouteGuards";
 
 // Pages
@@ -17,14 +18,16 @@ import { AlgorithmsPage } from "./pages/AlgorithmsPage";
 import { ChallengesPage } from "./pages/ChallengesPage";
 import { AITutorPage } from "./pages/AITutorPage";
 import { ProgressPage } from "./pages/ProgressPage";
+import { ProfilePage } from "./pages/ProfilePage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { InstructorPage } from "./pages/InstructorPage";
 
 export function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <RouterProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <RouterProvider>
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -184,7 +187,7 @@ export function App() {
             path="/profile"
             element={
               <ProtectedRoute>
-                <SettingsPage />
+                <ProfilePage />
               </ProtectedRoute>
             }
           />
@@ -289,5 +292,6 @@ export function App() {
         </RouterProvider>
       </ToastProvider>
     </AuthProvider>
+    </ThemeProvider>
   );
 }

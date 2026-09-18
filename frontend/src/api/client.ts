@@ -151,6 +151,13 @@ export function getMeApi(): Promise<any> {
   return request("/api/auth/me");
 }
 
+export function updateUserProfileApi(name: string): Promise<any> {
+  return request("/api/auth/profile", {
+    method: "PUT",
+    body: JSON.stringify({ name }),
+  });
+}
+
 export function logoutApi(): Promise<{ message: string }> {
   setAuthToken(null);
   return request("/api/auth/logout", { method: "POST" });

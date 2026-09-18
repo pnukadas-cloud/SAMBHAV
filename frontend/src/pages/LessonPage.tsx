@@ -289,16 +289,16 @@ export function LessonPage() {
               </section>
 
               {/* Linear Lesson Navigation Footer */}
-              <div className="lesson-footer-nav" style={{ display: "flex", justifyContent: "space-between", gap: "12px", marginTop: "24px", paddingTop: "18px", borderTop: "1px solid #d6e0d9" }}>
+              <div className="lesson-footer-nav" style={{ display: "flex", justifyContent: "space-between", gap: "12px", marginTop: "24px", paddingTop: "18px", borderTop: "1px solid var(--border-subtle)" }}>
                 {prevLesson ? (
                   <Link
                     to={`/learn/${prevLesson.moduleId}/${prevLesson.id}`}
                     className="lesson-nav-btn prev-btn"
-                    style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", color: "#0f1923", fontWeight: 600, fontSize: "0.88rem", padding: "10px 14px", background: "#ffffff", border: "1px solid #d6e0d9", borderRadius: "8px" }}
+                    style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", color: "var(--text-primary)", fontWeight: 600, fontSize: "0.88rem", padding: "10px 14px", background: "var(--bg-card)", border: "1px solid var(--border-subtle)", borderRadius: "8px" }}
                   >
                     <ArrowLeft size={16} className="text-teal" />
                     <div style={{ textAlign: "left" }}>
-                      <div style={{ fontSize: "0.72rem", color: "#64748b", textTransform: "uppercase" }}>Previous Lesson</div>
+                      <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Previous Lesson</div>
                       <div>{prevLesson.title}</div>
                     </div>
                   </Link>

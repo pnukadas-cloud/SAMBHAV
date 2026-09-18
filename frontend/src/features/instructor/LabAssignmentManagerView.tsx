@@ -434,7 +434,7 @@ export const LabAssignmentManagerView: React.FC = () => {
                 </div>
 
                 {/* Parameters */}
-                <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0", marginBottom: "18px" }}>
+                <div style={{ background: "var(--bg-subtle)", padding: "16px", borderRadius: "10px", border: "1px solid var(--border-subtle)", marginBottom: "18px" }}>
                   <div className="instructor-form-row" style={{ margin: 0 }}>
                     <div className="instructor-form-group" style={{ margin: 0 }}>
                       <label className="instructor-form-label">Number of Qubits</label>
@@ -651,8 +651,8 @@ export const LabAssignmentManagerView: React.FC = () => {
                     <div
                       key={sub.id}
                       style={{
-                        background: "#f8fafc",
-                        border: "1px solid #e2e8f0",
+                        background: "var(--bg-subtle)",
+                        border: "1px solid var(--border-subtle)",
                         borderRadius: "10px",
                         padding: "16px",
                         display: "flex",
@@ -662,10 +662,10 @@ export const LabAssignmentManagerView: React.FC = () => {
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div>
-                          <span style={{ fontWeight: 700, fontSize: "14px", color: "#0f172a" }}>
+                          <span style={{ fontWeight: 700, fontSize: "14px", color: "var(--text-primary)" }}>
                             {sub.student_name || "Learner"}
                           </span>
-                          <span style={{ fontSize: "12px", color: "#64748b", marginLeft: "6px" }}>
+                          <span style={{ fontSize: "12px", color: "var(--text-muted)", marginLeft: "6px" }}>
                             ({sub.student_email || sub.user_id})
                           </span>
                         </div>
@@ -676,14 +676,14 @@ export const LabAssignmentManagerView: React.FC = () => {
 
                       {/* Submitted Circuit Preview */}
                       {sub.circuit && (
-                        <div style={{ background: "#0f172a", color: "#38bdf8", padding: "10px 12px", borderRadius: "6px", fontSize: "11px", fontFamily: "JetBrains Mono, monospace", overflowX: "auto" }}>
-                          <span style={{ color: "#94a3b8" }}>Circuit IR: </span>
+                        <div style={{ background: "var(--bg-input)", color: "var(--accent-cyan)", border: "1px solid var(--border-subtle)", padding: "10px 12px", borderRadius: "6px", fontSize: "11px", fontFamily: "JetBrains Mono, monospace", overflowX: "auto" }}>
+                          <span style={{ color: "var(--text-muted)" }}>Circuit IR: </span>
                           {JSON.stringify(sub.circuit)}
                         </div>
                       )}
 
                       {sub.feedback && (
-                        <p style={{ margin: 0, fontSize: "12px", color: "#475569", background: "#ffffff", padding: "6px 10px", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
+                        <p style={{ margin: 0, fontSize: "12px", color: "var(--text-secondary)", background: "var(--bg-card)", padding: "6px 10px", borderRadius: "6px", border: "1px solid var(--border-subtle)" }}>
                           <strong>Feedback:</strong> {sub.feedback}
                         </p>
                       )}
