@@ -86,7 +86,7 @@ export const AIEducatorCopilotView: React.FC<AIEducatorCopilotViewProps> = ({
   ];
 
   const tasks = [
-    { id: "generate_lesson", icon: <BookOpen size={16} color="#0d9488" />, label: "Lesson Draft", desc: "Structured 5-section lesson" },
+    { id: "generate_lesson", icon: <BookOpen size={16} color="#0284c7" />, label: "Lesson Draft", desc: "Structured 5-section lesson" },
     { id: "generate_quiz", icon: <HelpCircle size={16} color="#7c3aed" />, label: "Quiz Bank", desc: "5 MCQs with explanations" },
     { id: "generate_lab", icon: <FlaskConical size={16} color="#2563eb" />, label: "Lab Experiment", desc: "Circuit task & instructions" },
     { id: "generate_challenge", icon: <Zap size={16} color="#d97706" />, label: "Circuit Challenge", desc: "Problem statement & hints" },
@@ -221,7 +221,7 @@ export const AIEducatorCopilotView: React.FC<AIEducatorCopilotViewProps> = ({
 
       {/* Generated Result Output */}
       {generatedResult && (
-        <div className="instructor-panel-card" style={{ marginTop: "24px", border: "1.5px solid #0d9488" }}>
+        <div className="instructor-panel-card" style={{ marginTop: "24px", border: "1.5px solid #0284c7" }}>
           {/* Result Header */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "14px", borderBottom: "1px solid #e2e8f0", marginBottom: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>

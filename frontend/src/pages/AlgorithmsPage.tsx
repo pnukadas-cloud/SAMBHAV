@@ -363,7 +363,7 @@ export function AlgorithmsPage() {
               <div className="detail-title-group">
                 <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "4px" }}>
                   <span className="detail-cat">{selectedAlgo.category}</span>
-                  <span style={{ fontSize: "12px", fontWeight: 700, color: "#0d9488", background: "rgba(13, 148, 136, 0.1)", padding: "2px 8px", borderRadius: "999px" }}>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "#0284c7", background: "rgba(13, 148, 136, 0.1)", padding: "2px 8px", borderRadius: "999px" }}>
                     {selectedAlgo.moduleTitle}
                   </span>
                 </div>

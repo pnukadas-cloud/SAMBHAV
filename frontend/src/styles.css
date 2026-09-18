@@ -2,23 +2,23 @@
 
 :root {
   font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #14211d;
-  background-color: #f4f6f3;
-  --primary-teal: #14342f;
-  --primary-teal-hover: #1c4942;
-  --accent-green: #2a9d8f;
+  color: #f8fafc;
+  background-color: #f8fafc;
+  --primary-teal: #0f1923;
+  --primary-teal-hover: #17283c;
+  --accent-green: #0284c7;
   --accent-coral: #e76f51;
   --accent-amber: #e9b44c;
   --accent-indigo: #4361ee;
   --accent-purple: #7209b7;
-  --bg-white: #ffffff;
-  --border-light: #d6e0d9;
-  --text-muted: #556661;
+  --bg-white: #14202c;
+  --border-light: #1f3347;
+  --text-muted: #94a3b8;
 }
 
 /* Color & Background Utilities */
-.bg-teal { background: #0d9488 !important; }
-.bg-teal-soft { background: rgba(13, 148, 136, 0.12) !important; }
+.bg-teal { background: #0284c7 !important; }
+.bg-teal-soft { background: rgba(2, 132, 199, 0.12) !important; }
 .bg-blue { background: #2563eb !important; }
 .bg-blue-soft { background: rgba(37, 99, 235, 0.12) !important; }
 .bg-amber { background: #d97706 !important; }
@@ -29,7 +29,7 @@
 .bg-coral-soft { background: rgba(225, 29, 72, 0.12) !important; }
 .bg-orange { background: #ea580c !important; }
 
-.text-teal { color: #0d9488 !important; }
+.text-teal { color: #0284c7 !important; }
 .text-blue { color: #2563eb !important; }
 .text-amber { color: #d97706 !important; }
 .text-purple { color: #7c3aed !important; }
@@ -43,8 +43,8 @@
 
 body {
   margin: 0;
-  background-color: #f4f6f3;
-  color: #14211d;
+  background-color: #f8fafc;
+  color: #f8fafc;
   font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -67,11 +67,11 @@ button, input, select, textarea, optgroup {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #102a26 0%, #163e38 100%);
-  color: #f8fff9;
+  background: linear-gradient(135deg, #0f1923 0%, #17283c 100%);
+  color: #f8fafc;
   padding: 16px 28px;
-  border-bottom: 2px solid #204e46;
-  box-shadow: 0 4px 12px rgba(16, 42, 38, 0.15);
+  border-bottom: 2px solid #1e3042;
+  box-shadow: 0 4px 12px rgba(15, 25, 35, 0.15);
 }
 
 .topbar-brand {
@@ -86,10 +86,10 @@ button, input, select, textarea, optgroup {
   justify-content: center;
   width: 42px;
   height: 42px;
-  background: rgba(42, 157, 143, 0.25);
-  border: 1.5px solid #2a9d8f;
+  background: rgba(2, 132, 199, 0.25);
+  border: 1.5px solid #0284c7;
   border-radius: 10px;
-  color: #a9dbc9;
+  color: #93c5fd;
 }
 
 .spin-slow {
@@ -102,7 +102,7 @@ button, input, select, textarea, optgroup {
 }
 
 .eyebrow {
-  color: #64b5a0;
+  color: #38bdf8;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -129,7 +129,7 @@ button, input, select, textarea, optgroup {
 }
 
 .status-pill.status-running {
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   animation: pulse 1.5s infinite ease-in-out;
 }
@@ -163,11 +163,11 @@ button, input, select, textarea, optgroup {
 .panel,
 .code-panel,
 .quantum-circuit-builder {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid var(--border-light);
   border-radius: 10px;
   padding: 18px 20px;
-  box-shadow: 0 2px 8px rgba(20, 52, 47, 0.04);
+  box-shadow: 0 2px 8px rgba(15, 25, 35, 0.04);
 }
 
 .section-heading {
@@ -180,7 +180,7 @@ button, input, select, textarea, optgroup {
   font-size: 1.15rem;
   font-weight: 700;
   margin: 0;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .section-heading.compact h2 {
@@ -188,15 +188,15 @@ button, input, select, textarea, optgroup {
 }
 
 .text-teal {
-  color: #2a9d8f;
+  color: #0284c7;
 }
 
 .badge-pill {
   font-size: 0.75rem;
   font-weight: 700;
-  background: #edf7f3;
-  color: #20685e;
-  border: 1px solid #bfe3d6;
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
   border-radius: 999px;
   padding: 3px 10px;
   margin-left: auto;
@@ -207,9 +207,9 @@ button, input, select, textarea, optgroup {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #fff4e5;
+  background: rgba(245, 158, 11, 0.12);
   border-left: 4px solid #f4a261;
-  color: #874900;
+  color: #fbbf24;
   padding: 12px 16px;
   border-radius: 6px;
   font-size: 0.88rem;
@@ -224,8 +224,8 @@ button, input, select, textarea, optgroup {
   flex-direction: column;
   gap: 16px;
   padding: 18px;
-  background: #ffffff;
-  border: 1px solid #d3ded7;
+  background: #14202c;
+  border: 1px solid #1f3347;
 }
 
 /* Top Toolbar */
@@ -235,7 +235,7 @@ button, input, select, textarea, optgroup {
   flex-wrap: wrap;
   gap: 12px;
   padding-bottom: 14px;
-  border-bottom: 1px solid #e3ebe6;
+  border-bottom: 1px solid #1f3347;
 }
 
 .toolbar-group {
@@ -247,24 +247,24 @@ button, input, select, textarea, optgroup {
 .toolbar-label {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #4f635c;
+  color: #94a3b8;
 }
 
 .counter-pill {
   display: inline-flex;
   align-items: center;
-  background: #f0f4f2;
-  border: 1px solid #cedad3;
+  background: #0d1720;
+  border: 1px solid #1f3347;
   border-radius: 6px;
   overflow: hidden;
 }
 
 .counter-btn {
-  background: #ffffff;
+  background: #14202c;
   border: 0;
   padding: 5px 8px;
   cursor: pointer;
-  color: #14342f;
+  color: #f8fafc;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -284,7 +284,7 @@ button, input, select, textarea, optgroup {
   font-size: 0.85rem;
   font-weight: 800;
   padding: 0 10px;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .preset-buttons {
@@ -294,10 +294,10 @@ button, input, select, textarea, optgroup {
 }
 
 .preset-chip {
-  background: #edf7f3;
-  border: 1px solid #bce1d4;
+  background: #f0f9ff;
+  border: 1px solid #1f3347;
   border-radius: 6px;
-  color: #1b534a;
+  color: #38bdf8;
   font-size: 0.78rem;
   font-weight: 700;
   padding: 5px 10px;
@@ -306,8 +306,8 @@ button, input, select, textarea, optgroup {
 }
 
 .preset-chip:hover {
-  background: #2a9d8f;
-  border-color: #2a9d8f;
+  background: #0284c7;
+  border-color: #0284c7;
   color: #ffffff;
 }
 
@@ -319,9 +319,9 @@ button, input, select, textarea, optgroup {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #fff3f3;
-  border: 1px solid #f8c8c8;
-  color: #c92a2a;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
   font-size: 0.8rem;
   font-weight: 700;
   padding: 6px 12px;
@@ -341,8 +341,8 @@ button, input, select, textarea, optgroup {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 12px;
-  background: #f8faf8;
-  border: 1px solid #dce6e0;
+  background: #0d1720;
+  border: 1px solid #1f3347;
   border-radius: 8px;
   padding: 12px 14px;
 }
@@ -357,7 +357,7 @@ button, input, select, textarea, optgroup {
   font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
-  color: #627770;
+  color: #94a3b8;
   letter-spacing: 0.05em;
 }
 
@@ -398,13 +398,13 @@ button, input, select, textarea, optgroup {
 }
 
 .gate-palette-btn.is-active {
-  outline: 3px solid #14342f;
+  outline: 3px solid #0f1923;
   outline-offset: 2px;
 }
 
 /* Gate Type Color Coding */
 .gate-single {
-  background: #2a9d8f;
+  background: #0284c7;
 }
 
 .gate-rotation {
@@ -436,10 +436,10 @@ button, input, select, textarea, optgroup {
   font-size: 0.78rem;
   font-weight: 700;
   padding: 4px 6px;
-  background: #ffffff;
-  border: 1px solid #d2ded7;
+  background: #14202c;
+  border: 1px solid #1f3347;
   border-radius: 4px;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 /* Empty Circuit Alert */
@@ -447,15 +447,15 @@ button, input, select, textarea, optgroup {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: #edf7f3;
-  border: 1px dashed #2a9d8f;
+  background: #f0f9ff;
+  border: 1px dashed #0284c7;
   border-radius: 8px;
   padding: 14px 18px;
-  color: #1b534a;
+  color: #38bdf8;
 }
 
 .empty-circuit-alert .alert-icon {
-  color: #2a9d8f;
+  color: #0284c7;
   margin-top: 2px;
   flex-shrink: 0;
 }
@@ -470,9 +470,9 @@ button, input, select, textarea, optgroup {
 /* Circuit Grid Matrix Canvas */
 .circuit-grid-wrapper {
   overflow-x: auto;
-  border: 1px solid #cedad2;
+  border: 1px solid #1f3347;
   border-radius: 8px;
-  background: #ffffff;
+  background: #14202c;
   padding: 16px 18px;
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.03);
 }
@@ -488,7 +488,7 @@ button, input, select, textarea, optgroup {
 .circuit-grid-header {
   display: flex;
   align-items: center;
-  border-bottom: 2px solid #d8e3dc;
+  border-bottom: 2px solid #e2e8f0;
   padding-bottom: 8px;
   margin-bottom: 6px;
 }
@@ -497,7 +497,7 @@ button, input, select, textarea, optgroup {
   width: 48px;
   font-size: 0.75rem;
   font-weight: 800;
-  color: #5d7069;
+  color: #94a3b8;
   text-transform: uppercase;
 }
 
@@ -505,7 +505,7 @@ button, input, select, textarea, optgroup {
   width: 48px;
   font-size: 0.75rem;
   font-weight: 800;
-  color: #5d7069;
+  color: #94a3b8;
   text-align: center;
 }
 
@@ -513,7 +513,7 @@ button, input, select, textarea, optgroup {
   width: 72px;
   font-size: 0.72rem;
   font-weight: 800;
-  color: #6a7e77;
+  color: #94a3b8;
   text-align: center;
   text-transform: uppercase;
 }
@@ -544,9 +544,9 @@ button, input, select, textarea, optgroup {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.88rem;
   font-weight: 800;
-  color: #14342f;
-  background: #e6ede9;
-  border: 1px solid #c2d2c9;
+  color: #f8fafc;
+  background: #0d1720;
+  border: 1px solid #1f3347;
   padding: 4px 8px;
   border-radius: 4px;
 }
@@ -556,7 +556,7 @@ button, input, select, textarea, optgroup {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #596b65;
+  color: #94a3b8;
   text-align: center;
 }
 
@@ -567,7 +567,7 @@ button, input, select, textarea, optgroup {
   right: 0;
   top: 50%;
   height: 2px;
-  background: #8fa099;
+  background: #2b455e;
   transform: translateY(-50%);
   z-index: 1;
 }
@@ -590,8 +590,8 @@ button, input, select, textarea, optgroup {
 
 .circuit-cell.is-empty:hover .empty-cell-placeholder {
   opacity: 1;
-  border-color: #2a9d8f;
-  background: rgba(42, 157, 143, 0.08);
+  border-color: #0284c7;
+  background: rgba(2, 132, 199, 0.08);
 }
 
 .empty-cell-placeholder {
@@ -609,7 +609,7 @@ button, input, select, textarea, optgroup {
 .plus-hint {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #2a9d8f;
+  color: #0284c7;
 }
 
 /* Placed Gate Nodes */
@@ -634,7 +634,7 @@ button, input, select, textarea, optgroup {
 }
 
 .circuit-node.node-selected {
-  outline: 3px solid #14342f;
+  outline: 3px solid #0f1923;
   outline-offset: 2px;
 }
 
@@ -644,7 +644,7 @@ button, input, select, textarea, optgroup {
 .circuit-node.node-z,
 .circuit-node.node-s,
 .circuit-node.node-t {
-  background: #2a9d8f;
+  background: #0284c7;
 }
 
 .circuit-node.node-x,
@@ -683,7 +683,7 @@ button, input, select, textarea, optgroup {
 .control-dot-circle {
   width: 16px;
   height: 16px;
-  background: #14342f;
+  background: #0f1923;
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -797,7 +797,7 @@ button, input, select, textarea, optgroup {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .inspector-header h4 {
@@ -810,7 +810,7 @@ button, input, select, textarea, optgroup {
   background: transparent;
   border: 0;
   cursor: pointer;
-  color: #5d7069;
+  color: #94a3b8;
   margin-left: auto;
 }
 
@@ -839,10 +839,10 @@ button, input, select, textarea, optgroup {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #9dc8b9;
   border-radius: 6px;
-  color: #14342f;
+  color: #f8fafc;
   font-size: 0.8rem;
   font-weight: 700;
   padding: 6px 12px;
@@ -851,7 +851,7 @@ button, input, select, textarea, optgroup {
 }
 
 .inspector-action-btn:hover {
-  background: #14342f;
+  background: #0f1923;
   color: #ffffff;
 }
 
@@ -898,16 +898,16 @@ button, input, select, textarea, optgroup {
 }
 
 .primary-button {
-  background: #14342f;
+  background: #0f1923;
   color: #ffffff;
   border: 0;
   padding: 11px 18px;
   font-size: 0.92rem;
-  box-shadow: 0 3px 8px rgba(20, 52, 47, 0.2);
+  box-shadow: 0 3px 8px rgba(15, 25, 35, 0.2);
 }
 
 .primary-button:hover:not(:disabled) {
-  background: #1c4942;
+  background: #17283c;
   transform: translateY(-1px);
 }
 
@@ -919,8 +919,8 @@ button, input, select, textarea, optgroup {
 }
 
 .secondary-button {
-  background: #ffffff;
-  color: #14342f;
+  background: #14202c;
+  color: #f8fafc;
   border: 1.5px solid #b7cac1;
   padding: 10px 16px;
   font-size: 0.9rem;
@@ -928,13 +928,13 @@ button, input, select, textarea, optgroup {
 
 .secondary-button:hover:not(:disabled) {
   background: #edf5f1;
-  border-color: #2a9d8f;
+  border-color: #0284c7;
 }
 
 .icon-button {
-  background: #ffffff;
+  background: #14202c;
   border: 1.5px solid #b7cac1;
-  color: #14342f;
+  color: #f8fafc;
   width: 44px;
   height: 44px;
   justify-content: center;
@@ -997,7 +997,7 @@ button, input, select, textarea, optgroup {
   font-weight: 800;
   font-size: 0.95rem;
   min-width: 48px;
-  color: #0f766e;
+  color: #0369a1;
 }
 
 .bar-track {
@@ -1014,9 +1014,9 @@ button, input, select, textarea, optgroup {
   display: block;
   height: 100%;
   min-width: 2px;
-  background: linear-gradient(90deg, #0d9488 0%, #06b6d4 50%, #3b82f6 100%);
+  background: linear-gradient(90deg, #0284c7 0%, #06b6d4 50%, #3b82f6 100%);
   border-radius: 999px;
-  box-shadow: 0 0 8px rgba(13, 148, 136, 0.35);
+  box-shadow: 0 0 8px rgba(2, 132, 199, 0.35);
   animation: fillBarHorizontal 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   transition: width 0.35s ease;
 }
@@ -1072,7 +1072,7 @@ button, input, select, textarea, optgroup {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #2a9d8f;
+  color: #0284c7;
   margin-bottom: 4px;
 }
 
@@ -1080,7 +1080,7 @@ button, input, select, textarea, optgroup {
   font-family: "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.95rem;
   font-weight: 700;
-  color: #14342f;
+  color: #f8fafc;
   word-break: break-all;
   display: block;
 }
@@ -1108,7 +1108,7 @@ button, input, select, textarea, optgroup {
 .tutor-header h2 {
   font-size: 1.15rem;
   margin: 0;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .tutor-source-pill {
@@ -1136,7 +1136,7 @@ button, input, select, textarea, optgroup {
 }
 
 .tutor-content-card {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #e1ebe5;
   border-radius: 8px;
   padding: 12px 14px;
@@ -1160,7 +1160,7 @@ button, input, select, textarea, optgroup {
 .concepts-title {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #6a7e77;
+  color: #94a3b8;
   display: block;
   margin-bottom: 6px;
 }
@@ -1173,7 +1173,7 @@ button, input, select, textarea, optgroup {
 
 .concept-tag {
   background: #edf7f2;
-  color: #14342f;
+  color: #f8fafc;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 2px 8px;
@@ -1208,7 +1208,7 @@ button, input, select, textarea, optgroup {
 }
 
 .suggestion-pill-btn {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #fde047;
   border-radius: 6px;
   padding: 5px 8px;
@@ -1240,14 +1240,14 @@ button, input, select, textarea, optgroup {
   padding: 4px 8px;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #1b534a;
+  color: #38bdf8;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .quick-prompt-btn:hover:not(:disabled) {
   background: #d8ede3;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .tutor-input-form {
@@ -1259,23 +1259,23 @@ button, input, select, textarea, optgroup {
 
 .tutor-input-field {
   flex: 1;
-  background: #ffffff;
+  background: #14202c;
   border: 1.5px solid #c2d5cb;
   border-radius: 6px;
   padding: 8px 12px;
   font-size: 0.85rem;
-  color: #14342f;
+  color: #f8fafc;
   outline: none;
   transition: border-color 0.15s;
 }
 
 .tutor-input-field:focus {
-  border-color: #2a9d8f;
-  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.15);
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
 }
 
 .tutor-submit-btn {
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -1317,7 +1317,7 @@ button, input, select, textarea, optgroup {
 .lesson-panel h2, .panel h2 {
   font-size: 1.15rem;
   margin: 0 0 8px;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .lesson-panel p, .muted {
@@ -1336,11 +1336,11 @@ button, input, select, textarea, optgroup {
 
 .lesson-steps span {
   background: #edf7f2;
-  border-left: 3px solid #2a9d8f;
+  border-left: 3px solid #0284c7;
   padding: 8px 12px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #1b534a;
+  color: #38bdf8;
 }
 
 .progress-box {
@@ -1359,7 +1359,7 @@ button, input, select, textarea, optgroup {
 }
 
 .progress-track span {
-  background: #2a9d8f;
+  background: #0284c7;
   display: block;
   height: 100%;
 }
@@ -1373,7 +1373,7 @@ button, input, select, textarea, optgroup {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 8px;
   padding: 10px 14px;
@@ -1385,7 +1385,7 @@ button, input, select, textarea, optgroup {
 }
 
 .dashboard-list span {
-  color: #556661;
+  color: #64748b;
   font-size: 0.85rem;
   font-weight: 600;
 }
@@ -1420,7 +1420,7 @@ button, input, select, textarea, optgroup {
   pointer-events: auto;
   min-width: 320px;
   max-width: 440px;
-  background: #ffffff;
+  background: #14202c;
   border-radius: 8px;
   padding: 12px 16px;
   display: flex;
@@ -1428,7 +1428,7 @@ button, input, select, textarea, optgroup {
   gap: 12px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   animation: toast-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  border-left: 4px solid #2a9d8f;
+  border-left: 4px solid #0284c7;
 }
 
 @keyframes toast-in {
@@ -1442,7 +1442,7 @@ button, input, select, textarea, optgroup {
   }
 }
 
-.toast-card.toast-success { border-left-color: #2a9d8f; }
+.toast-card.toast-success { border-left-color: #0284c7; }
 .toast-card.toast-error { border-left-color: #e76f51; }
 .toast-card.toast-warning { border-left-color: #e9b44c; }
 .toast-card.toast-info { border-left-color: #4361ee; }
@@ -1451,7 +1451,7 @@ button, input, select, textarea, optgroup {
   margin-top: 2px;
   flex-shrink: 0;
 }
-.toast-success .toast-icon { color: #2a9d8f; }
+.toast-success .toast-icon { color: #0284c7; }
 .toast-error .toast-icon { color: #e76f51; }
 .toast-warning .toast-icon { color: #d97706; }
 .toast-info .toast-icon { color: #4361ee; }
@@ -1464,7 +1464,7 @@ button, input, select, textarea, optgroup {
   font-size: 0.88rem;
   font-weight: 700;
   margin: 0 0 2px;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .toast-message {
@@ -1482,16 +1482,16 @@ button, input, select, textarea, optgroup {
   padding: 2px;
 }
 
-.toast-close-btn:hover { color: #14342f; }
+.toast-close-btn:hover { color: #f8fafc; }
 
 /* Public Navbar */
 .public-navbar {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(16, 42, 38, 0.94);
+  background: rgba(15, 25, 35, 0.94);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(42, 157, 143, 0.25);
+  border-bottom: 1px solid rgba(2, 132, 199, 0.25);
 }
 
 .navbar-container {
@@ -1514,13 +1514,13 @@ button, input, select, textarea, optgroup {
 .brand-icon-box {
   width: 38px;
   height: 38px;
-  background: rgba(42, 157, 143, 0.25);
-  border: 1.5px solid #2a9d8f;
+  background: rgba(2, 132, 199, 0.25);
+  border: 1.5px solid #0284c7;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64b5a0;
+  color: #38bdf8;
 }
 
 .brand-text-group {
@@ -1538,7 +1538,7 @@ button, input, select, textarea, optgroup {
 .brand-sub {
   font-size: 0.65rem;
   font-weight: 700;
-  color: #2a9d8f;
+  color: #0284c7;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -1550,7 +1550,7 @@ button, input, select, textarea, optgroup {
 }
 
 .nav-link {
-  color: #c5d8d0;
+  color: #cbd5e1;
   text-decoration: none;
   font-size: 0.88rem;
   font-weight: 600;
@@ -1558,7 +1558,7 @@ button, input, select, textarea, optgroup {
 }
 
 .nav-link:hover, .nav-link-active {
-  color: #2a9d8f;
+  color: #0284c7;
 }
 
 .navbar-actions {
@@ -1585,7 +1585,7 @@ button, input, select, textarea, optgroup {
 }
 
 .btn-primary-glow {
-  background: linear-gradient(135deg, #2a9d8f 0%, #1b6c62 100%);
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
   color: #ffffff !important;
   text-decoration: none;
   font-size: 0.88rem;
@@ -1595,13 +1595,13 @@ button, input, select, textarea, optgroup {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 4px 14px rgba(42, 157, 143, 0.35);
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
   transition: all 0.15s;
 }
 
 .btn-primary-glow:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(42, 157, 143, 0.45);
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45);
 }
 
 .btn-primary-glow.large {
@@ -1645,13 +1645,13 @@ button, input, select, textarea, optgroup {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(42, 157, 143, 0.15);
-  border: 1px solid rgba(42, 157, 143, 0.35);
+  background: rgba(2, 132, 199, 0.15);
+  border: 1px solid rgba(2, 132, 199, 0.35);
   padding: 5px 12px;
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 700;
-  color: #64b5a0;
+  color: #38bdf8;
   margin-bottom: 20px;
 }
 
@@ -1664,8 +1664,9 @@ button, input, select, textarea, optgroup {
 }
 
 .hero-gradient-text {
-  background: linear-gradient(135deg, #2a9d8f 0%, #4361ee 50%, #9b5de5 100%);
+  background: linear-gradient(135deg, #0284c7 0%, #4361ee 50%, #9b5de5 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -1684,7 +1685,7 @@ button, input, select, textarea, optgroup {
 }
 
 .hero-primary-btn {
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   text-decoration: none;
   font-size: 0.98rem;
@@ -1694,7 +1695,7 @@ button, input, select, textarea, optgroup {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 6px 20px rgba(42, 157, 143, 0.4);
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
   transition: all 0.15s;
 }
 
@@ -1738,7 +1739,7 @@ button, input, select, textarea, optgroup {
 /* Demo window card on hero */
 .demo-window-card {
   background: #14221f;
-  border: 1.5px solid rgba(42, 157, 143, 0.3);
+  border: 1.5px solid rgba(2, 132, 199, 0.3);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
@@ -1750,7 +1751,7 @@ button, input, select, textarea, optgroup {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(42, 157, 143, 0.2);
+  border-bottom: 1px solid rgba(2, 132, 199, 0.2);
 }
 
 .window-dots {
@@ -1792,7 +1793,7 @@ button, input, select, textarea, optgroup {
 }
 
 .demo-run-btn {
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   border: none;
   padding: 8px 16px;
@@ -1806,13 +1807,13 @@ button, input, select, textarea, optgroup {
 }
 
 .demo-result-pill {
-  background: rgba(42, 157, 143, 0.2);
-  border: 1px solid #2a9d8f;
+  background: rgba(2, 132, 199, 0.2);
+  border: 1px solid #0284c7;
   padding: 4px 10px;
   border-radius: 6px;
   font-family: ui-monospace, monospace;
   font-size: 0.8rem;
-  color: #a9dbc9;
+  color: #93c5fd;
 }
 
 .demo-probabilities-row {
@@ -1849,13 +1850,13 @@ button, input, select, textarea, optgroup {
 
 .demo-prob-item .fill {
   height: 100%;
-  background: #2a9d8f;
+  background: #0284c7;
 }
 
 .demo-prob-item .pct {
   font-size: 0.78rem;
   font-weight: 700;
-  color: #2a9d8f;
+  color: #0284c7;
   width: 35px;
 }
 
@@ -1877,7 +1878,7 @@ button, input, select, textarea, optgroup {
 }
 
 .section-eyebrow {
-  color: #2a9d8f;
+  color: #0284c7;
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -1906,7 +1907,7 @@ button, input, select, textarea, optgroup {
 
 .feature-card {
   background: #172a26;
-  border: 1px solid rgba(42, 157, 143, 0.18);
+  border: 1px solid rgba(2, 132, 199, 0.18);
   border-radius: 12px;
   padding: 28px 24px;
   cursor: pointer;
@@ -1917,7 +1918,7 @@ button, input, select, textarea, optgroup {
 
 .feature-card:hover {
   transform: translateY(-4px);
-  border-color: #2a9d8f;
+  border-color: #0284c7;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
 }
 
@@ -1931,7 +1932,7 @@ button, input, select, textarea, optgroup {
   margin-bottom: 20px;
 }
 
-.bg-teal-soft { background: rgba(42, 157, 143, 0.18); }
+.bg-teal-soft { background: rgba(2, 132, 199, 0.18); }
 .bg-purple-soft { background: rgba(114, 9, 183, 0.18); }
 .bg-amber-soft { background: rgba(233, 180, 76, 0.18); }
 .bg-blue-soft { background: rgba(67, 97, 238, 0.18); }
@@ -1958,7 +1959,7 @@ button, input, select, textarea, optgroup {
   gap: 6px;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #2a9d8f;
+  color: #0284c7;
 }
 
 /* CTA Banner Section */
@@ -1971,7 +1972,7 @@ button, input, select, textarea, optgroup {
   max-width: 1100px;
   margin: 0 auto;
   background: linear-gradient(135deg, #163630 0%, #1f4f46 100%);
-  border: 1.5px solid rgba(42, 157, 143, 0.4);
+  border: 1.5px solid rgba(2, 132, 199, 0.4);
   border-radius: 16px;
   padding: 48px;
   text-align: center;
@@ -2022,7 +2023,7 @@ button, input, select, textarea, optgroup {
 }
 
 .footer-brand p {
-  color: #6a7e77;
+  color: #94a3b8;
   font-size: 0.85rem;
   max-width: 320px;
   line-height: 1.5;
@@ -2047,7 +2048,7 @@ button, input, select, textarea, optgroup {
   margin-bottom: 8px;
 }
 
-.footer-col a:hover { color: #2a9d8f; }
+.footer-col a:hover { color: #0284c7; }
 
 .footer-bottom {
   max-width: 1300px;
@@ -2075,7 +2076,7 @@ button, input, select, textarea, optgroup {
   width: 100%;
   max-width: 440px;
   background: #152622;
-  border: 1px solid rgba(42, 157, 143, 0.3);
+  border: 1px solid rgba(2, 132, 199, 0.3);
   border-radius: 12px;
   padding: 32px 28px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
@@ -2090,7 +2091,7 @@ button, input, select, textarea, optgroup {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #2a9d8f;
+  color: #0284c7;
   text-decoration: none;
   font-size: 1.25rem;
   font-weight: 800;
@@ -2135,7 +2136,7 @@ button, input, select, textarea, optgroup {
 
 .demo-btn {
   background: #1a2f2a;
-  border: 1px solid rgba(42, 157, 143, 0.3);
+  border: 1px solid rgba(2, 132, 199, 0.3);
   color: #ffffff;
   padding: 7px 10px;
   border-radius: 6px;
@@ -2151,7 +2152,7 @@ button, input, select, textarea, optgroup {
 
 .demo-btn:hover {
   background: #24423b;
-  border-color: #2a9d8f;
+  border-color: #0284c7;
 }
 
 .auth-divider {
@@ -2159,7 +2160,7 @@ button, input, select, textarea, optgroup {
   align-items: center;
   text-align: center;
   margin: 20px 0;
-  color: #556661;
+  color: #64748b;
   font-size: 0.75rem;
 }
 
@@ -2198,7 +2199,7 @@ button, input, select, textarea, optgroup {
 }
 
 .forgot-link {
-  color: #2a9d8f;
+  color: #0284c7;
   font-size: 0.75rem;
   text-decoration: none;
 }
@@ -2212,13 +2213,13 @@ button, input, select, textarea, optgroup {
 .input-icon {
   position: absolute;
   left: 12px;
-  color: #6a7e77;
+  color: #94a3b8;
 }
 
 .input-with-icon input {
   width: 100%;
   background: #0f1c19;
-  border: 1px solid #28443e;
+  border: 1px solid #1e334a;
   border-radius: 6px;
   padding: 10px 40px 10px 38px;
   color: #ffffff;
@@ -2227,8 +2228,8 @@ button, input, select, textarea, optgroup {
 }
 
 .input-with-icon input:focus {
-  border-color: #2a9d8f;
-  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
 }
 
 .password-toggle-btn {
@@ -2236,7 +2237,7 @@ button, input, select, textarea, optgroup {
   right: 12px;
   background: none;
   border: none;
-  color: #6a7e77;
+  color: #94a3b8;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2247,7 +2248,7 @@ button, input, select, textarea, optgroup {
 }
 
 .password-toggle-btn:hover {
-  color: #2a9d8f;
+  color: #0284c7;
 }
 
 .role-pills-row {
@@ -2258,7 +2259,7 @@ button, input, select, textarea, optgroup {
 
 .role-choice-pill {
   background: #0f1c19;
-  border: 1px solid #28443e;
+  border: 1px solid #1e334a;
   color: #8c9e97;
   padding: 9px;
   border-radius: 6px;
@@ -2273,7 +2274,7 @@ button, input, select, textarea, optgroup {
 
 .role-choice-pill.selected {
   background: #1e3f38;
-  border-color: #2a9d8f;
+  border-color: #0284c7;
   color: #ffffff;
 }
 
@@ -2292,7 +2293,7 @@ button, input, select, textarea, optgroup {
 }
 
 .auth-submit-btn {
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -2321,7 +2322,7 @@ button, input, select, textarea, optgroup {
 }
 
 .auth-footer-link a {
-  color: #2a9d8f;
+  color: #0284c7;
   text-decoration: none;
   font-weight: 700;
 }
@@ -2331,7 +2332,7 @@ button, input, select, textarea, optgroup {
   width: 100%;
   max-width: 640px;
   background: #152622;
-  border: 1px solid rgba(42, 157, 143, 0.3);
+  border: 1px solid rgba(2, 132, 199, 0.3);
   border-radius: 12px;
   padding: 36px 32px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
@@ -2350,7 +2351,7 @@ button, input, select, textarea, optgroup {
   gap: 8px;
   font-size: 1.15rem;
   font-weight: 800;
-  color: #2a9d8f;
+  color: #0284c7;
 }
 
 .onboarding-steps-indicator {
@@ -2364,7 +2365,7 @@ button, input, select, textarea, optgroup {
   height: 26px;
   border-radius: 50%;
   background: #101e1b;
-  border: 1.5px solid #28443e;
+  border: 1.5px solid #1e334a;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2374,19 +2375,19 @@ button, input, select, textarea, optgroup {
 }
 
 .step-dot.active {
-  background: #2a9d8f;
-  border-color: #2a9d8f;
+  background: #0284c7;
+  border-color: #0284c7;
   color: #ffffff;
 }
 
 .step-connector {
   width: 24px;
   height: 2px;
-  background: #28443e;
+  background: #1e334a;
 }
 
 .step-tag {
-  color: #2a9d8f;
+  color: #0284c7;
   font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -2424,12 +2425,12 @@ button, input, select, textarea, optgroup {
 }
 
 .experience-card:hover {
-  border-color: #2a9d8f;
+  border-color: #0284c7;
 }
 
 .experience-card.selected {
   background: #18332d;
-  border-color: #2a9d8f;
+  border-color: #0284c7;
 }
 
 .exp-icon-box {
@@ -2474,7 +2475,7 @@ button, input, select, textarea, optgroup {
 
 .interest-card.selected {
   background: #18332d;
-  border-color: #2a9d8f;
+  border-color: #0284c7;
 }
 
 .interest-text h4 {
@@ -2493,8 +2494,8 @@ button, input, select, textarea, optgroup {
 }
 
 .generated-path-preview {
-  background: rgba(42, 157, 143, 0.12);
-  border: 1px solid rgba(42, 157, 143, 0.3);
+  background: rgba(2, 132, 199, 0.12);
+  border: 1px solid rgba(2, 132, 199, 0.3);
   border-radius: 8px;
   padding: 12px 14px;
   margin-bottom: 24px;
@@ -2506,7 +2507,7 @@ button, input, select, textarea, optgroup {
   gap: 6px;
   font-size: 0.75rem;
   font-weight: 800;
-  color: #2a9d8f;
+  color: #0284c7;
   margin-bottom: 4px;
 }
 
@@ -2526,7 +2527,7 @@ button, input, select, textarea, optgroup {
 }
 
 .onboarding-next-btn, .onboarding-finish-btn {
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   border: none;
   padding: 11px 20px;
@@ -2541,7 +2542,7 @@ button, input, select, textarea, optgroup {
 
 .onboarding-back-btn {
   background: transparent;
-  border: 1px solid #28443e;
+  border: 1px solid #1e334a;
   color: #8c9e97;
   padding: 11px 18px;
   border-radius: 6px;
@@ -2554,7 +2555,7 @@ button, input, select, textarea, optgroup {
 .app-container {
   display: flex;
   min-height: 100vh;
-  background: #f8fafc;
+  background: #0f1923;
   width: 100%;
   overflow-x: hidden;
 }
@@ -2571,11 +2572,11 @@ button, input, select, textarea, optgroup {
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background: #0e1e1a;
+  background: #0f1923;
   color: #ffffff;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #1a3630;
+  border-right: 1px solid #1e2c3a;
   transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.22s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
   overflow-x: hidden;
@@ -2594,7 +2595,7 @@ button, input, select, textarea, optgroup {
   align-items: center;
   justify-content: space-between;
   padding: 16px 14px;
-  border-bottom: 1px solid #1a3630;
+  border-bottom: 1px solid #1e2c3a;
   min-height: 64px;
 }
 
@@ -2622,13 +2623,13 @@ button, input, select, textarea, optgroup {
 .sidebar-logo-badge {
   width: 38px;
   height: 38px;
-  background: rgba(42, 157, 143, 0.25);
-  border: 1.5px solid #2a9d8f;
+  background: rgba(2, 132, 199, 0.25);
+  border: 1.5px solid #0284c7;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #2a9d8f;
+  color: #0284c7;
   flex-shrink: 0;
 }
 
@@ -2647,7 +2648,7 @@ button, input, select, textarea, optgroup {
 
 .brand-tagline {
   font-size: 0.65rem;
-  color: #2a9d8f;
+  color: #0284c7;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -2656,7 +2657,7 @@ button, input, select, textarea, optgroup {
 .sidebar-toggle-btn {
   background: transparent;
   border: none;
-  color: #7b948b;
+  color: #94a3b8;
   cursor: pointer;
   padding: 6px;
   border-radius: 6px;
@@ -2681,8 +2682,8 @@ button, input, select, textarea, optgroup {
 }
 
 .role-selector-card {
-  background: #17302b;
-  border: 1px solid #244840;
+  background: #162432;
+  border: 1px solid #1e334a;
   border-radius: 8px;
   padding: 8px 12px;
   display: flex;
@@ -2697,7 +2698,7 @@ button, input, select, textarea, optgroup {
 
 .role-label {
   font-size: 0.65rem;
-  color: #7b948b;
+  color: #94a3b8;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -2711,7 +2712,7 @@ button, input, select, textarea, optgroup {
   font-weight: 700;
 }
 
-.role-badge.badge-student { color: #2a9d8f; }
+.role-badge.badge-student { color: #0284c7; }
 .role-badge.badge-instructor { color: #e9b44c; }
 
 .sidebar-nav {
@@ -2730,7 +2731,7 @@ button, input, select, textarea, optgroup {
 .nav-section-title {
   font-size: 0.68rem;
   font-weight: 800;
-  color: #55756c;
+  color: #64748b;
   padding: 8px 10px 4px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -2759,20 +2760,20 @@ button, input, select, textarea, optgroup {
 }
 
 .sidebar-nav-item:hover {
-  background: #17302b;
+  background: #162432;
   color: #ffffff;
 }
 
 .sidebar-nav-item.item-active {
-  background: #0d9488;
+  background: #0284c7;
   color: #ffffff;
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
 }
 
 .sidebar-nav-item.item-highlight {
-  border: 1px dashed rgba(42, 157, 143, 0.6);
-  color: #a7f3d0;
+  border: 1px dashed rgba(2, 132, 199, 0.6);
+  color: #bae6fd;
 }
 
 .nav-item-icon {
@@ -2796,7 +2797,7 @@ button, input, select, textarea, optgroup {
 
 .sidebar-user-footer {
   padding: 12px 14px;
-  border-top: 1px solid #1a3630;
+  border-top: 1px solid #1e2c3a;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2822,7 +2823,7 @@ button, input, select, textarea, optgroup {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #0d9488;
+  background: #0284c7;
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -2852,7 +2853,7 @@ button, input, select, textarea, optgroup {
   align-items: center;
   gap: 6px;
   font-size: 0.72rem;
-  color: #7b948b;
+  color: #94a3b8;
 }
 
 .user-streak {
@@ -2865,7 +2866,7 @@ button, input, select, textarea, optgroup {
 .user-logout-btn {
   background: transparent;
   border: none;
-  color: #7b948b;
+  color: #94a3b8;
   cursor: pointer;
   padding: 6px;
   border-radius: 6px;
@@ -2894,12 +2895,12 @@ button, input, select, textarea, optgroup {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
-  background: #f8fafc;
+  background: #0f1923;
 }
 
 .app-topbar {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
+  background: #14202c;
+  border-bottom: 1px solid #1f3347;
   padding: 12px 28px;
   display: flex;
   align-items: center;
@@ -2913,7 +2914,7 @@ button, input, select, textarea, optgroup {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #14342f;
+  color: #f8fafc;
   margin-right: 12px;
 }
 
@@ -2925,7 +2926,7 @@ button, input, select, textarea, optgroup {
 
 .breadcrumb-cat {
   font-size: 0.8rem;
-  color: #6a7e77;
+  color: #94a3b8;
   font-weight: 600;
 }
 
@@ -2936,7 +2937,7 @@ button, input, select, textarea, optgroup {
 .topbar-page-title {
   font-size: 1.15rem;
   font-weight: 800;
-  color: #14342f;
+  color: #f8fafc;
   margin: 0;
 }
 
@@ -2969,14 +2970,14 @@ button, input, select, textarea, optgroup {
 }
 
 .topbar-search-box input:focus {
-  border-color: #2a9d8f;
-  background: #ffffff;
+  border-color: #0284c7;
+  background: #14202c;
 }
 
 .topbar-demo-pill {
   background: #f0f7f4;
   border: 1px solid #bde0d4;
-  color: #14342f;
+  color: #f8fafc;
   padding: 6px 12px;
   border-radius: 999px;
   font-size: 0.78rem;
@@ -3009,14 +3010,14 @@ button, input, select, textarea, optgroup {
 }
 
 .dashboard-welcome-banner {
-  background: linear-gradient(135deg, #102a26 0%, #173d36 100%);
+  background: linear-gradient(135deg, #0f1923 0%, #17283c 100%);
   border-radius: 12px;
   padding: 28px 32px;
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 4px 15px rgba(16, 42, 38, 0.1);
+  box-shadow: 0 4px 15px rgba(15, 25, 35, 0.1);
 }
 
 .welcome-badge {
@@ -3082,7 +3083,7 @@ button, input, select, textarea, optgroup {
 }
 
 .metric-card {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 10px;
   padding: 18px;
@@ -3099,7 +3100,7 @@ button, input, select, textarea, optgroup {
 .metric-title {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #6a7e77;
+  color: #94a3b8;
 }
 
 .metric-value-row {
@@ -3112,7 +3113,7 @@ button, input, select, textarea, optgroup {
 .metric-number {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .metric-sub {
@@ -3123,14 +3124,14 @@ button, input, select, textarea, optgroup {
 
 .metric-progress-bar {
   height: 6px;
-  background: #e6ede9;
+  background: #0d1720;
   border-radius: 999px;
   overflow: hidden;
 }
 
 .metric-progress-bar .bar-fill {
   height: 100%;
-  background: #2a9d8f;
+  background: #0284c7;
 }
 
 .dashboard-content-split {
@@ -3140,7 +3141,7 @@ button, input, select, textarea, optgroup {
 }
 
 .resume-lesson-card {
-  background: #ffffff;
+  background: #14202c;
   border: 1.5px solid #c2dbd0;
   border-radius: 10px;
   padding: 22px;
@@ -3154,7 +3155,7 @@ button, input, select, textarea, optgroup {
   gap: 8px;
   font-size: 0.72rem;
   font-weight: 800;
-  color: #2a9d8f;
+  color: #0284c7;
   margin-bottom: 8px;
 }
 
@@ -3166,12 +3167,12 @@ button, input, select, textarea, optgroup {
 
 .resume-lesson-card h3 {
   font-size: 1.3rem;
-  color: #14342f;
+  color: #f8fafc;
   margin: 0 0 6px;
 }
 
 .resume-lesson-card p {
-  color: #556661;
+  color: #64748b;
   font-size: 0.88rem;
   line-height: 1.5;
   margin: 0 0 18px;
@@ -3190,11 +3191,11 @@ button, input, select, textarea, optgroup {
   align-items: center;
   gap: 6px;
   font-size: 0.8rem;
-  color: #6a7e77;
+  color: #94a3b8;
 }
 
 .resume-btn-glow {
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   text-decoration: none;
   font-size: 0.88rem;
@@ -3213,7 +3214,7 @@ button, input, select, textarea, optgroup {
 .section-subtitle {
   font-size: 0.95rem;
   font-weight: 800;
-  color: #14342f;
+  color: #f8fafc;
   margin: 0 0 12px;
 }
 
@@ -3225,7 +3226,7 @@ button, input, select, textarea, optgroup {
 }
 
 .quick-action-card {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 8px;
   padding: 14px;
@@ -3237,7 +3238,7 @@ button, input, select, textarea, optgroup {
 }
 
 .quick-action-card:hover {
-  border-color: #2a9d8f;
+  border-color: #0284c7;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
@@ -3255,12 +3256,12 @@ button, input, select, textarea, optgroup {
 .action-text h5 {
   font-size: 0.88rem;
   margin: 0 0 2px;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .action-text p {
   font-size: 0.75rem;
-  color: #7b948b;
+  color: #94a3b8;
   margin: 0;
 }
 
@@ -3276,7 +3277,7 @@ button, input, select, textarea, optgroup {
 }
 
 .timeline-item {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #e1ebe5;
   border-radius: 8px;
   padding: 10px 14px;
@@ -3292,7 +3293,7 @@ button, input, select, textarea, optgroup {
   flex-shrink: 0;
 }
 
-.bg-teal { background: #2a9d8f; }
+.bg-teal { background: #0284c7; }
 .bg-amber { background: #e9b44c; }
 .bg-blue { background: #4361ee; }
 .bg-purple { background: #7209b7; }
@@ -3306,12 +3307,12 @@ button, input, select, textarea, optgroup {
 .timeline-action {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .timeline-meta {
   font-size: 0.75rem;
-  color: #7b948b;
+  color: #94a3b8;
 }
 
 .ai-recommendation-card {
@@ -3328,25 +3329,25 @@ button, input, select, textarea, optgroup {
   gap: 6px;
   font-size: 0.75rem;
   font-weight: 800;
-  color: #2a9d8f;
+  color: #0284c7;
   margin-bottom: 8px;
 }
 
 .ai-recommendation-card h4 {
   font-size: 1.05rem;
-  color: #14342f;
+  color: #f8fafc;
   margin: 0 0 6px;
 }
 
 .ai-recommendation-card p {
-  color: #4f635c;
+  color: #94a3b8;
   font-size: 0.85rem;
   line-height: 1.5;
   margin: 0 0 16px;
 }
 
 .rec-action-btn {
-  background: #14342f;
+  background: #0f1923;
   color: #ffffff;
   text-decoration: none;
   font-size: 0.82rem;
@@ -3359,7 +3360,7 @@ button, input, select, textarea, optgroup {
 }
 
 .badges-showcase-card {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 10px;
   padding: 20px;
@@ -3374,7 +3375,7 @@ button, input, select, textarea, optgroup {
 
 .badges-header h4 {
   font-size: 0.95rem;
-  color: #14342f;
+  color: #f8fafc;
   margin: 0;
 }
 
@@ -3405,7 +3406,7 @@ button, input, select, textarea, optgroup {
 
 .badge-icon-circle.active {
   background: #e6f4ef;
-  border-color: #2a9d8f;
+  border-color: #0284c7;
 }
 
 .badge-item span {
@@ -3428,7 +3429,7 @@ button, input, select, textarea, optgroup {
 }
 
 .lab-top-toolbar {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 10px;
   padding: 12px 18px;
@@ -3447,7 +3448,7 @@ button, input, select, textarea, optgroup {
 .lab-circuit-title-input {
   font-size: 1.15rem;
   font-weight: 800;
-  color: #14342f;
+  color: #f8fafc;
   border: 1px solid transparent;
   padding: 4px 8px;
   border-radius: 6px;
@@ -3457,14 +3458,14 @@ button, input, select, textarea, optgroup {
 
 .lab-circuit-title-input:hover, .lab-circuit-title-input:focus {
   background: #f0f5f2;
-  border-color: #2a9d8f;
+  border-color: #0284c7;
 }
 
 .lab-circuit-meta {
   font-size: 0.78rem;
   font-weight: 700;
-  color: #6a7e77;
-  background: #eef4f1;
+  color: #94a3b8;
+  background: #111e2a;
   padding: 2px 8px;
   border-radius: 4px;
 }
@@ -3482,18 +3483,18 @@ button, input, select, textarea, optgroup {
   padding: 7px 10px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #14342f;
+  color: #f8fafc;
   outline: none;
 }
 
 .toolbar-btn {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #c2d4cb;
   border-radius: 6px;
   padding: 7px 12px;
   font-size: 0.82rem;
   font-weight: 700;
-  color: #14342f;
+  color: #f8fafc;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -3505,7 +3506,7 @@ button, input, select, textarea, optgroup {
 }
 
 .lab-run-btn {
-  background: #14342f;
+  background: #0f1923;
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -3516,15 +3517,15 @@ button, input, select, textarea, optgroup {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 3px 8px rgba(20, 52, 47, 0.2);
+  box-shadow: 0 3px 8px rgba(15, 25, 35, 0.2);
 }
 
 .lab-run-btn:hover:not(:disabled) {
-  background: #1c4942;
+  background: #17283c;
 }
 
 .lab-ai-btn {
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -3549,7 +3550,7 @@ button, input, select, textarea, optgroup {
 }
 
 .lab-canvas-area {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 10px;
   padding: 16px;
@@ -3557,7 +3558,7 @@ button, input, select, textarea, optgroup {
 }
 
 .lab-inspector-tabs-col {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 10px;
   overflow: hidden;
@@ -3577,7 +3578,7 @@ button, input, select, textarea, optgroup {
   padding: 12px;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #5d7069;
+  color: #94a3b8;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -3587,9 +3588,9 @@ button, input, select, textarea, optgroup {
 }
 
 .tab-btn.tab-active {
-  background: #ffffff;
-  color: #14342f;
-  border-bottom-color: #2a9d8f;
+  background: #14202c;
+  color: #f8fafc;
+  border-bottom-color: #0284c7;
 }
 
 .inspector-tab-body {
@@ -3606,7 +3607,7 @@ button, input, select, textarea, optgroup {
 .code-lang-label {
   font-size: 0.78rem;
   font-weight: 700;
-  color: #6a7e77;
+  color: #94a3b8;
 }
 
 .code-actions {
@@ -3637,7 +3638,7 @@ button, input, select, textarea, optgroup {
 }
 
 .learn-header-banner {
-  background: linear-gradient(135deg, #102a26 0%, #163e38 100%);
+  background: linear-gradient(135deg, #0f1923 0%, #17283c 100%);
   border-radius: 12px;
   padding: 28px 32px;
   color: #ffffff;
@@ -3647,7 +3648,7 @@ button, input, select, textarea, optgroup {
 }
 
 .learn-eyebrow {
-  color: #2a9d8f;
+  color: #0284c7;
   font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -3659,7 +3660,7 @@ button, input, select, textarea, optgroup {
 }
 
 .learn-header-text p {
-  color: #a4bdb4;
+  color: #94a3b8;
   font-size: 0.9rem;
   margin: 0;
   max-width: 580px;
@@ -3686,7 +3687,7 @@ button, input, select, textarea, optgroup {
 }
 
 .course-card-expanded {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 12px;
   padding: 24px;
@@ -3710,18 +3711,18 @@ button, input, select, textarea, optgroup {
   margin-bottom: 6px;
 }
 
-.difficulty-badge.beginner { background: #e6f4ef; color: #2a9d8f; }
+.difficulty-badge.beginner { background: #e6f4ef; color: #0284c7; }
 .difficulty-badge.intermediate { background: #eef2ff; color: #4361ee; }
 .difficulty-badge.advanced { background: #fbf0ea; color: #e76f51; }
 
 .course-card-header h3 {
   font-size: 1.25rem;
-  color: #14342f;
+  color: #f8fafc;
   margin: 0 0 4px;
 }
 
 .course-subtitle {
-  color: #6a7e77;
+  color: #94a3b8;
   font-size: 0.85rem;
   margin: 0;
 }
@@ -3733,7 +3734,7 @@ button, input, select, textarea, optgroup {
 .prog-val {
   font-size: 1.3rem;
   font-weight: 800;
-  color: #14342f;
+  color: #f8fafc;
   display: block;
 }
 
@@ -3752,7 +3753,7 @@ button, input, select, textarea, optgroup {
 
 .track-fill {
   height: 100%;
-  background: #2a9d8f;
+  background: #0284c7;
 }
 
 .course-modules-list {
@@ -3787,13 +3788,13 @@ button, input, select, textarea, optgroup {
 }
 
 .lesson-card-item:hover {
-  background: #ffffff;
-  border-color: #2a9d8f;
+  background: #14202c;
+  border-color: #0284c7;
   transform: translateY(-1px);
 }
 
 .lesson-card-item.current {
-  border-color: #2a9d8f;
+  border-color: #0284c7;
   background: #f0f9f5;
 }
 
@@ -3811,12 +3812,12 @@ button, input, select, textarea, optgroup {
 .lesson-item-title {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .lesson-item-dur {
   font-size: 0.72rem;
-  color: #7b948b;
+  color: #94a3b8;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -3829,9 +3830,9 @@ button, input, select, textarea, optgroup {
   border-radius: 4px;
 }
 
-.status-tag.completed { background: #e6f4ef; color: #2a9d8f; }
+.status-tag.completed { background: #e6f4ef; color: #0284c7; }
 .status-tag.current { background: #fef3c7; color: #b45309; }
-.status-tag.start { background: #edf2f0; color: #5d7069; }
+.status-tag.start { background: #edf2f0; color: #94a3b8; }
 
 /* Lesson detail split */
 .lesson-page-container {
@@ -3844,14 +3845,14 @@ button, input, select, textarea, optgroup {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 8px;
   padding: 10px 16px;
 }
 
 .lesson-back-link {
-  color: #14342f;
+  color: #f8fafc;
   text-decoration: none;
   font-size: 0.85rem;
   font-weight: 700;
@@ -3861,7 +3862,7 @@ button, input, select, textarea, optgroup {
 }
 
 .lesson-complete-btn {
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   border: none;
   padding: 7px 14px;
@@ -3885,7 +3886,7 @@ button, input, select, textarea, optgroup {
 }
 
 .lesson-theory-pane {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 10px;
   padding: 24px;
@@ -3896,19 +3897,19 @@ button, input, select, textarea, optgroup {
 .lesson-tag {
   font-size: 0.72rem;
   font-weight: 800;
-  color: #2a9d8f;
+  color: #0284c7;
   text-transform: uppercase;
 }
 
 .theory-header h2 {
   font-size: 1.4rem;
-  color: #14342f;
+  color: #f8fafc;
   margin: 4px 0 12px;
 }
 
 .objective-box {
   background: #f0f7f4;
-  border-left: 3px solid #2a9d8f;
+  border-left: 3px solid #0284c7;
   padding: 10px 14px;
   font-size: 0.85rem;
   color: #20473e;
@@ -3917,7 +3918,7 @@ button, input, select, textarea, optgroup {
 
 .theory-body-content h3 {
   font-size: 1.05rem;
-  color: #14342f;
+  color: #f8fafc;
   margin: 20px 0 8px;
 }
 
@@ -3939,7 +3940,7 @@ button, input, select, textarea, optgroup {
 .step-num {
   font-size: 0.75rem;
   font-weight: 800;
-  color: #2a9d8f;
+  color: #0284c7;
   display: block;
   margin-bottom: 4px;
 }
@@ -3948,7 +3949,7 @@ button, input, select, textarea, optgroup {
   font-family: ui-monospace, monospace;
   font-size: 0.9rem;
   font-weight: 700;
-  color: #14342f;
+  color: #f8fafc;
   display: block;
   background: #eef5f1;
   padding: 6px 10px;
@@ -3980,7 +3981,7 @@ button, input, select, textarea, optgroup {
 .quiz-prompt {
   font-size: 0.88rem;
   font-weight: 600;
-  color: #14342f;
+  color: #f8fafc;
   margin: 0 0 14px;
 }
 
@@ -3992,7 +3993,7 @@ button, input, select, textarea, optgroup {
 }
 
 .quiz-option-item {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #fde047;
   border-radius: 6px;
   padding: 10px 12px;
@@ -4010,8 +4011,8 @@ button, input, select, textarea, optgroup {
 
 .quiz-option-item.correct {
   background: #e6f4ef;
-  border-color: #2a9d8f;
-  color: #1b534a;
+  border-color: #0284c7;
+  color: #38bdf8;
 }
 
 .quiz-option-item.incorrect {
@@ -4038,11 +4039,11 @@ button, input, select, textarea, optgroup {
 
 .quiz-feedback-box {
   background: #e6f4ef;
-  border: 1px solid #2a9d8f;
+  border: 1px solid #0284c7;
   padding: 10px 12px;
   border-radius: 6px;
   font-size: 0.82rem;
-  color: #1b534a;
+  color: #38bdf8;
 }
 
 .lesson-interactive-pane {
@@ -4055,7 +4056,7 @@ button, input, select, textarea, optgroup {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 8px;
   padding: 10px 14px;
@@ -4063,12 +4064,12 @@ button, input, select, textarea, optgroup {
 
 .pane-section-header h3 {
   font-size: 0.95rem;
-  color: #14342f;
+  color: #f8fafc;
   margin: 0;
 }
 
 .simulate-btn-compact {
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   border: none;
   padding: 6px 12px;
@@ -4091,7 +4092,7 @@ button, input, select, textarea, optgroup {
 }
 
 .algo-header-banner, .challenges-header-banner {
-  background: linear-gradient(135deg, #102a26 0%, #163e38 100%);
+  background: linear-gradient(135deg, #0f1923 0%, #17283c 100%);
   border-radius: 12px;
   padding: 24px 28px;
   color: #ffffff;
@@ -4106,7 +4107,7 @@ button, input, select, textarea, optgroup {
 }
 
 .algo-header-text p, .challenges-header-text p {
-  color: #a4bdb4;
+  color: #94a3b8;
   font-size: 0.88rem;
   margin: 0;
   max-width: 600px;
@@ -4138,7 +4139,7 @@ button, input, select, textarea, optgroup {
 }
 
 .algo-summary-card, .challenge-card {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 10px;
   padding: 14px 16px;
@@ -4147,12 +4148,12 @@ button, input, select, textarea, optgroup {
 }
 
 .algo-summary-card:hover, .challenge-card:hover {
-  border-color: #2a9d8f;
+  border-color: #0284c7;
   transform: translateY(-1px);
 }
 
 .algo-summary-card.selected, .challenge-card.selected {
-  border-color: #2a9d8f;
+  border-color: #0284c7;
   background: #f2f9f6;
 }
 
@@ -4170,10 +4171,10 @@ button, input, select, textarea, optgroup {
   padding: 2px 6px;
   border-radius: 4px;
   background: #edf5f1;
-  color: #2a9d8f;
+  color: #0284c7;
 }
 
-.diff-pill.beginner { background: #e6f4ef; color: #2a9d8f; }
+.diff-pill.beginner { background: #e6f4ef; color: #0284c7; }
 .diff-pill.intermediate { background: #eef2ff; color: #4361ee; }
 .diff-pill.advanced { background: #fbf0ea; color: #e76f51; }
 
@@ -4193,13 +4194,13 @@ button, input, select, textarea, optgroup {
 
 .algo-summary-card h4, .challenge-card h4 {
   font-size: 0.95rem;
-  color: #14342f;
+  color: #f8fafc;
   margin: 0 0 4px;
 }
 
 .algo-summary-card p, .challenge-card p {
   font-size: 0.8rem;
-  color: #6a7e77;
+  color: #94a3b8;
   margin: 0 0 10px;
   line-height: 1.4;
 }
@@ -4213,7 +4214,7 @@ button, input, select, textarea, optgroup {
 }
 
 .completed-text {
-  color: #2a9d8f;
+  color: #0284c7;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -4221,7 +4222,7 @@ button, input, select, textarea, optgroup {
 
 /* Detail & solver panes */
 .algo-detail-pane, .challenge-solver-pane {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 12px;
   padding: 24px;
@@ -4240,7 +4241,7 @@ button, input, select, textarea, optgroup {
 
 .detail-title-group h3, .solver-title-group h3 {
   font-size: 1.3rem;
-  color: #14342f;
+  color: #f8fafc;
   margin: 4px 0 2px;
 }
 
@@ -4267,7 +4268,7 @@ button, input, select, textarea, optgroup {
 }
 
 .algo-action-btn.primary {
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   border: none;
 }
@@ -4275,7 +4276,7 @@ button, input, select, textarea, optgroup {
 .algo-action-btn.secondary {
   background: #f0f5f2;
   border: 1px solid #c8d9cf;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .algo-content-card {
@@ -4288,12 +4289,12 @@ button, input, select, textarea, optgroup {
 .algo-content-card h4 {
   font-size: 0.88rem;
   margin: 0 0 6px;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .algo-content-card p {
   font-size: 0.85rem;
-  color: #4f635c;
+  color: #94a3b8;
   line-height: 1.5;
   margin: 0;
 }
@@ -4302,7 +4303,7 @@ button, input, select, textarea, optgroup {
   margin: 0;
   padding-left: 20px;
   font-size: 0.85rem;
-  color: #4f635c;
+  color: #94a3b8;
   line-height: 1.6;
 }
 
@@ -4316,7 +4317,7 @@ button, input, select, textarea, optgroup {
 .solver-task-card h4 {
   font-size: 0.9rem;
   margin: 0 0 6px;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .solver-task-card p {
@@ -4326,12 +4327,12 @@ button, input, select, textarea, optgroup {
 }
 
 .target-outcome-box, .hint-box {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #cce0d7;
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 0.8rem;
-  color: #14342f;
+  color: #f8fafc;
   margin-bottom: 6px;
 }
 
@@ -4351,7 +4352,7 @@ button, input, select, textarea, optgroup {
 
 .eval-feedback-card.passed {
   background: #e6f4ef;
-  border: 1.5px solid #2a9d8f;
+  border: 1.5px solid #0284c7;
 }
 
 .eval-feedback-card.failed {
@@ -4362,13 +4363,13 @@ button, input, select, textarea, optgroup {
 .eval-text h5 {
   font-size: 0.9rem;
   margin: 0 0 2px;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .eval-text p {
   font-size: 0.82rem;
   margin: 0;
-  color: #4f635c;
+  color: #94a3b8;
 }
 
 .canvas-header-bar {
@@ -4378,13 +4379,13 @@ button, input, select, textarea, optgroup {
   margin-bottom: 8px;
   font-size: 0.82rem;
   font-weight: 700;
-  color: #556661;
+  color: #64748b;
 }
 
 .canvas-reset-btn {
   background: transparent;
   border: none;
-  color: #6a7e77;
+  color: #94a3b8;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -4397,7 +4398,7 @@ button, input, select, textarea, optgroup {
 }
 
 .solver-submit-btn {
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   border: none;
   padding: 10px 20px;
@@ -4421,7 +4422,7 @@ button, input, select, textarea, optgroup {
 }
 
 .tutor-chat-pane {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 12px;
   display: flex;
@@ -4443,7 +4444,7 @@ button, input, select, textarea, optgroup {
   height: 38px;
   border-radius: 50%;
   background: #e6f4ef;
-  border: 1.5px solid #2a9d8f;
+  border: 1.5px solid #0284c7;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4452,12 +4453,12 @@ button, input, select, textarea, optgroup {
 .tutor-header-info h3 {
   font-size: 0.98rem;
   margin: 0;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .tutor-status-text {
   font-size: 0.72rem;
-  color: #5d7069;
+  color: #94a3b8;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -4467,7 +4468,7 @@ button, input, select, textarea, optgroup {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #2a9d8f;
+  background: #0284c7;
 }
 
 .chat-messages-scroll {
@@ -4498,11 +4499,11 @@ button, input, select, textarea, optgroup {
 .chat-message-row.ai .message-bubble {
   background: #f4f8f6;
   border: 1px solid #dce4dd;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .chat-message-row.user .message-bubble {
-  background: #14342f;
+  background: #0f1923;
   color: #ffffff;
 }
 
@@ -4548,7 +4549,7 @@ button, input, select, textarea, optgroup {
 
 .chat-message-row.user .tutor-para strong,
 .chat-message-row.user .tutor-bullet-item strong {
-  color: #a7f3d0;
+  color: #bae6fd;
 }
 
 .message-header-meta {
@@ -4589,12 +4590,12 @@ button, input, select, textarea, optgroup {
 .concepts-label {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #6a7e77;
+  color: #94a3b8;
 }
 
 .concept-pill-tag {
   background: #e6f4ef;
-  color: #1b534a;
+  color: #38bdf8;
   border: 1px solid #c2ded4;
   padding: 1px 6px;
   border-radius: 4px;
@@ -4628,7 +4629,7 @@ button, input, select, textarea, optgroup {
 }
 
 .sugg-prompt-btn {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #fde047;
   border-radius: 4px;
   padding: 4px 8px;
@@ -4642,7 +4643,7 @@ button, input, select, textarea, optgroup {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #5d7069;
+  color: #94a3b8;
 }
 
 .chat-quick-prompts-bar {
@@ -4655,20 +4656,20 @@ button, input, select, textarea, optgroup {
 }
 
 .quick-chip-btn {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #c8d9cf;
   border-radius: 999px;
   padding: 4px 10px;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #1b534a;
+  color: #38bdf8;
   cursor: pointer;
   white-space: nowrap;
 }
 
 .chat-input-container {
   padding: 12px 16px;
-  background: #ffffff;
+  background: #14202c;
   border-top: 1px solid #dce4dd;
   display: flex;
   gap: 10px;
@@ -4685,12 +4686,12 @@ button, input, select, textarea, optgroup {
 }
 
 .chat-input-field:focus {
-  background: #ffffff;
-  border-color: #2a9d8f;
+  background: #14202c;
+  border-color: #0284c7;
 }
 
 .chat-send-btn {
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -4703,7 +4704,7 @@ button, input, select, textarea, optgroup {
 }
 
 .tutor-context-pane {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 12px;
   padding: 16px;
@@ -4723,7 +4724,7 @@ button, input, select, textarea, optgroup {
 .context-pane-header h4 {
   font-size: 0.95rem;
   margin: 0;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .context-preset-chips {
@@ -4753,7 +4754,7 @@ button, input, select, textarea, optgroup {
 .dirac-heading {
   font-size: 0.72rem;
   font-weight: 800;
-  color: #2a9d8f;
+  color: #0284c7;
   text-transform: uppercase;
   display: block;
   margin-bottom: 4px;
@@ -4769,7 +4770,7 @@ button, input, select, textarea, optgroup {
 }
 
 .progress-hero-banner {
-  background: linear-gradient(135deg, #102a26 0%, #163e38 100%);
+  background: linear-gradient(135deg, #0f1923 0%, #17283c 100%);
   border-radius: 12px;
   padding: 24px 28px;
   color: #ffffff;
@@ -4788,8 +4789,8 @@ button, input, select, textarea, optgroup {
 .level-badge-large {
   width: 60px;
   height: 60px;
-  background: #2a9d8f;
-  border: 2px solid #64b5a0;
+  background: #0284c7;
+  border: 2px solid #38bdf8;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -4816,7 +4817,7 @@ button, input, select, textarea, optgroup {
 
 .level-details p {
   font-size: 0.82rem;
-  color: #a4bdb4;
+  color: #94a3b8;
   margin: 0 0 8px;
 }
 
@@ -4845,7 +4846,7 @@ button, input, select, textarea, optgroup {
 }
 
 .progress-section-card, .settings-section-card, .analytics-card {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 10px;
   padding: 20px;
@@ -4862,7 +4863,7 @@ button, input, select, textarea, optgroup {
 .progress-section-card h4, .section-title-row h3 {
   font-size: 0.98rem;
   margin: 0;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .skills-list {
@@ -4881,7 +4882,7 @@ button, input, select, textarea, optgroup {
 .skill-name {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .skill-status-tag {
@@ -4891,7 +4892,7 @@ button, input, select, textarea, optgroup {
 
 .skill-bar-track {
   height: 6px;
-  background: #e6ede9;
+  background: #0d1720;
   border-radius: 999px;
   overflow: hidden;
 }
@@ -4939,13 +4940,13 @@ button, input, select, textarea, optgroup {
 .stat-box .num {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #14342f;
+  color: #f8fafc;
   display: block;
 }
 
 .stat-box .lbl {
   font-size: 0.72rem;
-  color: #6a7e77;
+  color: #94a3b8;
 }
 
 .badges-full-grid {
@@ -4965,7 +4966,7 @@ button, input, select, textarea, optgroup {
 }
 
 .badge-card-full.unlocked {
-  background: #ffffff;
+  background: #14202c;
   border-color: #bde0d4;
 }
 
@@ -4976,18 +4977,18 @@ button, input, select, textarea, optgroup {
 .badge-info h5 {
   font-size: 0.85rem;
   margin: 0 0 2px;
-  color: #14342f;
+  color: #f8fafc;
 }
 
 .badge-info p {
   font-size: 0.75rem;
-  color: #6a7e77;
+  color: #94a3b8;
   margin: 0;
 }
 
 .unlock-date {
   font-size: 0.68rem;
-  color: #2a9d8f;
+  color: #0284c7;
   font-weight: 700;
 }
 
@@ -5015,11 +5016,11 @@ button, input, select, textarea, optgroup {
 
 .input-disabled {
   background: #eef2ef !important;
-  color: #7b948b;
+  color: #94a3b8;
 }
 
 .save-btn {
-  background: #14342f;
+  background: #0f1923;
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -5049,9 +5050,9 @@ button, input, select, textarea, optgroup {
 }
 
 .choice-pill.selected {
-  background: #14342f;
+  background: #0f1923;
   color: #ffffff;
-  border-color: #14342f;
+  border-color: #f8fafc;
 }
 
 .toggle-row {
@@ -5061,7 +5062,7 @@ button, input, select, textarea, optgroup {
 }
 
 .toggle-row strong { font-size: 0.85rem; display: block; }
-.toggle-row p { font-size: 0.75rem; color: #6a7e77; margin: 0; }
+.toggle-row p { font-size: 0.75rem; color: #94a3b8; margin: 0; }
 
 /* Instructor Page */
 .instructor-metrics-grid {
@@ -5071,7 +5072,7 @@ button, input, select, textarea, optgroup {
 }
 
 .inst-metric-card {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 10px;
   padding: 18px;
@@ -5080,7 +5081,7 @@ button, input, select, textarea, optgroup {
 .inst-metric-card .metric-val {
   font-size: 1.6rem;
   font-weight: 800;
-  color: #14342f;
+  color: #f8fafc;
   margin: 6px 0;
 }
 
@@ -5090,13 +5091,13 @@ button, input, select, textarea, optgroup {
 }
 
 .inst-tab-btn {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 8px;
   padding: 10px 16px;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #556661;
+  color: #64748b;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -5104,9 +5105,9 @@ button, input, select, textarea, optgroup {
 }
 
 .inst-tab-btn.active {
-  background: #14342f;
+  background: #0f1923;
   color: #ffffff;
-  border-color: #14342f;
+  border-color: #f8fafc;
 }
 
 .table-controls-row {
@@ -5129,7 +5130,7 @@ button, input, select, textarea, optgroup {
 }
 
 .table-search-box input {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #c8d9cf;
   border-radius: 6px;
   padding: 7px 12px 7px 32px;
@@ -5138,7 +5139,7 @@ button, input, select, textarea, optgroup {
 }
 
 .btn-create-challenge {
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -5152,7 +5153,7 @@ button, input, select, textarea, optgroup {
 }
 
 .students-table-card {
-  background: #ffffff;
+  background: #14202c;
   border: 1px solid #dce4dd;
   border-radius: 10px;
   overflow-x: auto;
@@ -5168,7 +5169,7 @@ button, input, select, textarea, optgroup {
 .students-table th {
   background: #f7faf8;
   padding: 12px 16px;
-  color: #6a7e77;
+  color: #94a3b8;
   font-weight: 700;
   border-bottom: 1px solid #dce4dd;
 }
@@ -5194,7 +5195,7 @@ button, input, select, textarea, optgroup {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #2a9d8f;
+  background: #0284c7;
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -5230,7 +5231,7 @@ button, input, select, textarea, optgroup {
   border-radius: 4px;
 }
 
-.diagnostic-pill.excelling { background: #e6f4ef; color: #2a9d8f; }
+.diagnostic-pill.excelling { background: #e6f4ef; color: #0284c7; }
 .diagnostic-pill.on-track { background: #eef2ff; color: #4361ee; }
 .diagnostic-pill.needs-help { background: #fef2f2; color: #ef4444; }
 
@@ -5261,7 +5262,7 @@ button, input, select, textarea, optgroup {
 
 .diff-bar-track {
   height: 6px;
-  background: #e6ede9;
+  background: #0d1720;
   border-radius: 999px;
   overflow: hidden;
 }
@@ -5302,13 +5303,13 @@ button, input, select, textarea, optgroup {
 
 .miscon-text h5 {
   font-size: 0.85rem;
-  color: #14342f;
+  color: #f8fafc;
   margin: 0 0 2px;
 }
 
 .miscon-text p {
   font-size: 0.78rem;
-  color: #556661;
+  color: #64748b;
   margin: 0;
   line-height: 1.4;
 }
@@ -5364,13 +5365,13 @@ button, input, select, textarea, optgroup {
   align-items: center;
   margin: 12px 0;
   padding: 10px 14px;
-  background: rgba(20, 52, 47, 0.04);
-  border: 1px solid rgba(20, 52, 47, 0.1);
+  background: rgba(15, 25, 35, 0.04);
+  border: 1px solid rgba(15, 25, 35, 0.1);
   border-radius: 8px;
   overflow-x: auto;
   overflow-y: hidden;
   font-size: 1.05rem;
-  color: #14342f;
+  color: #f8fafc;
   max-width: 100%;
 }
 
@@ -5385,14 +5386,14 @@ button, input, select, textarea, optgroup {
 .katex-fallback {
   font-family: var(--font-mono, monospace);
   color: #00875a;
-  background: #f0f4f2;
+  background: #0d1720;
   padding: 2px 6px;
   border-radius: 4px;
 }
 
 .inline-code-badge {
   font-family: var(--font-mono, monospace);
-  background: rgba(20, 52, 47, 0.08);
+  background: rgba(15, 25, 35, 0.08);
   padding: 1px 5px;
   border-radius: 4px;
   font-size: 0.88em;
@@ -5443,13 +5444,13 @@ button, input, select, textarea, optgroup {
   gap: 16px;
   flex-wrap: wrap;
   padding-bottom: 16px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #1f3347;
 }
 
 .instructor-header-titles h1 {
   font-size: 22px;
   font-weight: 800;
-  color: #0f172a;
+  color: #f8fafc;
   margin: 0 0 4px 0;
   letter-spacing: -0.01em;
 }
@@ -5468,8 +5469,8 @@ button, input, select, textarea, optgroup {
 }
 
 .instructor-kpi-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #14202c;
+  border: 1px solid #1f3347;
   border-radius: 12px;
   padding: 18px 20px;
   display: flex;
@@ -5498,7 +5499,7 @@ button, input, select, textarea, optgroup {
 .instructor-kpi-card .kpi-value {
   font-size: 26px;
   font-weight: 800;
-  color: #0f172a;
+  color: #f8fafc;
   line-height: 1.1;
 }
 
@@ -5521,8 +5522,8 @@ button, input, select, textarea, optgroup {
 }
 
 .instructor-panel-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #14202c;
+  border: 1px solid #1f3347;
   border-radius: 12px;
   padding: 20px 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
@@ -5532,7 +5533,7 @@ button, input, select, textarea, optgroup {
 .instructor-panel-card h3 {
   font-size: 16px;
   font-weight: 700;
-  color: #0f172a;
+  color: #f8fafc;
   margin: 0 0 14px 0;
   display: flex;
   align-items: center;
@@ -5542,7 +5543,7 @@ button, input, select, textarea, optgroup {
 .instructor-table-container {
   overflow-x: auto;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #1f3347;
 }
 
 .instructor-table {
@@ -5553,24 +5554,24 @@ button, input, select, textarea, optgroup {
 }
 
 .instructor-table th {
-  background: #f8fafc;
-  color: #475569;
+  background: #0f1923;
+  color: #94a3b8;
   padding: 10px 14px;
   font-weight: 700;
   text-transform: uppercase;
   font-size: 11px;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #1f3347;
 }
 
 .instructor-table td {
   padding: 12px 14px;
-  border-bottom: 1px solid #f1f5f9;
-  color: #334155;
+  border-bottom: 1px solid #1a2b3b;
+  color: #cbd5e1;
 }
 
 .instructor-table tr:hover td {
-  background: #f8fafc;
+  background: #0f1923;
 }
 
 .instructor-tag {
@@ -5584,9 +5585,9 @@ button, input, select, textarea, optgroup {
 }
 
 .instructor-tag.canonical {
-  background: rgba(13, 148, 136, 0.1);
-  color: #0d9488;
-  border: 1px solid rgba(13, 148, 136, 0.25);
+  background: rgba(2, 132, 199, 0.1);
+  color: #0284c7;
+  border: 1px solid rgba(2, 132, 199, 0.25);
 }
 
 .instructor-tag.custom {
@@ -5614,7 +5615,7 @@ button, input, select, textarea, optgroup {
   justify-content: center;
   padding: 36px 20px;
   text-align: center;
-  background: #f8fafc;
+  background: #0f1923;
   border: 1px dashed #cbd5e1;
   border-radius: 10px;
   color: #64748b;
@@ -5631,7 +5632,7 @@ button, input, select, textarea, optgroup {
 .builder-tab-nav {
   display: flex;
   gap: 6px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #1f3347;
   margin-bottom: 20px;
   overflow-x: auto;
 }
@@ -5654,12 +5655,12 @@ button, input, select, textarea, optgroup {
 }
 
 .builder-tab-btn:hover {
-  color: #0f172a;
+  color: #f8fafc;
 }
 
 .builder-tab-btn.active {
-  color: #0d9488;
-  border-bottom-color: #0d9488;
+  color: #0284c7;
+  border-bottom-color: #0284c7;
   font-weight: 700;
 }
 
@@ -5673,17 +5674,17 @@ button, input, select, textarea, optgroup {
 .builder-form-group label {
   font-size: 12px;
   font-weight: 700;
-  color: #334155;
+  color: #cbd5e1;
 }
 
 .builder-form-group input,
 .builder-form-group select,
 .builder-form-group textarea {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
+  background: #14202c;
+  border: 1px solid #1f3347;
   border-radius: 6px;
   padding: 9px 12px;
-  color: #0f172a;
+  color: #f8fafc;
   font-size: 13px;
   font-family: inherit;
 }
@@ -5692,8 +5693,8 @@ button, input, select, textarea, optgroup {
 .builder-form-group select:focus,
 .builder-form-group textarea:focus {
   outline: none;
-  border-color: #0d9488;
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.15);
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
 }
 
 .builder-action-bar {
@@ -5701,11 +5702,11 @@ button, input, select, textarea, optgroup {
   justify-content: flex-end;
   gap: 10px;
   padding-top: 18px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #1f3347;
 }
 
 .instructor-btn-primary {
-  background: #0d9488;
+  background: #0284c7;
   color: #ffffff;
   border: none;
   font-weight: 700;
@@ -5717,17 +5718,17 @@ button, input, select, textarea, optgroup {
   align-items: center;
   gap: 6px;
   transition: background 0.15s ease, box-shadow 0.15s ease;
-  box-shadow: 0 1px 2px rgba(13, 148, 136, 0.2);
+  box-shadow: 0 1px 2px rgba(2, 132, 199, 0.2);
 }
 
 .instructor-btn-primary:hover {
-  background: #0f766e;
+  background: #0369a1;
 }
 
 .instructor-btn-secondary {
-  background: #f8fafc;
-  color: #334155;
-  border: 1px solid #cbd5e1;
+  background: #0f1923;
+  color: #cbd5e1;
+  border: 1px solid #1f3347;
   font-weight: 600;
   font-size: 13px;
   padding: 8px 14px;
@@ -5740,9 +5741,9 @@ button, input, select, textarea, optgroup {
 }
 
 .instructor-btn-secondary:hover {
-  background: #f1f5f9;
+  background: #111d27;
   border-color: #94a3b8;
-  color: #0f172a;
+  color: #f8fafc;
 }
 
 .instructor-btn-danger {
@@ -5811,8 +5812,8 @@ button, input, select, textarea, optgroup {
 }
 
 .instructor-item-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #14202c;
+  border: 1px solid #1f3347;
   border-radius: 14px;
   padding: 20px;
   display: flex;
@@ -5838,7 +5839,7 @@ button, input, select, textarea, optgroup {
 .instructor-item-card-title {
   font-size: 16px;
   font-weight: 700;
-  color: #0f172a;
+  color: #f8fafc;
   margin: 0 0 6px 0;
   line-height: 1.35;
 }
@@ -5850,6 +5851,7 @@ button, input, select, textarea, optgroup {
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -5861,7 +5863,7 @@ button, input, select, textarea, optgroup {
   padding: 12px 0;
   margin-bottom: 14px;
   border-top: 1px solid #f1f5f9;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid #1a2b3b;
   text-align: center;
 }
 
@@ -5903,9 +5905,9 @@ button, input, select, textarea, optgroup {
 }
 
 .badge-pill-teal {
-  background: rgba(13, 148, 136, 0.1);
-  color: #0d9488;
-  border: 1px solid rgba(13, 148, 136, 0.25);
+  background: rgba(2, 132, 199, 0.1);
+  color: #0284c7;
+  border: 1px solid rgba(2, 132, 199, 0.25);
 }
 
 .badge-pill-amber {
@@ -5947,8 +5949,8 @@ button, input, select, textarea, optgroup {
 }
 
 .instructor-modal-box {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #14202c;
+  border: 1px solid #1f3347;
   border-radius: 16px;
   width: 100%;
   max-width: 820px;
@@ -5962,17 +5964,17 @@ button, input, select, textarea, optgroup {
 
 .instructor-modal-header {
   padding: 20px 24px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #1f3347;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f8fafc;
+  background: #0f1923;
 }
 
 .instructor-modal-header h3 {
   font-size: 18px;
   font-weight: 800;
-  color: #0f172a;
+  color: #f8fafc;
   margin: 0 0 2px 0;
 }
 
@@ -5998,7 +6000,7 @@ button, input, select, textarea, optgroup {
 
 .instructor-modal-close:hover {
   background: #e2e8f0;
-  color: #0f172a;
+  color: #f8fafc;
 }
 
 .instructor-modal-body {
@@ -6009,12 +6011,12 @@ button, input, select, textarea, optgroup {
 
 .instructor-modal-footer {
   padding: 16px 24px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #1f3347;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  background: #f8fafc;
+  background: #0f1923;
 }
 
 /* Universal Form Controls */
@@ -6035,7 +6037,7 @@ button, input, select, textarea, optgroup {
 .instructor-form-label {
   font-size: 12px;
   font-weight: 700;
-  color: #334155;
+  color: #cbd5e1;
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -6044,12 +6046,12 @@ button, input, select, textarea, optgroup {
 .instructor-form-select,
 .instructor-form-textarea {
   width: 100%;
-  background: #ffffff;
+  background: #14202c;
   border: 1.5px solid #cbd5e1;
   border-radius: 8px;
   padding: 9px 13px;
   font-size: 13px;
-  color: #0f172a;
+  color: #f8fafc;
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -6058,8 +6060,8 @@ button, input, select, textarea, optgroup {
 .instructor-form-select:focus,
 .instructor-form-textarea:focus {
   outline: none;
-  border-color: #0d9488;
-  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
 }
 
 .instructor-form-textarea {
@@ -6076,7 +6078,7 @@ button, input, select, textarea, optgroup {
 }
 
 .copilot-task-btn {
-  background: #ffffff;
+  background: #14202c;
   border: 1.5px solid #e2e8f0;
   border-radius: 10px;
   padding: 12px 14px;
@@ -6089,20 +6091,20 @@ button, input, select, textarea, optgroup {
 }
 
 .copilot-task-btn:hover {
-  border-color: #0d9488;
+  border-color: #0284c7;
   background: #f0fdfa;
 }
 
 .copilot-task-btn.active {
-  border-color: #0d9488;
-  background: rgba(13, 148, 136, 0.08);
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+  border-color: #0284c7;
+  background: rgba(2, 132, 199, 0.08);
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
 }
 
 .copilot-task-title {
   font-size: 13px;
   font-weight: 700;
-  color: #0f172a;
+  color: #f8fafc;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -6115,9 +6117,9 @@ button, input, select, textarea, optgroup {
 }
 
 .copilot-chip {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  color: #334155;
+  background: #111d27;
+  border: 1px solid #1f3347;
+  color: #cbd5e1;
   font-size: 11px;
   font-weight: 500;
   padding: 4px 10px;
@@ -6128,7 +6130,7 @@ button, input, select, textarea, optgroup {
 
 .copilot-chip:hover {
   background: #e2e8f0;
-  color: #0f172a;
+  color: #f8fafc;
   border-color: #cbd5e1;
 }
 
@@ -6167,7 +6169,7 @@ button, input, select, textarea, optgroup {
   width: 32px;
   height: 32px;
   border: 3px solid #cbd5e1;
-  border-top-color: #0d9488;
+  border-top-color: #0284c7;
   border-radius: 50%;
   animation: instructor-spin 0.8s linear infinite;
 }

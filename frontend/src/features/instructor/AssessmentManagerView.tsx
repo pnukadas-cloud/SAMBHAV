@@ -346,7 +346,7 @@ export const AssessmentManagerView: React.FC = () => {
                   </div>
                   <div className="instructor-meta-item">
                     <span className="meta-label">Questions</span>
-                    <span className="meta-value" style={{ color: "#0d9488" }}>{a.questions?.length || 0}</span>
+                    <span className="meta-value" style={{ color: "#0284c7" }}>{a.questions?.length || 0}</span>
                   </div>
                 </div>
               </div>
@@ -491,7 +491,7 @@ export const AssessmentManagerView: React.FC = () => {
                           onChange={(e) =>
                             setEditingAssessment({ ...editingAssessment, published: e.target.checked })
                           }
-                          style={{ width: "16px", height: "16px", accentColor: "#0d9488" }}
+                          style={{ width: "16px", height: "16px", accentColor: "#0284c7" }}
                         />
                         Published to Students
                       </label>
@@ -503,7 +503,7 @@ export const AssessmentManagerView: React.FC = () => {
                 <div style={{ marginTop: "16px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: "10px", borderBottom: "1px solid #e2e8f0", marginBottom: "14px" }}>
                     <h4 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: "6px" }}>
-                      <HelpCircle size={16} color="#0d9488" /> Question Bank ({editingAssessment.questions?.length || 0})
+                      <HelpCircle size={16} color="#0284c7" /> Question Bank ({editingAssessment.questions?.length || 0})
                     </h4>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                       <button
@@ -553,7 +553,7 @@ export const AssessmentManagerView: React.FC = () => {
                           }}
                         >
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <span style={{ fontSize: "12px", fontWeight: 700, color: "#0d9488" }}>
+                            <span style={{ fontSize: "12px", fontWeight: 700, color: "#0284c7" }}>
                               Q{idx + 1} • <span style={{ textTransform: "uppercase", color: "#64748b" }}>{q.type}</span>
                             </span>
                             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -603,7 +603,7 @@ export const AssessmentManagerView: React.FC = () => {
                                     name={`correct_opt_${idx}`}
                                     checked={q.correct_option_index === optIdx}
                                     onChange={() => updateQuestion(idx, { correct_option_index: optIdx })}
-                                    style={{ accentColor: "#0d9488" }}
+                                    style={{ accentColor: "#0284c7" }}
                                   />
                                   <input
                                     type="text"

@@ -306,9 +306,9 @@ export function ChallengesPage() {
               <Trophy size={16} className="text-amber" />
               <strong>{totalAvailableXP} Total XP Available</strong>
             </div>
-            <div className="xp-pill" style={{ background: "rgba(13, 148, 136, 0.15)", borderColor: "#0d9488" }}>
+            <div className="xp-pill" style={{ background: "rgba(13, 148, 136, 0.15)", borderColor: "#0284c7" }}>
               <CheckCircle2 size={16} className="text-teal" />
-              <strong style={{ color: "#0f766e" }}>{solvedIds.size}/{CHALLENGES_LIST.length} Solved</strong>
+              <strong style={{ color: "#0369a1" }}>{solvedIds.size}/{CHALLENGES_LIST.length} Solved</strong>
             </div>
           </div>
         </div>
@@ -328,7 +328,7 @@ export function ChallengesPage() {
                   <div className="challenge-card-header">
                     <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
                       <span className={`diff-pill ${item.category.toLowerCase()}`}>{item.category}</span>
-                      <span style={{ fontSize: "11px", fontWeight: 700, color: "#0d9488" }}>{item.module}</span>
+                      <span style={{ fontSize: "11px", fontWeight: 700, color: "#0284c7" }}>{item.module}</span>
                     </div>
                     <span className="xp-badge">+{item.xp} XP</span>
                   </div>
@@ -337,7 +337,7 @@ export function ChallengesPage() {
                   <div className="challenge-card-footer">
                     <span className="challenge-status">
                       {isSolved ? (
-                        <span className="completed-text" style={{ color: "#0d9488", display: "flex", alignItems: "center", gap: 4, fontWeight: 700 }}>
+                        <span className="completed-text" style={{ color: "#0284c7", display: "flex", alignItems: "center", gap: 4, fontWeight: 700 }}>
                           <CheckCircle2 size={14} className="text-teal" /> Solved
                         </span>
                       ) : (

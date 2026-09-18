@@ -294,7 +294,7 @@ export function LessonPage() {
                   <Link
                     to={`/learn/${prevLesson.moduleId}/${prevLesson.id}`}
                     className="lesson-nav-btn prev-btn"
-                    style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", color: "#14342f", fontWeight: 600, fontSize: "0.88rem", padding: "10px 14px", background: "#ffffff", border: "1px solid #d6e0d9", borderRadius: "8px" }}
+                    style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", color: "#0f1923", fontWeight: 600, fontSize: "0.88rem", padding: "10px 14px", background: "#ffffff", border: "1px solid #d6e0d9", borderRadius: "8px" }}
                   >
                     <ArrowLeft size={16} className="text-teal" />
                     <div style={{ textAlign: "left" }}>
@@ -308,7 +308,7 @@ export function LessonPage() {
                   <Link
                     to={`/learn/${nextLesson.moduleId}/${nextLesson.id}`}
                     className="lesson-nav-btn next-btn"
-                    style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", color: "#ffffff", fontWeight: 600, fontSize: "0.88rem", padding: "10px 16px", background: "linear-gradient(135deg, #0d9488 0%, #0f766e 100%)", borderRadius: "8px", marginLeft: "auto" }}
+                    style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", color: "#ffffff", fontWeight: 600, fontSize: "0.88rem", padding: "10px 16px", background: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)", borderRadius: "8px", marginLeft: "auto" }}
                   >
                     <div style={{ textAlign: "right" }}>
                       <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.8)", textTransform: "uppercase" }}>Next Lesson</div>

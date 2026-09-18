@@ -142,7 +142,7 @@ export const InstructorAnalyticsView: React.FC = () => {
           <div className="instructor-kpi-grid">
             <div className="instructor-kpi-card">
               <span className="kpi-label">
-                <Target size={14} color="#0d9488" /> Total Submissions
+                <Target size={14} color="#0284c7" /> Total Submissions
               </span>
               <span className="kpi-value">{data?.totalSubmissions ?? 0}</span>
               <span className="kpi-subtext">Quizzes & evaluations</span>
@@ -185,7 +185,7 @@ export const InstructorAnalyticsView: React.FC = () => {
             {/* Module Completion Distribution */}
             <div className="instructor-panel-card">
               <h3>
-                <BookOpen size={18} color="#0d9488" /> Module Progression Funnel
+                <BookOpen size={18} color="#0284c7" /> Module Progression Funnel
               </h3>
               <p style={{ fontSize: "12px", color: "#64748b", margin: "0 0 18px 0" }}>
                 Total student lesson completions across the 10-module quantum curriculum.
@@ -207,7 +207,7 @@ export const InstructorAnalyticsView: React.FC = () => {
                       <div style={{ width: "100%", background: "#f1f5f9", borderRadius: "9999px", height: "8px", overflow: "hidden" }}>
                         <div
                           style={{
-                            background: "linear-gradient(90deg, #0d9488 0%, #2dd4bf 100%)",
+                            background: "linear-gradient(90deg, #0284c7 0%, #2dd4bf 100%)",
                             height: "100%",
                             borderRadius: "9999px",
                             width: `${Math.max(mod.completions > 0 ? 5 : 0, pct)}%`,
@@ -249,7 +249,7 @@ export const InstructorAnalyticsView: React.FC = () => {
                     </div>
 
                     <div style={{ background: "#f0fdfa", border: "1px solid #99f6e4", padding: "12px", borderRadius: "10px" }}>
-                      <span style={{ fontSize: "11px", color: "#0d9488", fontWeight: 700, display: "block" }}>75 - 89%</span>
+                      <span style={{ fontSize: "11px", color: "#0284c7", fontWeight: 700, display: "block" }}>75 - 89%</span>
                       <span style={{ fontSize: "20px", fontWeight: 800, color: "#0f172a", marginTop: "4px", display: "block" }}>
                         {data?.scoreDistribution?.["75-89"] || 0}
                       </span>

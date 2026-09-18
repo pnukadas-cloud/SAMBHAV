@@ -315,7 +315,7 @@ export const LabAssignmentManagerView: React.FC = () => {
                         key={i}
                         style={{
                           background: "rgba(13, 148, 136, 0.1)",
-                          color: "#0d9488",
+                          color: "#0284c7",
                           border: "1px solid rgba(13, 148, 136, 0.25)",
                           padding: "2px 6px",
                           borderRadius: "4px",
@@ -491,7 +491,7 @@ export const LabAssignmentManagerView: React.FC = () => {
                         key={gate}
                         style={{
                           background: "rgba(13, 148, 136, 0.12)",
-                          color: "#0d9488",
+                          color: "#0284c7",
                           border: "1px solid rgba(13, 148, 136, 0.25)",
                           padding: "3px 8px",
                           borderRadius: "6px",
