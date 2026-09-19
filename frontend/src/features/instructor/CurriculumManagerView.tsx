@@ -122,7 +122,23 @@ export function CurriculumManagerView({
       <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
         {modules.map((mod: any, index: number) => {
           const isExpanded = expandedModules.has(mod.id);
-          const lessonsList = Array.isArray(mod.lessons) ? mod.lessons : [];
+          const rawLessons = Array.isArray(mod.lessons) ? mod.lessons : [];
+
+          // Deduplicate lessons by ID or title so duplicates never flood the UI
+          const uniqueLessonsMap = new Map<string, any>();
+          for (const l of rawLessons) {
+            const isCustomCopy = l.title?.includes("(Custom Copy)");
+            const isCanonical = !isCustomCopy && Boolean(l.isCanonical ?? l.is_canonical);
+            const key = l.id || l.title;
+            if (!uniqueLessonsMap.has(key)) {
+              uniqueLessonsMap.set(key, {
+                ...l,
+                isCanonical,
+                is_canonical: isCanonical ? 1 : 0,
+              });
+            }
+          }
+          const lessonsList = Array.from(uniqueLessonsMap.values());
 
           return (
             <div
@@ -204,7 +220,7 @@ export function CurriculumManagerView({
                         </thead>
                         <tbody>
                           {lessonsList.map((lesson: any) => {
-                            const isCanonical = lesson.isCanonical || lesson.is_canonical;
+                            const isCanonical = Boolean(lesson.isCanonical);
                             const isPublished = lesson.status === "published" || isCanonical;
 
                             return (
