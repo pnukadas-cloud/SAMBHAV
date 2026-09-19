@@ -2,7 +2,7 @@ import type { AITutorRequest, AITutorResponse, CircuitIR, SimulationResult } fro
 
 const API_BASE = (
   import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.PROD ? "https://sambhav-backend.vercel.app" : "http://127.0.0.1:8000")
+  (import.meta.env.PROD ? "https://sambhav-tawny.vercel.app" : "http://127.0.0.1:8000")
 ).replace(/\/+$/, "");
 
 let authToken: string | null = typeof window !== "undefined" ? localStorage.getItem("sambhav_auth_token") : null;
