@@ -121,7 +121,7 @@ jobs:
             --region us-central1 \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars "^@^ENVIRONMENT=production@FRONTEND_ORIGIN=https://sambhav-quantum-app.web.app@CORS_ORIGINS=https://sambhav-quantum-app.web.app,https://sambhav-quantum.web.app" \
+            --set-env-vars "ENVIRONMENT=production,FRONTEND_ORIGIN=https://sambhav-quantum-app.web.app" \
             --quiet
 
   # ============================================================================
