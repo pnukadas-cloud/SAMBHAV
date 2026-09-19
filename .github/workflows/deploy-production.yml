@@ -118,9 +118,12 @@ jobs:
         run: |
           gcloud run deploy sambhav-backend \
             --source ./backend \
+            --project ${{ secrets.GCP_PROJECT_ID || 'sambhav-quantum-app' }} \
             --region us-central1 \
             --platform managed \
             --allow-unauthenticated \
+            --min-instances 0 \
+            --max-instances 2 \
             --set-env-vars "ENVIRONMENT=production,FRONTEND_ORIGIN=https://sambhav-quantum-app.web.app" \
             --quiet
 
