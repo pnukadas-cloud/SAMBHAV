@@ -40,6 +40,8 @@ jobs:
 
       - name: Build Production SPA Bundle
         run: npm run build
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://sambhav-backend.vercel.app' }}
 
       - name: Upload Frontend Build Artifact
         uses: actions/upload-artifact@v4
@@ -49,14 +51,11 @@ jobs:
           retention-days: 7
 
   # ============================================================================
-  # 2. BACKEND VALIDATION & UNIT/INTEGRATION TESTS
+  # 2. BACKEND & VERCEL SERVERLESS VALIDATION & TESTS
   # ============================================================================
   validate-backend:
-    name: Validate & Test Backend
+    name: Validate & Test Backend & Vercel Entrypoint
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
 
     steps:
       - name: Checkout Repository
@@ -67,23 +66,26 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: backend/requirements.txt
+          cache-dependency-path: requirements.txt
 
       - name: Install Backend Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt pytest httpx
 
-      - name: Run Pytest Test Suite
-        run: python -m pytest --maxfail=1 --disable-warnings -v
+      - name: Run Backend Pytest Suite
+        run: python -m pytest backend/tests --maxfail=1 --disable-warnings -v
         env:
           DATABASE_URL: sqlite:///test_sambhav.db
           JWT_SECRET_KEY: test_ci_cd_secret_key_minimum_256_bits_length_for_pytest
           ENVIRONMENT: testing
 
+      - name: Verify Vercel Serverless Entrypoint (api/index.py)
+        run: |
+          python -c "from api.index import app; from fastapi.testclient import TestClient; client = TestClient(app); res = client.get('/health'); assert res.status_code == 200, f'Expected 200, got {res.status_code}'; print('Vercel entrypoint /health OK:', res.json())"
 
   # ============================================================================
-  # 4. FRONTEND DEPLOYMENT TO FIREBASE HOSTING (MAIN BRANCH ONLY)
+  # 3. FRONTEND DEPLOYMENT TO FIREBASE HOSTING (MAIN BRANCH ONLY)
   # ============================================================================
   deploy-frontend:
     name: Deploy Frontend to Firebase Hosting

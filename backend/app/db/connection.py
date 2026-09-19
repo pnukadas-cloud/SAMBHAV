@@ -23,6 +23,18 @@ def get_sqlite_path() -> Path:
     if url.startswith("sqlite:///"):
         path_str = url.replace("sqlite:///", "")
         return Path(path_str)
+    
+    # In Vercel serverless environment, use writable /tmp directory
+    if os.getenv("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+        tmp_db = Path("/tmp/sambhav.db")
+        if not tmp_db.exists() and DEFAULT_SQLITE_PATH.exists():
+            import shutil
+            try:
+                shutil.copyfile(DEFAULT_SQLITE_PATH, tmp_db)
+            except Exception:
+                pass
+        return tmp_db
+
     return DEFAULT_SQLITE_PATH
 
 
@@ -217,10 +229,16 @@ def init_db(force: bool = False) -> None:
     """
     schema_path = DB_DIR / "schema.sql"
     if not schema_path.exists():
-        # Check current working directory or /app
-        alt_schema = Path("/app/schema.sql")
-        if alt_schema.exists():
-            schema_path = alt_schema
+        for candidate in [
+            Path("backend/schema.sql"),
+            Path("schema.sql"),
+            Path("/app/schema.sql"),
+            Path(__file__).resolve().parent.parent.parent.parent / "schema.sql",
+            Path(__file__).resolve().parent.parent.parent.parent / "backend" / "schema.sql",
+        ]:
+            if candidate.exists():
+                schema_path = candidate
+                break
         else:
             return
 
