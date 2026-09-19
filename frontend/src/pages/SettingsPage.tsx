@@ -6,13 +6,11 @@ import {
   Cpu,
   Eye,
   Laptop,
-  Moon,
   Save,
   Settings,
   Shield,
   Sliders,
   Sparkles,
-  Sun,
   User,
   Volume2,
 } from "lucide-react";
@@ -21,12 +19,10 @@ import { Link } from "../router/Router";
 import { AppShell } from "../components/layout/AppShell";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { useTheme } from "../context/ThemeContext";
 
 export function SettingsPage() {
   const { user } = useAuth();
   const { showToast } = useToast();
-  const { theme, setTheme } = useTheme();
 
   const [defaultBackend, setDefaultBackend] = useState("local_statevector");
   const [defaultShots, setDefaultShots] = useState(1024);
@@ -66,68 +62,6 @@ export function SettingsPage() {
         </div>
 
         <div className="settings-grid-layout">
-          {/* Theme & Visual Appearance */}
-          <div className="settings-section-card">
-            <div className="section-title-row">
-              <Sun size={18} className="text-amber" />
-              <h3>Interface Theme & Appearance</h3>
-            </div>
-            <p className="settings-subtext">
-              Choose your preferred visual theme. Dark theme features pure deep obsidian tones without bright white artifacts.
-            </p>
-
-            <div className="theme-selection-grid">
-              <button
-                type="button"
-                className={`theme-card-option ${theme === "dark" ? "active" : ""}`}
-                onClick={() => setTheme("dark")}
-              >
-                <div className="theme-preview-box dark-preview">
-                  <div className="preview-topbar"></div>
-                  <div className="preview-body">
-                    <div className="preview-sidebar"></div>
-                    <div className="preview-content">
-                      <div className="preview-element elem-1"></div>
-                      <div className="preview-element elem-2"></div>
-                    </div>
-                  </div>
-                </div>
-                <div className="theme-option-info">
-                  <div className="theme-option-title">
-                    <Moon size={16} />
-                    <span>Dark Theme</span>
-                    {theme === "dark" && <CheckCircle2 size={16} className="theme-check" />}
-                  </div>
-                  <p>Deep obsidian navy palette with quantum cyan accents. Zero glaring white tracks.</p>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                className={`theme-card-option ${theme === "light" ? "active" : ""}`}
-                onClick={() => setTheme("light")}
-              >
-                <div className="theme-preview-box light-preview">
-                  <div className="preview-topbar"></div>
-                  <div className="preview-body">
-                    <div className="preview-sidebar"></div>
-                    <div className="preview-content">
-                      <div className="preview-element elem-1"></div>
-                      <div className="preview-element elem-2"></div>
-                    </div>
-                  </div>
-                </div>
-                <div className="theme-option-info">
-                  <div className="theme-option-title">
-                    <Sun size={16} />
-                    <span>Light Theme</span>
-                    {theme === "light" && <CheckCircle2 size={16} className="theme-check" />}
-                  </div>
-                  <p>Clean modern high-contrast aesthetic with soft slate backgrounds and crisp typography.</p>
-                </div>
-              </button>
-            </div>
-          </div>
 
           {/* Quantum Simulation Engine Settings */}
           <div className="settings-section-card">

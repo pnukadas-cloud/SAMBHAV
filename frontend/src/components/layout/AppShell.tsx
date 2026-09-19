@@ -13,11 +13,9 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Moon,
   Search,
   Settings,
   Sparkles,
-  Sun,
   Trophy,
   User,
   Users,
@@ -27,7 +25,6 @@ import {
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "../../router/Router";
 import { useAuth } from "../../context/AuthContext";
-import { useTheme } from "../../context/ThemeContext";
 
 type Props = {
   children: React.ReactNode;
@@ -45,7 +42,6 @@ interface NavItem {
 
 export function AppShell({ children, activeTitle, activeCategory }: Props) {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
@@ -268,21 +264,6 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
                 }}
               />
             </div>
-
-            {/* Dark / Light Theme Toggle Switch */}
-            <button
-              type="button"
-              className="topbar-theme-toggle"
-              onClick={toggleTheme}
-              title={theme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? (
-                <Sun size={18} className="theme-icon sun-icon" />
-              ) : (
-                <Moon size={18} className="theme-icon moon-icon" />
-              )}
-            </button>
 
             {/* User Profile Quick Avatar Button */}
             {user && (

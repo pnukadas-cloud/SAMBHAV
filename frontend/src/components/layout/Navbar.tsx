@@ -144,19 +144,6 @@ export function Navbar() {
         </nav>
 
         <div className="mobile-drawer-footer">
-          {/* Mobile Theme Switch Button */}
-          <button
-            type="button"
-            className="mobile-theme-switch-btn"
-            onClick={toggleTheme}
-            aria-label={theme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
-          >
-            <div className="mobile-theme-switch-icon">
-              {theme === "dark" ? <Sun size={18} className="text-amber" /> : <Moon size={18} className="text-indigo" />}
-            </div>
-            <span>Theme: {theme === "dark" ? "Dark Mode (Tap for Light)" : "Light Mode (Tap for Dark)"}</span>
-          </button>
-
           <div className="mobile-drawer-auth-actions">
             {user ? (
               <Link
