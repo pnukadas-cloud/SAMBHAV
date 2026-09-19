@@ -149,6 +149,236 @@ def get_db_connection() -> Generator[Any, None, None]:
                     "PostgreSQL DATABASE_URL provided but neither 'psycopg2' nor 'psycopg' is installed. "
                     "Please install psycopg2-binary or psycopg."
                 )
+FALLBACK_SCHEMA_SQL = """
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('student', 'instructor', 'admin')),
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS courses (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  difficulty TEXT NOT NULL,
+  created_by TEXT REFERENCES users(id),
+  published BOOLEAN NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS modules (
+  id TEXT PRIMARY KEY,
+  course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  order_index INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS lessons (
+  id TEXT PRIMARY KEY,
+  module_id TEXT NOT NULL REFERENCES modules(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT,
+  difficulty TEXT NOT NULL DEFAULT 'Beginner',
+  prerequisites TEXT,
+  content_markdown TEXT NOT NULL DEFAULT '',
+  estimated_minutes INTEGER NOT NULL DEFAULT 10,
+  order_index INTEGER NOT NULL DEFAULT 1,
+  learning_objectives_json TEXT,
+  structured_sections_json TEXT,
+  quantum_config_json TEXT,
+  assessment_json TEXT,
+  ai_context_json TEXT,
+  status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('draft', 'published')),
+  created_by TEXT REFERENCES users(id),
+  is_canonical BOOLEAN NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS circuits (
+  id TEXT PRIMARY KEY,
+  owner_id TEXT NOT NULL REFERENCES users(id),
+  title TEXT NOT NULL,
+  description TEXT,
+  circuit_ir_json TEXT NOT NULL,
+  source_code TEXT,
+  framework TEXT NOT NULL DEFAULT 'qiskit',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS simulation_jobs (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id),
+  circuit_id TEXT REFERENCES circuits(id),
+  backend TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('queued', 'running', 'completed', 'failed')),
+  shots INTEGER NOT NULL,
+  result_json TEXT,
+  error_message TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  completed_at TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS assessments (
+  id TEXT PRIMARY KEY,
+  course_id TEXT NOT NULL REFERENCES courses(id),
+  module_id TEXT REFERENCES modules(id),
+  title TEXT NOT NULL,
+  description TEXT,
+  type TEXT NOT NULL CHECK (type IN ('quiz', 'coding_challenge', 'exam')),
+  duration_minutes INTEGER NOT NULL DEFAULT 30,
+  passing_score REAL NOT NULL DEFAULT 70.0,
+  questions_json TEXT,
+  created_by TEXT REFERENCES users(id),
+  published BOOLEAN NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS submissions (
+  id TEXT PRIMARY KEY,
+  assessment_id TEXT NOT NULL REFERENCES assessments(id),
+  user_id TEXT NOT NULL REFERENCES users(id),
+  answer_json TEXT NOT NULL,
+  score REAL,
+  feedback TEXT,
+  submitted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS progress (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id),
+  course_id TEXT NOT NULL REFERENCES courses(id),
+  lesson_id TEXT REFERENCES lessons(id),
+  status TEXT NOT NULL,
+  score REAL,
+  time_spent_seconds INTEGER NOT NULL DEFAULT 0,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS classes (
+  id TEXT PRIMARY KEY,
+  instructor_id TEXT NOT NULL REFERENCES users(id),
+  name TEXT NOT NULL,
+  description TEXT,
+  enrollment_code TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS class_enrollments (
+  id TEXT PRIMARY KEY,
+  class_id TEXT NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+  student_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  enrolled_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(class_id, student_id)
+);
+
+CREATE TABLE IF NOT EXISTS class_assignments (
+  id TEXT PRIMARY KEY,
+  class_id TEXT NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('lesson', 'assessment', 'lab', 'challenge')),
+  target_id TEXT NOT NULL,
+  due_date TIMESTAMP,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS lab_assignments (
+  id TEXT PRIMARY KEY,
+  instructor_id TEXT NOT NULL REFERENCES users(id),
+  class_id TEXT REFERENCES classes(id),
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  learning_objective TEXT,
+  qubits INTEGER NOT NULL DEFAULT 2,
+  starter_circuit_json TEXT,
+  required_gates_json TEXT,
+  expected_result TEXT,
+  hints_json TEXT,
+  difficulty TEXT NOT NULL DEFAULT 'Beginner',
+  deadline TIMESTAMP,
+  marks INTEGER NOT NULL DEFAULT 100,
+  instructions TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS lab_submissions (
+  id TEXT PRIMARY KEY,
+  lab_assignment_id TEXT NOT NULL REFERENCES lab_assignments(id) ON DELETE CASCADE,
+  student_id TEXT NOT NULL REFERENCES users(id),
+  circuit_json TEXT NOT NULL,
+  simulation_result_json TEXT,
+  status TEXT NOT NULL CHECK (status IN ('submitted', 'graded')),
+  score REAL,
+  feedback TEXT,
+  submitted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS ai_sessions (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id),
+  context_type TEXT NOT NULL,
+  related_entity_id TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS ai_messages (
+  id TEXT PRIMARY KEY,
+  session_id TEXT NOT NULL REFERENCES ai_sessions(id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'system')),
+  content TEXT NOT NULL,
+  metadata_json TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+"""
+
+_is_db_ready = False
+_is_initializing = False
+
+
+def ensure_db_ready() -> None:
+    """Ensures database schema and canonical seed data are present."""
+    global _is_db_ready, _is_initializing
+    if _is_db_ready or _is_initializing:
+        return
+    _is_initializing = True
+    try:
+        init_db()
+        from app.db.seeds import seed_database
+        seed_database()
+        _is_db_ready = True
+    except Exception as e:
+        print(f"ensure_db_ready warning: {e}")
+    finally:
+        _is_initializing = False
+
+
+@contextmanager
+def get_db_connection() -> Generator[Any, None, None]:
+    """
+    Yields an active database connection with automatic commit / rollback and dictionary row access.
+    Automatically initializes database schema and seeds on cold start.
+    """
+    if not _is_db_ready and not _is_initializing:
+        ensure_db_ready()
+
+    if is_postgres():
+        db_url = get_database_url()
+        try:
+            import psycopg2
+            raw_conn = psycopg2.connect(db_url)
+            conn = PostgresConnectionWrapper(raw_conn)
+        except ImportError:
+            try:
+                import psycopg
+                raw_conn = psycopg.connect(db_url, row_factory=psycopg.rows.dict_row)
+                conn = PostgresConnectionWrapper(raw_conn)
+            except ImportError:
+                raise RuntimeError(
+                    "PostgreSQL DATABASE_URL provided but neither 'psycopg2' nor 'psycopg' is installed. "
+                    "Please install psycopg2-binary or psycopg."
+                )
         try:
             yield conn
             conn.commit()
@@ -227,8 +457,12 @@ def init_db(force: bool = False) -> None:
     Initializes database schema if tables do not exist.
     Executes native PostgreSQL schema on Cloud SQL, or translated schema on SQLite.
     """
+    schema_sql = None
     schema_path = DB_DIR / "schema.sql"
-    if not schema_path.exists():
+    if schema_path.exists():
+        with open(schema_path, "r", encoding="utf-8") as f:
+            schema_sql = f.read()
+    else:
         for candidate in [
             Path("backend/schema.sql"),
             Path("schema.sql"),
@@ -237,13 +471,12 @@ def init_db(force: bool = False) -> None:
             Path(__file__).resolve().parent.parent.parent.parent / "backend" / "schema.sql",
         ]:
             if candidate.exists():
-                schema_path = candidate
+                with open(candidate, "r", encoding="utf-8") as f:
+                    schema_sql = f.read()
                 break
-        else:
-            return
-
-    with open(schema_path, "r", encoding="utf-8") as f:
-        schema_sql = f.read()
+    
+    if not schema_sql:
+        schema_sql = FALLBACK_SCHEMA_SQL
 
     if is_postgres():
         with get_db_connection() as conn:
@@ -253,8 +486,7 @@ def init_db(force: bool = False) -> None:
                 if cleaned:
                     try:
                         cur.execute(cleaned)
-                    except Exception as e:
-                        # Continue if table already exists or constraint exists
+                    except Exception:
                         pass
     else:
         sqlite_sql = _translate_schema_to_sqlite(schema_sql)
@@ -263,5 +495,8 @@ def init_db(force: bool = False) -> None:
             for stmt in sqlite_sql.split(";"):
                 cleaned = stmt.strip()
                 if cleaned:
-                    cursor.execute(cleaned)
+                    try:
+                        cursor.execute(cleaned)
+                    except Exception:
+                        pass
             _migrate_sqlite_columns(cursor)

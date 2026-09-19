@@ -7,6 +7,12 @@ if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
 from app.main import app  # type: ignore[import-not-found]
+from app.db.connection import ensure_db_ready  # type: ignore[import-not-found]
+
+try:
+    ensure_db_ready()
+except Exception:
+    pass
 
 # Top-level ASGI handler references for Vercel Python runtime
 handler = app
