@@ -98,20 +98,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Authenticate to Google Cloud (Workload Identity / Service Account)
+      - name: Authenticate to Google Cloud
         id: gcp-auth
         continue-on-error: true
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_WIF_SERVICE_ACCOUNT }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Set up Google Cloud SDK
         if: steps.gcp-auth.outcome == 'success'
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID || 'sambhav-quantum-app' }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Deploy FastAPI Backend to Cloud Run
         if: steps.gcp-auth.outcome == 'success'
@@ -143,23 +143,13 @@ jobs:
           name: frontend-dist
           path: frontend/dist
 
-      - name: Deploy to Firebase Hosting (Primary: sambhav-quantum-app)
-        id: firebase-deploy
+      - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_SAMBHAV_QUANTUM_APP || secrets.GCP_SA_KEY }}'
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SAMBHAV_QUANTUM_APP }}
           channelId: live
           projectId: sambhav-quantum-app
-        continue-on-error: true
-
-      - name: Fallback CLI Deploy (if token/service account provided)
-        if: steps.firebase-deploy.outcome != 'success' && (secrets.FIREBASE_TOKEN != '' || secrets.GCP_SA_KEY != '')
-        run: |
-          npm install -g firebase-tools
-          if [ -n "${{ secrets.FIREBASE_TOKEN }}" ]; then
-            firebase deploy --only hosting --token "${{ secrets.FIREBASE_TOKEN }}" --project sambhav-quantum-app --non-interactive
-          fi
 
   # ============================================================================
   # 5. PRODUCTION SMOKE TESTS (MAIN BRANCH ONLY)
