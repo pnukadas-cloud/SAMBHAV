@@ -1894,65 +1894,6 @@ button, input, select, textarea, optgroup {
   border-color: var(--accent-cyan);
 }
 
-/* Floating & Hero Theme Switchers on Landing Page */
-.hero-top-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-.hero-theme-toggle-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease;
-}
-
-.hero-theme-toggle-pill:hover {
-  border-color: var(--accent-cyan);
-  background: var(--bg-card-hover);
-  transform: translateY(-1px);
-}
-
-.homescreen-floating-theme-switch {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 990;
-}
-
-.floating-theme-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--bg-card);
-  color: var(--text-primary);
-  border: 1.5px solid var(--border-strong);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.floating-theme-btn:hover {
-  transform: scale(1.1);
-  border-color: var(--accent-cyan);
-  box-shadow: 0 8px 24px var(--accent-cyan-glow);
-}
-
 .hero-circuit-responsive-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -5972,16 +5913,6 @@ button, input, select, textarea, optgroup {
   .instructor-table-container table {
     min-width: 600px;
   }
-
-  /* Floating Theme Switcher on Mobile */
-  .homescreen-floating-theme-switch {
-    bottom: 18px;
-    right: 18px;
-  }
-  .floating-theme-btn {
-    width: 44px;
-    height: 44px;
-  }
 }
 
 /* Small Mobile Phones (<= 480px & 320px-375px) */
@@ -6004,11 +5935,6 @@ button, input, select, textarea, optgroup {
   }
   .hero-section {
     padding: 24px 12px;
-  }
-  .hero-top-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
   }
   .hero-proof-points {
     grid-template-columns: 1fr;

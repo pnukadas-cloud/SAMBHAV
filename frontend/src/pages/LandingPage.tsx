@@ -9,11 +9,9 @@ import {
   Compass,
   GraduationCap,
   Layers,
-  Moon,
   Play,
   RotateCcw,
   Sparkles,
-  Sun,
   Trophy,
   Zap,
 } from "lucide-react";
@@ -23,7 +21,6 @@ import { Navbar } from "../components/layout/Navbar";
 import { CircuitBuilder } from "../features/circuit-builder/CircuitBuilder";
 import { runSimulation } from "../api/client";
 import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
 import { UNIFIED_CURRICULUM_MODULES } from "../data/lessonsData";
 import type { CircuitIR, SimulationResult } from "../types";
 
@@ -39,7 +36,6 @@ const defaultHeroCircuit: CircuitIR = {
 export function LandingPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const [circuit, setCircuit] = useState<CircuitIR>(defaultHeroCircuit);
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [isSimulating, setIsSimulating] = useState(false);
@@ -82,55 +78,15 @@ export function LandingPage() {
     <div className="landing-page-root">
       <Navbar />
 
-      {/* Floating Theme Switcher on Home Screen (Accessible on desktop & mobile) */}
-      <div className="homescreen-floating-theme-switch">
-        <button
-          type="button"
-          className="floating-theme-btn"
-          onClick={toggleTheme}
-          title={theme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
-          aria-label={theme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
-        >
-          {theme === "dark" ? (
-            <Sun size={20} className="text-amber" />
-          ) : (
-            <Moon size={20} className="text-indigo" />
-          )}
-        </button>
-      </div>
-
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-grid-bg" />
         <div className="hero-particles" />
 
         <div className="hero-content">
-          <div className="hero-top-row">
-            <div className="hero-pill-badge">
-              <Sparkles size={14} className="text-teal" />
-              <span>SAMBHAV Quantum Intelligence</span>
-            </div>
-
-            {/* Direct Moon/Sun Switch Button on Homepage Hero */}
-            <button
-              type="button"
-              className="hero-theme-toggle-pill"
-              onClick={toggleTheme}
-              title={theme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
-              aria-label={theme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
-            >
-              {theme === "dark" ? (
-                <>
-                  <Sun size={15} className="text-amber" />
-                  <span>Light Mode</span>
-                </>
-              ) : (
-                <>
-                  <Moon size={15} className="text-indigo" />
-                  <span>Dark Mode</span>
-                </>
-              )}
-            </button>
+          <div className="hero-pill-badge">
+            <Sparkles size={14} className="text-teal" />
+            <span>SAMBHAV Quantum Intelligence</span>
           </div>
 
           <h1 className="hero-headline">
