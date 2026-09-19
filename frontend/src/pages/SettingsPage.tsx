@@ -6,11 +6,13 @@ import {
   Cpu,
   Eye,
   Laptop,
+  Moon,
   Save,
   Settings,
   Shield,
   Sliders,
   Sparkles,
+  Sun,
   User,
   Volume2,
 } from "lucide-react";
@@ -19,10 +21,12 @@ import { Link } from "../router/Router";
 import { AppShell } from "../components/layout/AppShell";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
+import { useTheme } from "../context/ThemeContext";
 
 export function SettingsPage() {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { theme, setTheme, toggleTheme } = useTheme();
 
   const [defaultBackend, setDefaultBackend] = useState("local_statevector");
   const [defaultShots, setDefaultShots] = useState(1024);
@@ -62,6 +66,46 @@ export function SettingsPage() {
         </div>
 
         <div className="settings-grid-layout">
+          {/* Appearance & Theme Mode */}
+          <div className="settings-section-card">
+            <div className="section-title-row">
+              {theme === "dark" ? <Moon size={18} className="text-indigo" /> : <Sun size={18} className="text-amber" />}
+              <h3>Appearance & Theme Mode</h3>
+            </div>
+            <p className="settings-subtext">
+              Choose your preferred visual theme for the SAMBHAV quantum learning platform. You can also toggle this instantly with the Sun/Moon button in the topbar.
+            </p>
+
+            <div className="settings-form">
+              <div className="form-group">
+                <label>Active Theme</label>
+                <div className="choice-pills-row">
+                  <button
+                    type="button"
+                    className={`choice-pill ${theme === "dark" ? "selected" : ""}`}
+                    onClick={() => {
+                      setTheme("dark");
+                      showToast("Quantum Dark theme activated.", "info");
+                    }}
+                  >
+                    <Moon size={14} className="text-indigo" style={{ marginRight: "6px" }} />
+                    Quantum Dark (Default)
+                  </button>
+                  <button
+                    type="button"
+                    className={`choice-pill ${theme === "light" ? "selected" : ""}`}
+                    onClick={() => {
+                      setTheme("light");
+                      showToast("Daylight theme activated.", "info");
+                    }}
+                  >
+                    <Sun size={14} className="text-amber" style={{ marginRight: "6px" }} />
+                    Daylight Light
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Quantum Simulation Engine Settings */}
           <div className="settings-section-card">
