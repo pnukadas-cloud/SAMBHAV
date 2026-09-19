@@ -1,4 +1,6 @@
 {
+  "python.analysis.extraPaths": ["./backend"],
+  "python.autoComplete.extraPaths": ["./backend"],
   "liveServer.settings.port": 5173,
   "liveServer.settings.root": "/frontend",
   "liveServer.settings.showHandOnHover": true
