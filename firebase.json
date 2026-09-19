@@ -1,6 +1,5 @@
 {
   "hosting": {
-    "site": "sambhav-quantum",
     "public": "frontend/dist",
     "ignore": [
       "firebase.json",
