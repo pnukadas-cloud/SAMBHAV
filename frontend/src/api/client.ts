@@ -58,39 +58,65 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 }
 
+import { generateLocalAIExplanation, generateLocalQiskitCode, simulateCircuitLocally } from "../utils/localQuantumEngine";
+
 // ==========================================
 // QUANTUM SIMULATION & CODE EXPORT
 // ==========================================
 
-export function runSimulation(circuit: CircuitIR): Promise<SimulationResult> {
-  return request<SimulationResult>("/api/simulations/run", {
-    method: "POST",
-    body: JSON.stringify({
-      circuit,
-      options: { backend: "local_statevector", shots: 1024, includeStatevector: true },
-    }),
-  });
+export async function runSimulation(circuit: CircuitIR): Promise<SimulationResult> {
+  try {
+    return await request<SimulationResult>("/api/simulations/run", {
+      method: "POST",
+      body: JSON.stringify({
+        circuit,
+        options: { backend: "local_statevector", shots: 1024, includeStatevector: true },
+      }),
+    });
+  } catch (err) {
+    // Zero-cost instant in-browser quantum simulation fallback
+    return simulateCircuitLocally(circuit, 1024);
+  }
 }
 
-export function explainCircuitWithAI(payload: AITutorRequest): Promise<AITutorResponse> {
-  return request<AITutorResponse>("/api/ai/explain", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
+export async function explainCircuitWithAI(payload: AITutorRequest): Promise<AITutorResponse> {
+  try {
+    return await request<AITutorResponse>("/api/ai/explain", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  } catch (err) {
+    return generateLocalAIExplanation(payload);
+  }
 }
 
-export function explainCircuit(circuit: CircuitIR): Promise<{ explanation: string; suggestions: string[] }> {
-  return request("/api/ai/explain-circuit", {
-    method: "POST",
-    body: JSON.stringify({ circuit, learnerLevel: "beginner" }),
-  });
+export async function explainCircuit(circuit: CircuitIR): Promise<{ explanation: string; suggestions: string[] }> {
+  try {
+    return await request("/api/ai/explain-circuit", {
+      method: "POST",
+      body: JSON.stringify({ circuit, learnerLevel: "beginner" }),
+    });
+  } catch (err) {
+    const res = generateLocalAIExplanation({ circuit });
+    return {
+      explanation: res.explanation,
+      suggestions: res.suggestions,
+    };
+  }
 }
 
-export function toQiskitCode(circuit: CircuitIR): Promise<{ framework: string; code: string }> {
-  return request("/api/circuits/to-code", {
-    method: "POST",
-    body: JSON.stringify({ circuit, framework: "qiskit" }),
-  });
+export async function toQiskitCode(circuit: CircuitIR): Promise<{ framework: string; code: string }> {
+  try {
+    return await request("/api/circuits/to-code", {
+      method: "POST",
+      body: JSON.stringify({ circuit, framework: "qiskit" }),
+    });
+  } catch (err) {
+    return {
+      framework: "qiskit",
+      code: generateLocalQiskitCode(circuit),
+    };
+  }
 }
 
 // ==========================================

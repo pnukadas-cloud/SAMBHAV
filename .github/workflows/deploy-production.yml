@@ -81,51 +81,6 @@ jobs:
           JWT_SECRET_KEY: test_ci_cd_secret_key_minimum_256_bits_length_for_pytest
           ENVIRONMENT: testing
 
-  # ============================================================================
-  # 3. BACKEND DEPLOYMENT TO GOOGLE CLOUD RUN (MAIN BRANCH ONLY)
-  # ============================================================================
-  deploy-backend:
-    name: Deploy Backend to Google Cloud Run
-    needs: [validate-frontend, validate-backend]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      id-token: write
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Authenticate to Google Cloud
-        id: gcp-auth
-        continue-on-error: true
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
-          service_account: ${{ secrets.GCP_WIF_SERVICE_ACCOUNT }}
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Set up Google Cloud SDK
-        if: steps.gcp-auth.outcome == 'success'
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-
-      - name: Deploy FastAPI Backend to Cloud Run
-        if: steps.gcp-auth.outcome == 'success'
-        run: |
-          gcloud run deploy sambhav-backend \
-            --source ./backend \
-            --project ${{ secrets.GCP_PROJECT_ID || 'sambhav-quantum-app' }} \
-            --region us-central1 \
-            --platform managed \
-            --allow-unauthenticated \
-            --min-instances 0 \
-            --max-instances 2 \
-            --set-env-vars "ENVIRONMENT=production,FRONTEND_ORIGIN=https://sambhav-quantum-app.web.app" \
-            --quiet
 
   # ============================================================================
   # 4. FRONTEND DEPLOYMENT TO FIREBASE HOSTING (MAIN BRANCH ONLY)
