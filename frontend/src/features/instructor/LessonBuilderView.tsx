@@ -14,6 +14,7 @@ import {
   Send,
   Sparkles,
   Trash2,
+  Trophy,
   X,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -277,7 +278,7 @@ export function LessonBuilderView({
   if (isLoading) {
     return (
       <div className="instructor-panel-card" style={{ textAlign: "center", padding: "48px" }}>
-        <Clock size={32} className="spin-slow" style={{ color: "#38bdf8", margin: "0 auto 12px" }} />
+        <Clock size={32} className="spin-slow" style={{ color: "var(--accent-cyan)", margin: "0 auto 12px" }} />
         <p>Loading lesson for authoring...</p>
       </div>
     );
@@ -288,10 +289,10 @@ export function LessonBuilderView({
       {/* Header Bar */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
         <div>
-          <h2 style={{ fontSize: "20px", margin: "0 0 4px 0", color: "#f8fafc" }}>
+          <h2 style={{ fontSize: "20px", margin: "0 0 4px 0", color: "var(--text-primary)" }}>
             {editingLessonId ? "Edit Custom Lesson" : "Author New Quantum Lesson"}
           </h2>
-          <span style={{ fontSize: "13px", color: "#94a3b8" }}>
+          <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
             Structured fields for concept intuition, mathematical derivations, live circuits, quizzes, and AI tutor context.
           </span>
         </div>
@@ -321,14 +322,14 @@ export function LessonBuilderView({
           className={`builder-tab-btn ${activeTab === "quantum_lab" ? "active" : ""}`}
           onClick={() => setActiveTab("quantum_lab")}
         >
-          <BrainCircuit size={15} /> Quantum Lab Circuit
+          <BrainCircuit size={15} /> Quantum Lab
         </button>
         <button
           type="button"
           className={`builder-tab-btn ${activeTab === "assessment" ? "active" : ""}`}
           onClick={() => setActiveTab("assessment")}
         >
-          <HelpCircle size={15} /> Quiz & Challenge
+          <Trophy size={15} /> Assessment & Quiz
         </button>
         <button
           type="button"
@@ -409,7 +410,7 @@ export function LessonBuilderView({
             />
           </div>
 
-          <h4 style={{ fontSize: "15px", color: "#38bdf8", margin: "24px 0 12px 0" }}>Structured Pedagogical Sections</h4>
+          <h4 style={{ fontSize: "15px", color: "var(--accent-cyan)", margin: "24px 0 12px 0" }}>Structured Pedagogical Sections</h4>
 
           <div className="builder-form-group">
             <label>1. Concept Overview</label>
@@ -486,7 +487,7 @@ export function LessonBuilderView({
       {/* TAB 2: OBJECTIVES */}
       {activeTab === "objectives" && (
         <div>
-          <p style={{ fontSize: "14px", color: "#94a3b8", marginBottom: "16px" }}>
+          <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "16px" }}>
             Add specific, measurable learning objectives. "After completing this lesson, learners should be able to..."
           </p>
 
@@ -499,11 +500,11 @@ export function LessonBuilderView({
               onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddObjective())}
               style={{
                 flex: 1,
-                background: "#0f172a",
-                border: "1px solid #334155",
+                background: "var(--bg-input)",
+                border: "1px solid var(--border-subtle)",
                 borderRadius: "6px",
                 padding: "10px 14px",
-                color: "#f8fafc",
+                color: "var(--text-primary)",
               }}
             />
             <button type="button" className="instructor-btn-primary" onClick={handleAddObjective}>
@@ -520,8 +521,8 @@ export function LessonBuilderView({
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "12px 16px",
-                  background: "#0f172a",
-                  border: "1px solid #334155",
+                  background: "var(--bg-subtle)",
+                  border: "1px solid var(--border-subtle)",
                   borderRadius: "8px",
                 }}
               >
@@ -531,8 +532,8 @@ export function LessonBuilderView({
                       width: "24px",
                       height: "24px",
                       borderRadius: "50%",
-                      background: "rgba(56, 189, 248, 0.15)",
-                      color: "#38bdf8",
+                      background: "var(--accent-cyan-glow)",
+                      color: "var(--accent-cyan)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -542,7 +543,7 @@ export function LessonBuilderView({
                   >
                     {idx + 1}
                   </span>
-                  <span style={{ fontSize: "14px", color: "#f8fafc" }}>{obj}</span>
+                  <span style={{ fontSize: "14px", color: "var(--text-primary)" }}>{obj}</span>
                 </div>
                 <button
                   type="button"
@@ -561,7 +562,7 @@ export function LessonBuilderView({
       {/* TAB 3: QUANTUM LAB */}
       {activeTab === "quantum_lab" && (
         <div>
-          <p style={{ fontSize: "14px", color: "#94a3b8", marginBottom: "16px" }}>
+          <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "16px" }}>
             Configure the embedded Quantum Lab circuit simulation for this lesson.
           </p>
 
@@ -612,7 +613,7 @@ export function LessonBuilderView({
       {/* TAB 4: ASSESSMENT */}
       {activeTab === "assessment" && (
         <div>
-          <p style={{ fontSize: "14px", color: "#94a3b8", marginBottom: "16px" }}>
+          <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "16px" }}>
             Define an interactive knowledge check quiz and mini-challenge for this lesson.
           </p>
 
@@ -627,7 +628,7 @@ export function LessonBuilderView({
           </div>
 
           <div style={{ margin: "16px 0" }}>
-            <label style={{ fontSize: "13px", fontWeight: 600, color: "#cbd5e1", display: "block", marginBottom: "8px" }}>
+            <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "8px" }}>
               Answer Options (select the radio button for the correct answer):
             </label>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -646,11 +647,11 @@ export function LessonBuilderView({
                     onChange={(e) => handleOptionChange(idx, e.target.value)}
                     style={{
                       flex: 1,
-                      background: "#0f172a",
-                      border: "1px solid #334155",
+                      background: "var(--bg-input)",
+                      border: "1px solid var(--border-subtle)",
                       borderRadius: "6px",
                       padding: "8px 12px",
-                      color: "#f8fafc",
+                      color: "var(--text-primary)",
                     }}
                   />
                 </div>
@@ -668,7 +669,7 @@ export function LessonBuilderView({
             />
           </div>
 
-          <h4 style={{ fontSize: "15px", color: "#38bdf8", margin: "24px 0 12px 0" }}>Interactive Mini-Challenge</h4>
+          <h4 style={{ fontSize: "15px", color: "var(--accent-cyan)", margin: "24px 0 12px 0" }}>Interactive Mini-Challenge</h4>
 
           <div className="builder-form-group">
             <label>Challenge Title</label>
@@ -695,7 +696,7 @@ export function LessonBuilderView({
       {/* TAB 5: AI TUTOR CONTEXT */}
       {activeTab === "ai_context" && (
         <div>
-          <p style={{ fontSize: "14px", color: "#94a3b8", marginBottom: "16px" }}>
+          <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "16px" }}>
             Provide contextual guidance to the SAMBHAV server-side AI Tutor when learners ask questions during this lesson.
           </p>
 

@@ -199,20 +199,20 @@ export function ClassManagerView() {
           <div className="instructor-panel-card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px", marginBottom: "16px" }}>
               <div>
-                <h2 style={{ fontSize: "20px", color: "#f8fafc", margin: "0 0 4px 0" }}>{selectedClassDetail.name}</h2>
-                <p style={{ color: "#94a3b8", fontSize: "13px", margin: 0 }}>{selectedClassDetail.description || "No description provided."}</p>
+                <h2 style={{ fontSize: "20px", color: "var(--text-primary)", margin: "0 0 4px 0" }}>{selectedClassDetail.name}</h2>
+                <p style={{ color: "var(--text-muted)", fontSize: "13px", margin: 0 }}>{selectedClassDetail.description || "No description provided."}</p>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: "6px", padding: "6px 12px", display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 700 }}>CODE:</span>
-                  <code style={{ color: "#38bdf8", fontWeight: 800, fontSize: "13px" }}>{selectedClassDetail.enrollment_code}</code>
+                <div style={{ background: "var(--bg-subtle)", border: "1px solid var(--border-subtle)", borderRadius: "6px", padding: "6px 12px", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: 700 }}>CODE:</span>
+                  <code style={{ color: "var(--accent-cyan)", fontWeight: 800, fontSize: "13px" }}>{selectedClassDetail.enrollment_code}</code>
                   <button
                     type="button"
                     onClick={() => {
                       navigator.clipboard.writeText(selectedClassDetail.enrollment_code);
                       showToast("Enrollment code copied to clipboard!", "success");
                     }}
-                    style={{ background: "transparent", border: "none", color: "#94a3b8", cursor: "pointer", padding: "2px" }}
+                    style={{ background: "transparent", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "2px" }}
                     title="Copy code"
                   >
                     <Copy size={13} />
@@ -231,8 +231,8 @@ export function ClassManagerView() {
             {/* Sub-section: Enrolled Learners & Add Student */}
             <div style={{ marginTop: "24px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", flexWrap: "wrap", gap: "10px" }}>
-                <h3 style={{ margin: 0, fontSize: "16px" }}>
-                  <Users size={16} style={{ color: "#38bdf8" }} />
+                <h3 style={{ margin: 0, fontSize: "16px", color: "var(--text-primary)" }}>
+                  <Users size={16} style={{ color: "var(--accent-cyan)" }} />
                   Enrolled Learners ({selectedClassDetail.students?.length || 0})
                 </h3>
 
@@ -243,11 +243,11 @@ export function ClassManagerView() {
                     value={studentInput}
                     onChange={(e) => setStudentInput(e.target.value)}
                     style={{
-                      background: "#0f172a",
-                      border: "1px solid #334155",
+                      background: "var(--bg-input)",
+                      border: "1px solid var(--border-subtle)",
                       borderRadius: "6px",
                       padding: "6px 12px",
-                      color: "#f8fafc",
+                      color: "var(--text-primary)",
                       fontSize: "12px",
                       width: "240px",
                     }}
@@ -284,7 +284,7 @@ export function ClassManagerView() {
                     <tbody>
                       {selectedClassDetail.students.map((st: any) => (
                         <tr key={st.id}>
-                          <td><strong style={{ color: "#f8fafc" }}>{st.name}</strong></td>
+                          <td><strong style={{ color: "var(--text-primary)" }}>{st.name}</strong></td>
                           <td>{st.email}</td>
                           <td>{st.completed_lessons ?? 0} / 31 ({st.progressPercent}%)</td>
                           <td>{st.avgScore > 0 ? `${st.avgScore}%` : "No submissions"}</td>
@@ -309,8 +309,8 @@ export function ClassManagerView() {
             {/* Sub-section: Cohort Assignments */}
             <div style={{ marginTop: "28px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                <h3 style={{ margin: 0, fontSize: "16px" }}>
-                  <Layers size={16} style={{ color: "#a855f7" }} />
+                <h3 style={{ margin: 0, fontSize: "16px", color: "var(--text-primary)" }}>
+                  <Layers size={16} style={{ color: "var(--accent-purple)" }} />
                   Class Assignments ({selectedClassDetail.assignments?.length || 0})
                 </h3>
                 <button
@@ -342,7 +342,7 @@ export function ClassManagerView() {
                     <tbody>
                       {selectedClassDetail.assignments.map((asg: any) => (
                         <tr key={asg.id}>
-                          <td><strong style={{ color: "#f8fafc" }}>{asg.title}</strong></td>
+                          <td><strong style={{ color: "var(--text-primary)" }}>{asg.title}</strong></td>
                           <td><span className="instructor-tag custom">{asg.type}</span></td>
                           <td><code>{asg.target_id}</code></td>
                           <td>{asg.due_date ? asg.due_date.slice(0, 10) : "Open-ended"}</td>
@@ -384,12 +384,12 @@ export function ClassManagerView() {
                 >
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
-                      <h3 style={{ margin: 0, fontSize: "17px", color: "#f8fafc" }}>{cls.name}</h3>
+                      <h3 style={{ margin: 0, fontSize: "17px", color: "var(--text-primary)" }}>{cls.name}</h3>
                       <span
                         style={{
-                          background: "#0f172a",
-                          border: "1px solid #334155",
-                          color: "#38bdf8",
+                          background: "var(--bg-subtle)",
+                          border: "1px solid var(--border-subtle)",
+                          color: "var(--accent-cyan)",
                           fontSize: "11px",
                           fontWeight: 700,
                           padding: "2px 6px",
@@ -399,20 +399,20 @@ export function ClassManagerView() {
                         {cls.enrollment_code}
                       </span>
                     </div>
-                    <p style={{ fontSize: "13px", color: "#94a3b8", margin: "0 0 16px 0", lineHeight: "1.4" }}>
+                    <p style={{ fontSize: "13px", color: "var(--text-muted)", margin: "0 0 16px 0", lineHeight: "1.4" }}>
                       {cls.description || "No description provided."}
                     </p>
                   </div>
 
                   <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#cbd5e1", marginBottom: "8px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "var(--text-secondary)", marginBottom: "8px" }}>
                       <span><strong>{cls.enrolled_count ?? 0}</strong> Students</span>
                       <span><strong>{cls.assignment_count ?? 0}</strong> Assignments</span>
                       <span>Avg: <strong>{cls.averageScore > 0 ? `${cls.averageScore}%` : "N/A"}</strong></span>
                     </div>
 
-                    <div style={{ height: "6px", background: "#0f172a", borderRadius: "3px", overflow: "hidden", marginBottom: "16px" }}>
-                      <div style={{ height: "100%", width: `${cls.averageProgress ?? 0}%`, background: "#38bdf8" }} />
+                    <div style={{ height: "6px", background: "var(--bg-track)", borderRadius: "3px", overflow: "hidden", marginBottom: "16px" }}>
+                      <div style={{ height: "100%", width: `${cls.averageProgress ?? 0}%`, background: "var(--accent-cyan)" }} />
                     </div>
 
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -452,7 +452,7 @@ export function ClassManagerView() {
         <div className="preview-modal-overlay" onClick={() => setShowCreateModal(false)}>
           <div className="preview-modal-box" style={{ maxWidth: "500px" }} onClick={(e) => e.stopPropagation()}>
             <div className="preview-modal-header">
-              <h3 style={{ margin: 0, fontSize: "16px", color: "#f8fafc" }}>Create New Class Cohort</h3>
+              <h3 style={{ margin: 0, fontSize: "16px", color: "var(--text-primary)" }}>Create New Class Cohort</h3>
               <button type="button" className="instructor-btn-secondary" onClick={() => setShowCreateModal(false)} style={{ padding: "4px 8px" }}>
                 <X size={14} />
               </button>

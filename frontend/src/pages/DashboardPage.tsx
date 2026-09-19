@@ -309,42 +309,59 @@ export function DashboardPage() {
               </Link>
             </div>
 
-            {/* Achievement Badges Showcase */}
-            <div className="badges-showcase-card">
-              <div className="badges-header">
-                <Award size={18} className="text-teal" />
-                <h4>Unlocked Badges</h4>
+            {/* Achievement Badges Showcase (Students Only) */}
+            {user?.role !== "instructor" ? (
+              <div className="badges-showcase-card">
+                <div className="badges-header">
+                  <Award size={18} className="text-teal" />
+                  <h4>Unlocked Badges</h4>
+                </div>
+                <div className="badges-grid">
+                  <div className={`badge-item ${simulationsRun >= 1 ? "" : "locked"}`} title="First Circuit Run (Simulate in Quantum Lab)">
+                    <div className={`badge-icon-circle ${simulationsRun >= 1 ? "active" : ""}`}>
+                      <Zap size={20} className={simulationsRun >= 1 ? "text-teal" : "text-muted"} />
+                    </div>
+                    <span>First Circuit</span>
+                  </div>
+
+                  <div className={`badge-item ${completedLessons >= 2 ? "" : "locked"}`} title="Superposition Explorer (Complete 2 Lessons)">
+                    <div className={`badge-icon-circle ${completedLessons >= 2 ? "active" : ""}`}>
+                      <Atom size={20} className={completedLessons >= 2 ? "text-amber" : "text-muted"} />
+                    </div>
+                    <span>Superposition</span>
+                  </div>
+
+                  <div className={`badge-item ${userStreak >= 3 ? "" : "locked"}`} title="Consistent Learner (3-Day Streak)">
+                    <div className={`badge-icon-circle ${userStreak >= 3 ? "active" : ""}`}>
+                      <Flame size={20} className={userStreak >= 3 ? "text-orange" : "text-muted"} />
+                    </div>
+                    <span>3d Streak</span>
+                  </div>
+
+                  <div className={`badge-item ${completedLessons >= 5 ? "" : "locked"}`} title="Entanglement Pioneer (Complete 5 Lessons)">
+                    <div className={`badge-icon-circle ${completedLessons >= 5 ? "active" : ""}`}>
+                      <BrainCircuit size={20} className={completedLessons >= 5 ? "text-teal" : "text-muted"} />
+                    </div>
+                    <span>Entangled</span>
+                  </div>
+                </div>
               </div>
-              <div className="badges-grid">
-                <div className={`badge-item ${simulationsRun >= 1 ? "" : "locked"}`} title="First Circuit Run (Simulate in Quantum Lab)">
-                  <div className={`badge-icon-circle ${simulationsRun >= 1 ? "active" : ""}`}>
-                    <Zap size={20} className={simulationsRun >= 1 ? "text-teal" : "text-muted"} />
-                  </div>
-                  <span>First Circuit</span>
+            ) : (
+              <div className="badges-showcase-card">
+                <div className="badges-header">
+                  <Sparkles size={18} className="text-amber" />
+                  <h4>Educator Workspace</h4>
                 </div>
-
-                <div className={`badge-item ${completedLessons >= 2 ? "" : "locked"}`} title="Superposition Explorer (Complete 2 Lessons)">
-                  <div className={`badge-icon-circle ${completedLessons >= 2 ? "active" : ""}`}>
-                    <Atom size={20} className={completedLessons >= 2 ? "text-amber" : "text-muted"} />
-                  </div>
-                  <span>Superposition</span>
-                </div>
-
-                <div className={`badge-item ${userStreak >= 3 ? "" : "locked"}`} title="Consistent Learner (3-Day Streak)">
-                  <div className={`badge-icon-circle ${userStreak >= 3 ? "active" : ""}`}>
-                    <Flame size={20} className={userStreak >= 3 ? "text-orange" : "text-muted"} />
-                  </div>
-                  <span>3d Streak</span>
-                </div>
-
-                <div className={`badge-item ${completedLessons >= 5 ? "" : "locked"}`} title="Entanglement Pioneer (Complete 5 Lessons)">
-                  <div className={`badge-icon-circle ${completedLessons >= 5 ? "active" : ""}`}>
-                    <BrainCircuit size={20} className={completedLessons >= 5 ? "text-teal" : "text-muted"} />
-                  </div>
-                  <span>Entangled</span>
+                <div style={{ padding: "10px 0" }}>
+                  <p style={{ fontSize: "12px", color: "var(--text-secondary)", margin: "0 0 10px 0" }}>
+                    Access your class cohorts, curriculum authoring, and AI Copilot.
+                  </p>
+                  <Link to="/instructor" className="rec-action-btn" style={{ justifyContent: "center" }}>
+                    Open Instructor Portal <ArrowRight size={14} />
+                  </Link>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

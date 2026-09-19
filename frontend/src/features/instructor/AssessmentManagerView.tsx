@@ -484,14 +484,14 @@ export const AssessmentManagerView: React.FC = () => {
                       />
                     </div>
                     <div className="instructor-form-group" style={{ margin: 0, justifyContent: "center" }}>
-                      <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", fontWeight: 600, color: "#1e293b", cursor: "pointer", marginTop: "16px" }}>
+                      <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", fontWeight: 600, color: "var(--text-primary)", cursor: "pointer", marginTop: "16px" }}>
                         <input
                           type="checkbox"
                           checked={editingAssessment.published ?? true}
                           onChange={(e) =>
                             setEditingAssessment({ ...editingAssessment, published: e.target.checked })
                           }
-                          style={{ width: "16px", height: "16px", accentColor: "#0284c7" }}
+                          style={{ width: "16px", height: "16px", accentColor: "var(--accent-cyan)" }}
                         />
                         Published to Students
                       </label>
@@ -501,9 +501,9 @@ export const AssessmentManagerView: React.FC = () => {
 
                 {/* Question Bank Builder */}
                 <div style={{ marginTop: "16px" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: "10px", borderBottom: "1px solid #e2e8f0", marginBottom: "14px" }}>
-                    <h4 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: "6px" }}>
-                      <HelpCircle size={16} color="#0284c7" /> Question Bank ({editingAssessment.questions?.length || 0})
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: "10px", borderBottom: "1px solid var(--border-subtle)", marginBottom: "14px" }}>
+                    <h4 style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <HelpCircle size={16} color="var(--accent-cyan)" /> Question Bank ({editingAssessment.questions?.length || 0})
                     </h4>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                       <button
@@ -543,8 +543,8 @@ export const AssessmentManagerView: React.FC = () => {
                         <div
                           key={idx}
                           style={{
-                            background: "#f8fafc",
-                            border: "1px solid #e2e8f0",
+                            background: "var(--bg-subtle)",
+                            border: "1px solid var(--border-subtle)",
                             borderRadius: "10px",
                             padding: "14px",
                             display: "flex",
@@ -553,12 +553,12 @@ export const AssessmentManagerView: React.FC = () => {
                           }}
                         >
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <span style={{ fontSize: "12px", fontWeight: 700, color: "#0284c7" }}>
-                              Q{idx + 1} • <span style={{ textTransform: "uppercase", color: "#64748b" }}>{q.type}</span>
+                            <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--accent-cyan)" }}>
+                              Q{idx + 1} • <span style={{ textTransform: "uppercase", color: "var(--text-muted)" }}>{q.type}</span>
                             </span>
                             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                <label style={{ fontSize: "11px", color: "#64748b" }}>Points:</label>
+                                <label style={{ fontSize: "11px", color: "var(--text-muted)" }}>Points:</label>
                                 <input
                                   type="number"
                                   min={1}
@@ -567,7 +567,7 @@ export const AssessmentManagerView: React.FC = () => {
                                   onChange={(e) =>
                                     updateQuestion(idx, { points: parseInt(e.target.value) || 10 })
                                   }
-                                  style={{ width: "60px", padding: "3px 6px", fontSize: "12px", borderRadius: "4px", border: "1px solid #cbd5e1" }}
+                                  style={{ width: "60px", padding: "3px 6px", fontSize: "12px", borderRadius: "4px", border: "1px solid var(--border-subtle)", background: "var(--bg-input)", color: "var(--text-primary)" }}
                                 />
                               </div>
                               <button
@@ -592,8 +592,8 @@ export const AssessmentManagerView: React.FC = () => {
 
                           {/* MCQ Options */}
                           {q.type === "mcq" && (
-                            <div style={{ paddingLeft: "10px", borderLeft: "2px solid #cbd5e1", display: "flex", flexDirection: "column", gap: "6px" }}>
-                              <span style={{ fontSize: "11px", fontWeight: 600, color: "#64748b" }}>
+                            <div style={{ paddingLeft: "10px", borderLeft: "2px solid var(--border-strong)", display: "flex", flexDirection: "column", gap: "6px" }}>
+                              <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--text-muted)" }}>
                                 Options (Select radio for correct answer):
                               </span>
                               {q.options?.map((opt, optIdx) => (
@@ -603,7 +603,7 @@ export const AssessmentManagerView: React.FC = () => {
                                     name={`correct_opt_${idx}`}
                                     checked={q.correct_option_index === optIdx}
                                     onChange={() => updateQuestion(idx, { correct_option_index: optIdx })}
-                                    style={{ accentColor: "#0284c7" }}
+                                    style={{ accentColor: "var(--accent-cyan)" }}
                                   />
                                   <input
                                     type="text"
@@ -628,7 +628,7 @@ export const AssessmentManagerView: React.FC = () => {
                             onChange={(e) => updateQuestion(idx, { explanation: e.target.value })}
                             placeholder="Pedagogical explanation / Solution key shown after grading..."
                             className="instructor-form-input"
-                            style={{ fontSize: "11px", padding: "5px 8px", background: "#ffffff" }}
+                            style={{ fontSize: "11px", padding: "5px 8px", background: "var(--bg-input)" }}
                           />
                         </div>
                       ))}

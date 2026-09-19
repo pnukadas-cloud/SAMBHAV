@@ -834,7 +834,7 @@ export function CircuitBuilder({ circuit, onChange }: Props) {
                         y1={yTop}
                         x2={xCenter}
                         y2={yBottom}
-                        stroke="#0f1923"
+                        stroke="var(--accent-cyan)"
                         strokeWidth="3"
                         strokeLinecap="round"
                       />

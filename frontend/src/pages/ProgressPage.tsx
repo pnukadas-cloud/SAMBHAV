@@ -6,6 +6,8 @@ import {
   CheckCircle2,
   Clock,
   Flame,
+  GraduationCap,
+  Layers,
   Sparkles,
   Target,
   Trophy,
@@ -138,42 +140,77 @@ export function ProgressPage() {
 
   const weakConcepts = progress?.weakConcepts || [];
 
+  const isInstructor = user?.role === "instructor";
+
   return (
-    <AppShell activeTitle="My Progress & Analytics" activeCategory="Analytics">
+    <AppShell activeTitle={isInstructor ? "Teaching & Curriculum Overview" : "My Progress & Analytics"} activeCategory={isInstructor ? "Teaching" : "Analytics"}>
       <div className="progress-page-container">
-        {/* Top XP & Level Banner */}
-        <div className="progress-hero-banner">
-          <div className="hero-level-info">
-            <div className="level-badge-large">
-              <span className="lvl-num">{level}</span>
-              <span className="lvl-tag">Level</span>
+        {/* Top Hero Banner */}
+        {isInstructor ? (
+          <div className="progress-hero-banner">
+            <div className="hero-level-info">
+              <div className="level-badge-large" style={{ background: "rgba(245, 158, 11, 0.2)", borderColor: "#f59e0b" }}>
+                <GraduationCap size={28} style={{ color: "#f59e0b" }} />
+              </div>
+              <div className="level-details">
+                <h3>Educator Curriculum & Teaching Track</h3>
+                <p>10 Canonical Quantum Modules • Interactive Laboratory Assignments • Cohort Assessments</p>
+                <div style={{ display: "flex", gap: "10px", marginTop: "10px", flexWrap: "wrap" }}>
+                  <span className="badge-pill" style={{ background: "rgba(2, 132, 199, 0.15)", color: "var(--accent-cyan)", border: "1px solid var(--accent-cyan)" }}>
+                    {totalLessons} Canonical Lessons
+                  </span>
+                  <span className="badge-pill" style={{ background: "rgba(34, 197, 94, 0.15)", color: "var(--accent-green)", border: "1px solid var(--accent-green)" }}>
+                    Interactive Lab IDE
+                  </span>
+                  <span className="badge-pill" style={{ background: "rgba(168, 85, 247, 0.15)", color: "var(--accent-purple)", border: "1px solid var(--accent-purple)" }}>
+                    AI Copilot Drafts
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="level-details">
-              <h3>Quantum Pioneer (Level {level})</h3>
-              <p>{xp} XP earned • {Math.max(0, nextLevelXP - xp)} XP to Level {level + 1}</p>
-              <div className="xp-progress-bar">
-                <div className="fill" style={{ width: `${levelProgressPct}%` }} />
+
+            <div className="hero-streak-card">
+              <BookOpen size={28} className="text-teal" />
+              <div className="streak-meta">
+                <strong>10 Modules</strong>
+                <span>Curriculum Depth</span>
               </div>
             </div>
           </div>
+        ) : (
+          <div className="progress-hero-banner">
+            <div className="hero-level-info">
+              <div className="level-badge-large">
+                <span className="lvl-num">{level}</span>
+                <span className="lvl-tag">Level</span>
+              </div>
+              <div className="level-details">
+                <h3>Quantum Pioneer (Level {level})</h3>
+                <p>{xp} XP earned • {Math.max(0, nextLevelXP - xp)} XP to Level {level + 1}</p>
+                <div className="xp-progress-bar">
+                  <div className="fill" style={{ width: `${levelProgressPct}%` }} />
+                </div>
+              </div>
+            </div>
 
-          <div className="hero-streak-card">
-            <Flame size={28} className="text-orange" />
-            <div className="streak-meta">
-              <strong>{streak} Days</strong>
-              <span>Current Streak</span>
+            <div className="hero-streak-card">
+              <Flame size={28} className="text-orange" />
+              <div className="streak-meta">
+                <strong>{streak} Days</strong>
+                <span>Current Streak</span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* 2-Column Split: Skills & Badges */}
+        {/* 2-Column Split: Skills & Overview */}
         <div className="progress-split-grid">
-          {/* Left Column: Skill Mastery & Weak Concepts */}
+          {/* Left Column: Skill Mastery */}
           <div className="skills-column">
             <div className="progress-section-card">
               <div className="card-header">
                 <Target size={18} className="text-teal" />
-                <h4>Skill Mastery Breakdown</h4>
+                <h4>{isInstructor ? "Curriculum Framework Modules" : "Skill Mastery Breakdown"}</h4>
               </div>
               <div className="skills-list">
                 {skillBreakdown.map((s) => (
@@ -181,99 +218,121 @@ export function ProgressPage() {
                     <div className="skill-header">
                       <span className="skill-name">{s.name}</span>
                       <span className={`skill-status-tag ${s.level.toLowerCase().replace(/\s/g, "-")}`}>
-                        {s.level} ({s.score}%)
+                        {isInstructor ? "Standard Core" : `${s.level} (${s.score}%)`}
                       </span>
                     </div>
                     <div className="skill-bar-track">
-                      <div className={`skill-bar-fill ${s.color}`} style={{ width: `${s.score}%` }} />
+                      <div className={`skill-bar-fill ${s.color}`} style={{ width: isInstructor ? "100%" : `${s.score}%` }} />
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Weak Concept Alert & Recommendation if any */}
-              {weakConcepts.length > 0 ? (
-                <div className="weak-concept-alert">
-                  <AlertTriangle size={18} className="text-amber" />
-                  <div className="alert-text">
-                    <h5>Focus Area: {weakConcepts[0]}</h5>
-                    <p>
-                      Based on your recent assessment submissions, targeted practice in gate ordering and relative phases will strengthen your foundations.
-                    </p>
-                  </div>
+              {/* Focus Area / Guidance */}
+              <div className="weak-concept-alert" style={{ borderColor: "rgba(2, 132, 199, 0.3)", background: "rgba(2, 132, 199, 0.05)" }}>
+                <Sparkles size={18} className="text-teal" />
+                <div className="alert-text">
+                  <h5 style={{ color: "var(--accent-cyan)" }}>{isInstructor ? "Pedagogical Structure" : "Skill Readiness Track"}</h5>
+                  <p>
+                    {isInstructor
+                      ? "Each module blends rigorous mathematical formulations, circuit experiments, Dirac notation derivations, and interactive quizzes."
+                      : completedLessons === 0
+                      ? "Begin your foundational learning path in Quantum Foundations to unlock skill mastery metrics."
+                      : "Great work! Continue progressing through multi-qubit algorithm modules and daily challenges."}
+                  </p>
                 </div>
-              ) : (
-                <div className="weak-concept-alert" style={{ borderColor: "rgba(20, 184, 166, 0.3)", background: "rgba(20, 184, 166, 0.05)" }}>
-                  <Sparkles size={18} className="text-teal" />
-                  <div className="alert-text">
-                    <h5 style={{ color: "#2dd4bf" }}>Skill Readiness Track</h5>
-                    <p>
-                      {completedLessons === 0
-                        ? "Begin your foundational learning path in Quantum Foundations to unlock skill mastery metrics."
-                        : "Great work! Continue progressing through multi-qubit algorithm modules and daily challenges."}
-                    </p>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
 
-            {/* Learning Hours & Stats */}
+            {/* Learning / Teaching Stats */}
             <div className="progress-section-card">
               <div className="card-header">
                 <Clock size={18} className="text-blue" />
-                <h4>Learning Statistics</h4>
+                <h4>{isInstructor ? "Teaching & Laboratory Scope" : "Learning Statistics"}</h4>
               </div>
               <div className="stats-2x2-grid">
                 <div className="stat-box">
-                  <span className="num">{totalHours}h</span>
-                  <span className="lbl">Time Invested</span>
+                  <span className="num">{totalLessons}</span>
+                  <span className="lbl">{isInstructor ? "Total Lessons" : "Lessons Finished"}</span>
                 </div>
                 <div className="stat-box">
-                  <span className="num">{simulationsRun}</span>
-                  <span className="lbl">Circuits Simulated</span>
+                  <span className="num">10</span>
+                  <span className="lbl">Core Modules</span>
                 </div>
                 <div className="stat-box">
-                  <span className="num">{completedLessons}/{totalLessons}</span>
-                  <span className="lbl">Lessons Finished</span>
+                  <span className="num">3</span>
+                  <span className="lbl">Sim Backends</span>
                 </div>
                 <div className="stat-box">
-                  <span className="num">{avgScore > 0 ? `${avgScore}%` : "—"}</span>
-                  <span className="lbl">Average Quiz Score</span>
+                  <span className="num">Qiskit</span>
+                  <span className="lbl">Code Integration</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Achievements & Badges */}
+          {/* Right Column: Educator Quick Access OR Student Badges */}
           <div className="badges-column">
-            <div className="progress-section-card">
-              <div className="card-header">
-                <Award size={18} className="text-amber" />
-                <h4>Achievement Badges ({badges.filter((b) => b.unlocked).length}/{badges.length})</h4>
-              </div>
+            {isInstructor ? (
+              <div className="progress-section-card">
+                <div className="card-header">
+                  <GraduationCap size={18} className="text-amber" />
+                  <h4>Educator Workflows</h4>
+                </div>
 
-              <div className="badges-full-grid">
-                {badges.map((b) => {
-                  const Icon = b.icon;
-                  return (
-                    <div key={b.id} className={`badge-card-full ${b.unlocked ? "unlocked" : "locked"}`}>
-                      <div className="badge-icon-wrap">
-                        <Icon size={24} className={b.unlocked ? "text-teal" : "text-muted"} />
-                      </div>
-                      <div className="badge-info">
-                        <h5>{b.title}</h5>
-                        <p>{b.desc}</p>
-                        {b.unlocked ? (
-                          <span className="unlock-date">✓ Unlocked</span>
-                        ) : (
-                          <span className="locked-text">🔒 {b.condition || "Locked"}</span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "12px" }}>
+                  <div style={{ padding: "16px", background: "var(--bg-subtle)", borderRadius: "8px", border: "1px solid var(--border-subtle)" }}>
+                    <h5 style={{ margin: "0 0 6px 0", fontSize: "14px", color: "var(--text-primary)" }}>Curriculum & Authoring</h5>
+                    <p style={{ margin: 0, fontSize: "12px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
+                      Draft customized lessons, specify starter circuits, configure multiple choice questions, and publish to your cohorts.
+                    </p>
+                  </div>
+
+                  <div style={{ padding: "16px", background: "var(--bg-subtle)", borderRadius: "8px", border: "1px solid var(--border-subtle)" }}>
+                    <h5 style={{ margin: "0 0 6px 0", fontSize: "14px", color: "var(--text-primary)" }}>AI Educator Copilot</h5>
+                    <p style={{ margin: 0, fontSize: "12px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
+                      Generate comprehensive lesson plans, quiz question banks, and lab exercises with server-side Gemini.
+                    </p>
+                  </div>
+
+                  <div style={{ padding: "16px", background: "var(--bg-subtle)", borderRadius: "8px", border: "1px solid var(--border-subtle)" }}>
+                    <h5 style={{ margin: "0 0 6px 0", fontSize: "14px", color: "var(--text-primary)" }}>Classes & Cohort Management</h5>
+                    <p style={{ margin: 0, fontSize: "12px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
+                      Track learner performance, review laboratory experiment submissions, and identify at-risk learners.
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="progress-section-card">
+                <div className="card-header">
+                  <Award size={18} className="text-amber" />
+                  <h4>Achievement Badges ({badges.filter((b) => b.unlocked).length}/{badges.length})</h4>
+                </div>
+
+                <div className="badges-full-grid">
+                  {badges.map((b) => {
+                    const Icon = b.icon;
+                    return (
+                      <div key={b.id} className={`badge-card-full ${b.unlocked ? "unlocked" : "locked"}`}>
+                        <div className="badge-icon-wrap">
+                          <Icon size={24} className={b.unlocked ? "text-teal" : "text-muted"} />
+                        </div>
+                        <div className="badge-info">
+                          <h5>{b.title}</h5>
+                          <p>{b.desc}</p>
+                          {b.unlocked ? (
+                            <span className="unlock-date">✓ Unlocked</span>
+                          ) : (
+                            <span className="locked-text">🔒 {b.condition || "Locked"}</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

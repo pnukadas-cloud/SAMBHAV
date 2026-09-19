@@ -14,6 +14,7 @@ import React, { useState } from "react";
 import { runSimulation } from "../../api/client";
 import { CircuitBuilder } from "../circuit-builder/CircuitBuilder";
 import { ResultsPanel } from "../visualization/ResultsPanel";
+import { formatTutorText } from "../../utils/formatTutorText";
 import type { CircuitIR, SimulationResult } from "../../types";
 
 interface StudentPreviewModalProps {
@@ -60,9 +61,9 @@ export function StudentPreviewModal({ lesson, onClose }: StudentPreviewModalProp
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <span
               style={{
-                background: "rgba(245, 158, 11, 0.2)",
-                color: "#f59e0b",
-                border: "1px solid rgba(245, 158, 11, 0.4)",
+                background: "rgba(245, 158, 11, 0.15)",
+                color: "var(--accent-amber)",
+                border: "1px solid rgba(245, 158, 11, 0.35)",
                 padding: "3px 8px",
                 borderRadius: "4px",
                 fontSize: "11px",
@@ -72,7 +73,7 @@ export function StudentPreviewModal({ lesson, onClose }: StudentPreviewModalProp
             >
               Preview Mode (Read-Only)
             </span>
-            <strong style={{ fontSize: "16px", color: "#f8fafc" }}>{lesson.title || "Lesson Preview"}</strong>
+            <strong style={{ fontSize: "16px", color: "var(--text-primary)" }}>{lesson.title || "Lesson Preview"}</strong>
           </div>
           <button
             type="button"
@@ -85,7 +86,7 @@ export function StudentPreviewModal({ lesson, onClose }: StudentPreviewModalProp
         </div>
 
         {/* Sub-tab navigation */}
-        <div style={{ display: "flex", gap: "8px", padding: "12px 24px", background: "#1e293b", borderBottom: "1px solid #334155" }}>
+        <div style={{ display: "flex", gap: "8px", padding: "12px 24px", background: "var(--bg-subtle)", borderBottom: "1px solid var(--border-subtle)" }}>
           <button
             type="button"
             className={`builder-tab-btn ${activeTab === "sandbox" ? "active" : ""}`}
@@ -125,8 +126,8 @@ export function StudentPreviewModal({ lesson, onClose }: StudentPreviewModalProp
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
                 <div>
-                  <h4 style={{ fontSize: "15px", margin: "0 0 4px 0", color: "#f8fafc" }}>Interactive Quantum Circuit</h4>
-                  <span style={{ fontSize: "12px", color: "#94a3b8" }}>
+                  <h4 style={{ fontSize: "15px", margin: "0 0 4px 0", color: "var(--text-primary)" }}>Interactive Quantum Circuit</h4>
+                  <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
                     Learners manipulate gates on this canvas and execute local statevector simulations.
                   </span>
                 </div>
@@ -141,13 +142,13 @@ export function StudentPreviewModal({ lesson, onClose }: StudentPreviewModalProp
                 </button>
               </div>
 
-              <div style={{ border: "1px solid #334155", borderRadius: "8px", overflow: "hidden", marginBottom: "20px" }}>
+              <div style={{ border: "1px solid var(--border-subtle)", borderRadius: "8px", overflow: "hidden", marginBottom: "20px" }}>
                 <CircuitBuilder circuit={circuit} onChange={setCircuit} />
               </div>
 
               {simResult && (
                 <div style={{ marginTop: "16px" }}>
-                  <h4 style={{ fontSize: "14px", color: "#38bdf8", marginBottom: "8px" }}>Live Simulation Statevector & Probabilities</h4>
+                  <h4 style={{ fontSize: "14px", color: "var(--accent-cyan)", marginBottom: "8px" }}>Live Simulation Statevector & Probabilities</h4>
                   <ResultsPanel result={simResult} />
                 </div>
               )}
@@ -159,35 +160,43 @@ export function StudentPreviewModal({ lesson, onClose }: StudentPreviewModalProp
             <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               {sections.concept && (
                 <div>
-                  <h4 style={{ color: "#38bdf8", fontSize: "15px", marginBottom: "6px" }}>Concept Overview</h4>
-                  <p style={{ fontSize: "14px", lineHeight: "1.6", color: "#cbd5e1" }}>{sections.concept}</p>
+                  <h4 style={{ color: "var(--accent-cyan)", fontSize: "15px", marginBottom: "6px" }}>Concept Overview</h4>
+                  <div style={{ fontSize: "14px", lineHeight: "1.6", color: "var(--text-secondary)" }}>
+                    {formatTutorText(sections.concept)}
+                  </div>
                 </div>
               )}
 
               {sections.intuition && (
                 <div>
-                  <h4 style={{ color: "#38bdf8", fontSize: "15px", marginBottom: "6px" }}>Physical & Geometric Intuition</h4>
-                  <p style={{ fontSize: "14px", lineHeight: "1.6", color: "#cbd5e1" }}>{sections.intuition}</p>
+                  <h4 style={{ color: "var(--accent-cyan)", fontSize: "15px", marginBottom: "6px" }}>Physical & Geometric Intuition</h4>
+                  <div style={{ fontSize: "14px", lineHeight: "1.6", color: "var(--text-secondary)" }}>
+                    {formatTutorText(sections.intuition)}
+                  </div>
                 </div>
               )}
 
               {sections.example && (
                 <div>
-                  <h4 style={{ color: "#38bdf8", fontSize: "15px", marginBottom: "6px" }}>Concrete Example</h4>
-                  <p style={{ fontSize: "14px", lineHeight: "1.6", color: "#cbd5e1" }}>{sections.example}</p>
+                  <h4 style={{ color: "var(--accent-cyan)", fontSize: "15px", marginBottom: "6px" }}>Concrete Example</h4>
+                  <div style={{ fontSize: "14px", lineHeight: "1.6", color: "var(--text-secondary)" }}>
+                    {formatTutorText(sections.example)}
+                  </div>
                 </div>
               )}
 
               {sections.keyTakeaways && (
                 <div>
-                  <h4 style={{ color: "#38bdf8", fontSize: "15px", marginBottom: "6px" }}>Key Takeaways</h4>
-                  <p style={{ fontSize: "14px", lineHeight: "1.6", color: "#cbd5e1" }}>{sections.keyTakeaways}</p>
+                  <h4 style={{ color: "var(--accent-cyan)", fontSize: "15px", marginBottom: "6px" }}>Key Takeaways</h4>
+                  <div style={{ fontSize: "14px", lineHeight: "1.6", color: "var(--text-secondary)" }}>
+                    {formatTutorText(sections.keyTakeaways)}
+                  </div>
                 </div>
               )}
 
               {lesson.content_markdown && !sections.concept && (
-                <div style={{ whiteSpace: "pre-wrap", fontSize: "14px", lineHeight: "1.6", color: "#cbd5e1" }}>
-                  {lesson.content_markdown}
+                <div style={{ fontSize: "14px", lineHeight: "1.6", color: "var(--text-secondary)" }}>
+                  {formatTutorText(lesson.content_markdown)}
                 </div>
               )}
             </div>
@@ -198,17 +207,19 @@ export function StudentPreviewModal({ lesson, onClose }: StudentPreviewModalProp
             <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               {sections.mathFormulation && (
                 <div>
-                  <h4 style={{ color: "#38bdf8", fontSize: "15px", marginBottom: "6px" }}>Mathematical Formalism</h4>
-                  <div style={{ background: "#090d16", padding: "16px", borderRadius: "8px", border: "1px solid #1e293b", fontFamily: "monospace", color: "#38bdf8" }}>
-                    {sections.mathFormulation}
+                  <h4 style={{ color: "var(--accent-cyan)", fontSize: "15px", marginBottom: "6px" }}>Mathematical Formalism</h4>
+                  <div style={{ background: "var(--bg-subtle)", padding: "16px", borderRadius: "8px", border: "1px solid var(--border-subtle)", color: "var(--text-primary)" }}>
+                    {formatTutorText(sections.mathFormulation)}
                   </div>
                 </div>
               )}
 
               {sections.mathDerivation && (
                 <div>
-                  <h4 style={{ color: "#38bdf8", fontSize: "15px", marginBottom: "6px" }}>Step-by-Step Derivation</h4>
-                  <p style={{ fontSize: "14px", lineHeight: "1.6", color: "#cbd5e1" }}>{sections.mathDerivation}</p>
+                  <h4 style={{ color: "var(--accent-cyan)", fontSize: "15px", marginBottom: "6px" }}>Step-by-Step Derivation</h4>
+                  <div style={{ fontSize: "14px", lineHeight: "1.6", color: "var(--text-secondary)" }}>
+                    {formatTutorText(sections.mathDerivation)}
+                  </div>
                 </div>
               )}
             </div>
@@ -217,7 +228,7 @@ export function StudentPreviewModal({ lesson, onClose }: StudentPreviewModalProp
           {/* QUIZ TAB */}
           {activeTab === "quiz" && quiz && (
             <div>
-              <h4 style={{ fontSize: "16px", color: "#f8fafc", marginBottom: "16px" }}>{quiz.prompt}</h4>
+              <h4 style={{ fontSize: "16px", color: "var(--text-primary)", marginBottom: "16px" }}>{quiz.prompt}</h4>
               <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
                 {Array.isArray(quiz.options) &&
                   quiz.options.map((opt: string, idx: number) => {
@@ -232,23 +243,23 @@ export function StudentPreviewModal({ lesson, onClose }: StudentPreviewModalProp
                         style={{
                           padding: "12px 16px",
                           borderRadius: "8px",
-                          border: `1px solid ${isCorrect ? "#22c55e" : isWrong ? "#ef4444" : isSelected ? "#38bdf8" : "#334155"}`,
+                          border: `1px solid ${isCorrect ? "#22c55e" : isWrong ? "#ef4444" : isSelected ? "var(--accent-cyan)" : "var(--border-subtle)"}`,
                           background: isCorrect
                             ? "rgba(34, 197, 94, 0.12)"
                             : isWrong
                             ? "rgba(239, 68, 68, 0.12)"
                             : isSelected
-                            ? "rgba(56, 189, 248, 0.12)"
-                            : "#0f172a",
+                            ? "var(--accent-cyan-glow)"
+                            : "var(--bg-card)",
                           cursor: isQuizSubmitted ? "default" : "pointer",
-                          color: "#f8fafc",
+                          color: "var(--text-primary)",
                           fontSize: "14px",
                           display: "flex",
                           alignItems: "center",
                           gap: "10px",
                         }}
                       >
-                        <span style={{ fontWeight: 700, color: "#94a3b8" }}>{String.fromCharCode(65 + idx)}.</span>
+                        <span style={{ fontWeight: 700, color: "var(--text-muted)" }}>{String.fromCharCode(65 + idx)}.</span>
                         <span>{opt}</span>
                       </div>
                     );
@@ -268,17 +279,17 @@ export function StudentPreviewModal({ lesson, onClose }: StudentPreviewModalProp
                 <div
                   style={{
                     padding: "14px",
-                    background: "rgba(14, 165, 233, 0.1)",
-                    border: "1px solid rgba(14, 165, 233, 0.3)",
+                    background: "var(--accent-cyan-glow)",
+                    border: "1px solid var(--accent-cyan)",
                     borderRadius: "8px",
                   }}
                 >
-                  <strong style={{ color: "#38bdf8", display: "block", marginBottom: "4px" }}>
+                  <strong style={{ color: "var(--accent-cyan)", display: "block", marginBottom: "4px" }}>
                     {selectedAnswer === quiz.correctIndex ? "✓ Correct!" : "✗ Review Explanation:"}
                   </strong>
-                  <p style={{ fontSize: "13px", color: "#cbd5e1", margin: 0 }}>
-                    {quiz.explanation || "No explanation provided for this question."}
-                  </p>
+                  <div style={{ fontSize: "13px", color: "var(--text-secondary)", margin: 0 }}>
+                    {formatTutorText(quiz.explanation || "No explanation provided for this question.")}
+                  </div>
                   <button
                     type="button"
                     className="instructor-btn-secondary"
@@ -299,3 +310,4 @@ export function StudentPreviewModal({ lesson, onClose }: StudentPreviewModalProp
     </div>
   );
 }
+

@@ -202,64 +202,102 @@ export function ProfilePage() {
           </div>
 
           {/* Quick Stat Highlights */}
-          <div className="profile-hero-stats">
-            <div className="profile-hero-stat-card">
-              <span className="stat-label">
-                <Trophy size={14} className="text-amber" /> Level
-              </span>
-              <span className="stat-num">{level}</span>
-              <span className="stat-sub">{xp} Total XP</span>
-            </div>
-
-            <div className="profile-hero-stat-card">
-              <span className="stat-label">
-                <Flame size={14} className="text-orange" /> Learning Streak
-              </span>
-              <span className="stat-num">{streak}d</span>
-              <span className="stat-sub">Consecutive days</span>
-            </div>
-
-            <div className="profile-hero-stat-card">
-              <span className="stat-label">
-                <BookOpen size={14} className="text-teal" /> Completed
-              </span>
-              <span className="stat-num">
-                {completedLessons}
-                <span style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-muted)" }}>
-                  {" "}/ {totalLessons}
+          {isInstructor ? (
+            <div className="profile-hero-stats">
+              <div className="profile-hero-stat-card">
+                <span className="stat-label">
+                  <GraduationCap size={14} className="text-amber" /> Role
                 </span>
-              </span>
-              <span className="stat-sub">Curriculum lessons</span>
-            </div>
+                <span className="stat-num" style={{ fontSize: "1.25rem" }}>Educator</span>
+                <span className="stat-sub">Verified Faculty</span>
+              </div>
 
-            <div className="profile-hero-stat-card">
-              <span className="stat-label">
-                <BrainCircuit size={14} className="text-purple" /> Lab Runs
-              </span>
-              <span className="stat-num">{simulationsRun}</span>
-              <span className="stat-sub">Simulated circuits</span>
+              <div className="profile-hero-stat-card">
+                <span className="stat-label">
+                  <BookOpen size={14} className="text-teal" /> Curriculum
+                </span>
+                <span className="stat-num">{totalLessons}</span>
+                <span className="stat-sub">Canonical Lessons</span>
+              </div>
+
+              <div className="profile-hero-stat-card">
+                <span className="stat-label">
+                  <BrainCircuit size={14} className="text-purple" /> Quantum Lab
+                </span>
+                <span className="stat-num">Active</span>
+                <span className="stat-sub">Assignments IDE</span>
+              </div>
+
+              <div className="profile-hero-stat-card">
+                <span className="stat-label">
+                  <Sparkles size={14} className="text-blue" /> AI Copilot
+                </span>
+                <span className="stat-num">Gemini</span>
+                <span className="stat-sub">Authoring Support</span>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="profile-hero-stats">
+              <div className="profile-hero-stat-card">
+                <span className="stat-label">
+                  <Trophy size={14} className="text-amber" /> Level
+                </span>
+                <span className="stat-num">{level}</span>
+                <span className="stat-sub">{xp} Total XP</span>
+              </div>
+
+              <div className="profile-hero-stat-card">
+                <span className="stat-label">
+                  <Flame size={14} className="text-orange" /> Learning Streak
+                </span>
+                <span className="stat-num">{streak}d</span>
+                <span className="stat-sub">Consecutive days</span>
+              </div>
+
+              <div className="profile-hero-stat-card">
+                <span className="stat-label">
+                  <BookOpen size={14} className="text-teal" /> Completed
+                </span>
+                <span className="stat-num">
+                  {completedLessons}
+                  <span style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-muted)" }}>
+                    {" "}/ {totalLessons}
+                  </span>
+                </span>
+                <span className="stat-sub">Curriculum lessons</span>
+              </div>
+
+              <div className="profile-hero-stat-card">
+                <span className="stat-label">
+                  <BrainCircuit size={14} className="text-purple" /> Lab Runs
+                </span>
+                <span className="stat-num">{simulationsRun}</span>
+                <span className="stat-sub">Simulated circuits</span>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Level Progress Bar */}
-        <div className="profile-level-card">
-          <div className="level-bar-header">
-            <div>
-              <span className="level-badge-pill">Level {level} Quantum Explorer</span>
-              <span className="level-xp-text">
-                {xp - currentLevelBaseXP} / 500 XP to Level {level + 1}
-              </span>
+        {/* Level Progress Bar (Students Only) */}
+        {!isInstructor && (
+          <div className="profile-level-card">
+            <div className="level-bar-header">
+              <div>
+                <span className="level-badge-pill">Level {level} Quantum Explorer</span>
+                <span className="level-xp-text">
+                  {xp - currentLevelBaseXP} / 500 XP to Level {level + 1}
+                </span>
+              </div>
+              <span className="level-pct-text">{levelProgressPct}%</span>
             </div>
-            <span className="level-pct-text">{levelProgressPct}%</span>
+            <div className="profile-progress-track">
+              <div
+                className="profile-progress-fill"
+                style={{ width: `${Math.max(5, levelProgressPct)}%` }}
+              />
+            </div>
           </div>
-          <div className="profile-progress-track">
-            <div
-              className="profile-progress-fill"
-              style={{ width: `${Math.max(5, levelProgressPct)}%` }}
-            />
-          </div>
-        </div>
+        )}
 
         {/* Edit Profile Form Modal / Inline Section */}
         {isEditing && (
@@ -346,47 +384,149 @@ export function ProfilePage() {
           </div>
         )}
 
-        {/* Main Grid: Badges & Account Overview */}
+        {/* Main Grid: Badges or Educator Overview & Account Info */}
         <div className="profile-content-grid">
-          {/* Quantum Achievements & Badges */}
-          <div className="profile-card">
-            <div className="section-header-row">
-              <Award size={18} className="text-amber" />
-              <h3>Quantum Badges & Milestones</h3>
-            </div>
-            <p className="section-subtext">
-              Earn pedagogical badges as you progress through simulations, algorithms, and quizzes.
-            </p>
+          {/* Educator Teaching Overview OR Student Badges */}
+          {isInstructor ? (
+            <div className="profile-card">
+              <div className="section-header-row">
+                <GraduationCap size={18} className="text-amber" />
+                <h3>Educator Teaching & Authoring Portfolio</h3>
+              </div>
+              <p className="section-subtext">
+                Manage your quantum curriculum, student cohorts, lab assignments, and lesson authoring.
+              </p>
 
-            <div className="profile-badges-grid">
-              {badges.map((b) => {
-                const Icon = b.icon;
-                return (
-                  <div
-                    key={b.id}
-                    className={`profile-badge-item ${b.unlocked ? "unlocked" : "locked"}`}
-                  >
-                    <div className="badge-icon-box">
-                      <Icon size={20} />
-                    </div>
-                    <div className="badge-details">
-                      <div className="badge-title-row">
-                        <span className="badge-name">{b.title}</span>
-                        {b.unlocked ? (
-                          <span className="badge-status-unlocked">
-                            <CheckCircle2 size={12} /> Unlocked
-                          </span>
-                        ) : (
-                          <span className="badge-status-locked">In Progress</span>
-                        )}
-                      </div>
-                      <p className="badge-desc">{b.desc}</p>
-                    </div>
-                  </div>
-                );
-              })}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "14px", marginTop: "16px" }}>
+                <Link
+                  to="/instructor/curriculum"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                    padding: "16px",
+                    background: "var(--bg-subtle)",
+                    border: "1px solid var(--border-subtle)",
+                    borderRadius: "10px",
+                    textDecoration: "none",
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  <span style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, fontSize: "14px", color: "var(--accent-cyan)" }}>
+                    <BookOpen size={16} /> Curriculum Manager
+                  </span>
+                  <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+                    View & organize 10 canonical quantum modules.
+                  </span>
+                </Link>
+
+                <Link
+                  to="/instructor/authoring"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                    padding: "16px",
+                    background: "var(--bg-subtle)",
+                    border: "1px solid var(--border-subtle)",
+                    borderRadius: "10px",
+                    textDecoration: "none",
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  <span style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, fontSize: "14px", color: "var(--accent-green)" }}>
+                    <Edit3 size={16} /> Lesson Builder
+                  </span>
+                  <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+                    Draft, preview, and publish interactive quantum lessons.
+                  </span>
+                </Link>
+
+                <Link
+                  to="/instructor/classes"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                    padding: "16px",
+                    background: "var(--bg-subtle)",
+                    border: "1px solid var(--border-subtle)",
+                    borderRadius: "10px",
+                    textDecoration: "none",
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  <span style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, fontSize: "14px", color: "var(--accent-purple)" }}>
+                    <GraduationCap size={16} /> Classes & Cohorts
+                  </span>
+                  <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+                    Manage student enrollments and track cohort progress.
+                  </span>
+                </Link>
+
+                <Link
+                  to="/instructor/ai-copilot"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                    padding: "16px",
+                    background: "var(--bg-subtle)",
+                    border: "1px solid var(--border-subtle)",
+                    borderRadius: "10px",
+                    textDecoration: "none",
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  <span style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, fontSize: "14px", color: "var(--accent-amber)" }}>
+                    <Sparkles size={16} /> AI Educator Copilot
+                  </span>
+                  <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+                    Generate lesson drafts and quiz questions via Gemini.
+                  </span>
+                </Link>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="profile-card">
+              <div className="section-header-row">
+                <Award size={18} className="text-amber" />
+                <h3>Quantum Badges & Milestones</h3>
+              </div>
+              <p className="section-subtext">
+                Earn pedagogical badges as you progress through simulations, algorithms, and quizzes.
+              </p>
+
+              <div className="profile-badges-grid">
+                {badges.map((b) => {
+                  const Icon = b.icon;
+                  return (
+                    <div
+                      key={b.id}
+                      className={`profile-badge-item ${b.unlocked ? "unlocked" : "locked"}`}
+                    >
+                      <div className="badge-icon-box">
+                        <Icon size={20} />
+                      </div>
+                      <div className="badge-details">
+                        <div className="badge-title-row">
+                          <span className="badge-name">{b.title}</span>
+                          {b.unlocked ? (
+                            <span className="badge-status-unlocked">
+                              <CheckCircle2 size={12} /> Unlocked
+                            </span>
+                          ) : (
+                            <span className="badge-status-locked">In Progress</span>
+                          )}
+                        </div>
+                        <p className="badge-desc">{b.desc}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Account Details & Quick Navigation */}
           <div className="profile-side-column">

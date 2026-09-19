@@ -9,9 +9,11 @@ import {
   Compass,
   GraduationCap,
   Layers,
+  Moon,
   Play,
   RotateCcw,
   Sparkles,
+  Sun,
   Trophy,
   Zap,
 } from "lucide-react";
@@ -21,6 +23,7 @@ import { Navbar } from "../components/layout/Navbar";
 import { CircuitBuilder } from "../features/circuit-builder/CircuitBuilder";
 import { runSimulation } from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { UNIFIED_CURRICULUM_MODULES } from "../data/lessonsData";
 import type { CircuitIR, SimulationResult } from "../types";
 
@@ -36,6 +39,7 @@ const defaultHeroCircuit: CircuitIR = {
 export function LandingPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [circuit, setCircuit] = useState<CircuitIR>(defaultHeroCircuit);
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [isSimulating, setIsSimulating] = useState(false);
@@ -78,15 +82,55 @@ export function LandingPage() {
     <div className="landing-page-root">
       <Navbar />
 
+      {/* Floating Theme Switcher on Home Screen (Accessible on desktop & mobile) */}
+      <div className="homescreen-floating-theme-switch">
+        <button
+          type="button"
+          className="floating-theme-btn"
+          onClick={toggleTheme}
+          title={theme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
+          aria-label={theme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
+        >
+          {theme === "dark" ? (
+            <Sun size={20} className="text-amber" />
+          ) : (
+            <Moon size={20} className="text-indigo" />
+          )}
+        </button>
+      </div>
+
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-grid-bg" />
         <div className="hero-particles" />
 
         <div className="hero-content">
-          <div className="hero-pill-badge">
-            <Sparkles size={14} className="text-teal" />
-            <span>SAMBHAV Quantum Intelligence</span>
+          <div className="hero-top-row">
+            <div className="hero-pill-badge">
+              <Sparkles size={14} className="text-teal" />
+              <span>SAMBHAV Quantum Intelligence</span>
+            </div>
+
+            {/* Direct Moon/Sun Switch Button on Homepage Hero */}
+            <button
+              type="button"
+              className="hero-theme-toggle-pill"
+              onClick={toggleTheme}
+              title={theme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
+              aria-label={theme === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
+            >
+              {theme === "dark" ? (
+                <>
+                  <Sun size={15} className="text-amber" />
+                  <span>Light Mode</span>
+                </>
+              ) : (
+                <>
+                  <Moon size={15} className="text-indigo" />
+                  <span>Dark Mode</span>
+                </>
+              )}
+            </button>
           </div>
 
           <h1 className="hero-headline">
@@ -141,13 +185,16 @@ export function LandingPage() {
                 className="demo-reset-btn"
                 onClick={handleResetHero}
                 title="Reset Circuit"
+                aria-label="Reset Circuit"
               >
                 <RotateCcw size={13} />
               </button>
             </div>
 
             <div className="demo-window-body">
-              <CircuitBuilder circuit={circuit} onChange={setCircuit} />
+              <div className="hero-circuit-responsive-wrapper">
+                <CircuitBuilder circuit={circuit} onChange={setCircuit} />
+              </div>
 
               <div className="demo-actions-bar">
                 <button
@@ -283,7 +330,7 @@ export function LandingPage() {
       </section>
 
       {/* Curriculum Preview Section */}
-      <section className="curriculum-preview-section" style={{ padding: "80px 24px", background: "rgba(15, 23, 42, 0.6)" }}>
+      <section className="curriculum-preview-section" style={{ padding: "80px 24px", background: "var(--bg-subtle)" }}>
         <div className="section-container" style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <div className="section-header-center" style={{ textAlign: "center", marginBottom: "48px" }}>
             <span className="section-eyebrow">CANONICAL LEARNING JOURNEY</span>
@@ -299,8 +346,8 @@ export function LandingPage() {
                 key={mod.id}
                 onClick={() => navProtected(`/learn`)}
                 style={{
-                  background: "#1e293b",
-                  border: "1px solid rgba(56, 189, 248, 0.15)",
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--border-subtle)",
                   borderRadius: "12px",
                   padding: "24px",
                   cursor: "pointer",
@@ -313,23 +360,23 @@ export function LandingPage() {
               >
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                    <span style={{ fontSize: "12px", fontWeight: "700", color: "#38bdf8", textTransform: "uppercase", letterSpacing: "1px" }}>
+                    <span style={{ fontSize: "12px", fontWeight: "700", color: "var(--accent-cyan)", textTransform: "uppercase", letterSpacing: "1px" }}>
                       Module {mod.moduleNumber}
                     </span>
                     <span className={`difficulty-badge ${mod.difficulty.toLowerCase()}`}>
                       {mod.difficulty}
                     </span>
                   </div>
-                  <h4 style={{ fontSize: "16px", fontWeight: "600", color: "#f8fafc", marginBottom: "8px" }}>
+                  <h4 style={{ fontSize: "16px", fontWeight: "600", color: "var(--text-primary)", marginBottom: "8px" }}>
                     {mod.title}
                   </h4>
-                  <p style={{ fontSize: "13px", color: "#94a3b8", lineHeight: "1.5", marginBottom: "16px" }}>
+                  <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: "1.5", marginBottom: "16px" }}>
                     {mod.tagline}
                   </p>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px", fontSize: "12px", color: "#64748b" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--border-subtle)", paddingTop: "12px", fontSize: "12px", color: "var(--text-muted)" }}>
                   <span>{mod.lessons.length} Lessons • {mod.estimatedHours}</span>
-                  <span style={{ color: "#2dd4bf", fontWeight: "600", display: "flex", alignItems: "center", gap: "4px" }}>
+                  <span style={{ color: "var(--accent-cyan)", fontWeight: "600", display: "flex", alignItems: "center", gap: "4px" }}>
                     Explore <ArrowRight size={12} />
                   </span>
                 </div>

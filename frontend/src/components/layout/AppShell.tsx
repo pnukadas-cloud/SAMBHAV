@@ -48,9 +48,31 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    try {
+      const saved = localStorage.getItem("sambhav_sidebar_expanded");
+      if (saved !== null) {
+        return saved === "true";
+      }
+    } catch {
+      // ignore
+    }
+    return true;
+  });
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const handleToggleSidebar = () => {
+    setIsSidebarOpen((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("sambhav_sidebar_expanded", String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
 
   const isInstructor = user?.role === "instructor" || location.pathname.startsWith("/instructor");
 
@@ -107,7 +129,7 @@ export function AppShell({ children, activeTitle, activeCategory }: Props) {
           </Link>
           <button
             className="sidebar-toggle-btn"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            onClick={handleToggleSidebar}
             aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
             title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
           >

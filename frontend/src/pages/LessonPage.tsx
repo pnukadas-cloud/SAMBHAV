@@ -24,6 +24,7 @@ import { ResultsPanel } from "../features/visualization/ResultsPanel";
 import { TutorPanel } from "../features/ai-tutor/TutorPanel";
 import { explainCircuitWithAI, getCompletedLessonsCache, recordLessonProgress, runSimulation } from "../api/client";
 import { useToast } from "../context/ToastContext";
+import { useAuth } from "../context/AuthContext";
 import { LESSONS_DATABASE, UNIFIED_CURRICULUM_MODULES, type LessonData } from "../data/lessonsData";
 import type { AITutorResponse, CircuitIR, SimulationResult } from "../types";
 
@@ -31,6 +32,7 @@ export function LessonPage() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { user } = useAuth();
 
   const lessonKey = lessonId || "complex-vectors";
   const lessonData: LessonData = LESSONS_DATABASE[lessonKey] || LESSONS_DATABASE["complex-vectors"] || LESSONS_DATABASE["qubit-basics"];
@@ -105,11 +107,20 @@ export function LessonPage() {
 
   async function handleCompleteLesson() {
     setIsLessonCompleted(true);
+    const isEducator = user?.role === "instructor";
     try {
       await recordLessonProgress(courseId || lessonData.moduleId || "quantum-foundations", lessonData.id, 100.0, 180);
-      showToast(`Lesson Completed! +100 XP Earned!`, "success", "Achievement Unlocked");
+      if (isEducator) {
+        showToast("Lesson reviewed successfully!", "info", "Curriculum Preview");
+      } else {
+        showToast("Lesson Completed! +100 XP Earned!", "success", "Achievement Unlocked");
+      }
     } catch {
-      showToast(`Lesson Completed! +100 XP Earned!`, "success", "Achievement");
+      if (isEducator) {
+        showToast("Lesson reviewed.", "info");
+      } else {
+        showToast("Lesson Completed! +100 XP Earned!", "success", "Achievement");
+      }
     }
   }
 

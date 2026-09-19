@@ -113,7 +113,7 @@ export function InstructorDashboardView({
       {/* Quick Actions Row */}
       <div className="instructor-panel-card" style={{ padding: "16px 24px", marginBottom: "28px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
-          <span style={{ fontSize: "13px", fontWeight: 700, color: "#cbd5e1", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
             Quick Actions:
           </span>
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
@@ -141,7 +141,7 @@ export function InstructorDashboardView({
         {/* Left Column: Recent Activity */}
         <div className="instructor-panel-card">
           <h3>
-            <Clock size={18} style={{ color: "#38bdf8" }} />
+            <Clock size={18} style={{ color: "var(--accent-cyan)" }} />
             Recent Learner Activity
           </h3>
           {recentActivity.length === 0 ? (
@@ -159,8 +159,8 @@ export function InstructorDashboardView({
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: "12px 16px",
-                    background: "#0f172a",
-                    border: "1px solid #334155",
+                    background: "var(--bg-subtle)",
+                    border: "1px solid var(--border-subtle)",
                     borderRadius: "8px",
                   }}
                 >
@@ -170,8 +170,8 @@ export function InstructorDashboardView({
                         width: "32px",
                         height: "32px",
                         borderRadius: "50%",
-                        background: "rgba(56, 189, 248, 0.15)",
-                        color: "#38bdf8",
+                        background: "var(--accent-cyan-glow)",
+                        color: "var(--accent-cyan)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -182,11 +182,11 @@ export function InstructorDashboardView({
                       {act.student?.charAt(0) || "L"}
                     </div>
                     <div>
-                      <div style={{ fontSize: "13px", fontWeight: 600, color: "#f8fafc" }}>{act.student}</div>
-                      <div style={{ fontSize: "12px", color: "#94a3b8" }}>{act.action}</div>
+                      <div style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)" }}>{act.student}</div>
+                      <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>{act.action}</div>
                     </div>
                   </div>
-                  <span style={{ fontSize: "11px", color: "#64748b" }}>{act.time}</span>
+                  <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>{act.time}</span>
                 </div>
               ))}
             </div>
@@ -196,7 +196,7 @@ export function InstructorDashboardView({
         {/* Right Column: Teaching Insights */}
         <div className="instructor-panel-card">
           <h3>
-            <Lightbulb size={18} style={{ color: "#f59e0b" }} />
+            <Lightbulb size={18} style={{ color: "var(--accent-amber)" }} />
             Teaching Insights
           </h3>
           {teachingInsights.length === 0 ? (
@@ -220,7 +220,7 @@ export function InstructorDashboardView({
                     <span style={{ fontSize: "13px", fontWeight: 700, color: "#fbbf24" }}>{insight.concept}</span>
                     <span style={{ fontSize: "11px", color: "#f87171", fontWeight: 600 }}>{insight.frequency}</span>
                   </div>
-                  <p style={{ fontSize: "12px", color: "#cbd5e1", margin: 0, lineHeight: "1.4" }}>{insight.tip}</p>
+                  <p style={{ fontSize: "12px", color: "var(--text-secondary)", margin: 0, lineHeight: "1.4" }}>{insight.tip}</p>
                 </div>
               ))}
             </div>
@@ -232,7 +232,7 @@ export function InstructorDashboardView({
       <div className="instructor-panel-card">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
           <h3 style={{ margin: 0 }}>
-            <GraduationCap size={18} style={{ color: "#a855f7" }} />
+            <GraduationCap size={18} style={{ color: "var(--accent-purple)" }} />
             Active Cohorts & Classes
           </h3>
           <button type="button" className="instructor-btn-secondary" onClick={() => onNavigateTab("classes")} style={{ fontSize: "12px", padding: "6px 12px" }}>
@@ -265,11 +265,11 @@ export function InstructorDashboardView({
                 {classes.map((cls: any) => (
                   <tr key={cls.id}>
                     <td>
-                      <strong style={{ color: "#f8fafc" }}>{cls.name}</strong>
-                      <div style={{ fontSize: "11px", color: "#64748b" }}>{cls.description || "No description"}</div>
+                      <strong style={{ color: "var(--text-primary)" }}>{cls.name}</strong>
+                      <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>{cls.description || "No description"}</div>
                     </td>
                     <td>
-                      <code style={{ background: "#0f172a", padding: "3px 6px", borderRadius: "4px", color: "#38bdf8", border: "1px solid #334155" }}>
+                      <code style={{ background: "var(--bg-subtle)", padding: "3px 6px", borderRadius: "4px", color: "var(--accent-cyan)", border: "1px solid var(--border-subtle)" }}>
                         {cls.enrollment_code}
                       </code>
                     </td>
@@ -277,8 +277,8 @@ export function InstructorDashboardView({
                     <td>{cls.assignment_count ?? 0} active</td>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <div style={{ flex: 1, height: "6px", background: "#0f172a", borderRadius: "3px", overflow: "hidden", minWidth: "60px" }}>
-                          <div style={{ height: "100%", width: `${cls.averageProgress ?? 0}%`, background: "#38bdf8" }} />
+                        <div style={{ flex: 1, height: "6px", background: "var(--bg-track)", borderRadius: "3px", overflow: "hidden", minWidth: "60px" }}>
+                          <div style={{ height: "100%", width: `${cls.averageProgress ?? 0}%`, background: "var(--accent-cyan)" }} />
                         </div>
                         <span style={{ fontSize: "11px" }}>{cls.averageProgress ?? 0}%</span>
                       </div>

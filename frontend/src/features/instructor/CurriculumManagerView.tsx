@@ -135,20 +135,20 @@ export function CurriculumManagerView({
                 onClick={() => toggleModule(mod.id)}
                 style={{
                   padding: "16px 20px",
-                  background: "#1e293b",
+                  background: "var(--bg-subtle)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                   cursor: "pointer",
-                  borderBottom: isExpanded ? "1px solid #334155" : "none",
+                  borderBottom: isExpanded ? "1px solid var(--border-subtle)" : "none",
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  {isExpanded ? <ChevronDown size={18} color="#94a3b8" /> : <ChevronRight size={18} color="#94a3b8" />}
+                  {isExpanded ? <ChevronDown size={18} color="var(--text-muted)" /> : <ChevronRight size={18} color="var(--text-muted)" />}
                   <span
                     style={{
-                      background: "rgba(14, 165, 233, 0.15)",
-                      color: "#38bdf8",
+                      background: "var(--accent-cyan-glow)",
+                      color: "var(--accent-cyan)",
                       fontWeight: 700,
                       fontSize: "11px",
                       padding: "3px 8px",
@@ -157,8 +157,8 @@ export function CurriculumManagerView({
                   >
                     MODULE {index}
                   </span>
-                  <span style={{ fontSize: "15px", fontWeight: 700, color: "#f8fafc" }}>{mod.title}</span>
-                  <span style={{ fontSize: "12px", color: "#64748b" }}>({lessonsList.length} lessons)</span>
+                  <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)" }}>{mod.title}</span>
+                  <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>({lessonsList.length} lessons)</span>
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }} onClick={(e) => e.stopPropagation()}>
@@ -210,9 +210,9 @@ export function CurriculumManagerView({
                             return (
                               <tr key={lesson.id}>
                                 <td>
-                                  <strong style={{ color: "#f8fafc" }}>{lesson.title}</strong>
+                                  <strong style={{ color: "var(--text-primary)" }}>{lesson.title}</strong>
                                   {lesson.description && (
-                                    <div style={{ fontSize: "11px", color: "#64748b" }}>{lesson.description}</div>
+                                    <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>{lesson.description}</div>
                                   )}
                                 </td>
                                 <td>
@@ -236,7 +236,7 @@ export function CurriculumManagerView({
                                 <td>{lesson.difficulty || "Beginner"}</td>
                                 <td>
                                   <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px" }}>
-                                    <Clock size={12} color="#94a3b8" />
+                                    <Clock size={12} color="var(--text-muted)" />
                                     {lesson.estimated_minutes ? `${lesson.estimated_minutes} mins` : "15 mins"}
                                   </span>
                                 </td>

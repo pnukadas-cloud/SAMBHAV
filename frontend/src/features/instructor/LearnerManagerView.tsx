@@ -80,7 +80,7 @@ export function LearnerManagerView() {
       <div className="instructor-panel-card" style={{ padding: "16px 20px", marginBottom: "20px" }}>
         <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
           <div style={{ position: "relative", flex: 1, minWidth: "240px" }}>
-            <Search size={15} style={{ position: "absolute", left: "12px", top: "11px", color: "#64748b" }} />
+            <Search size={15} style={{ position: "absolute", left: "12px", top: "11px", color: "var(--text-muted)" }} />
             <input
               type="text"
               placeholder="Search learners by name or email..."
@@ -88,27 +88,27 @@ export function LearnerManagerView() {
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
                 width: "100%",
-                background: "#0f172a",
-                border: "1px solid #334155",
+                background: "var(--bg-input)",
+                border: "1px solid var(--border-subtle)",
                 borderRadius: "6px",
                 padding: "8px 12px 8px 36px",
-                color: "#f8fafc",
+                color: "var(--text-primary)",
                 fontSize: "13px",
               }}
             />
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 600 }}>Cohort:</span>
+            <span style={{ fontSize: "12px", color: "var(--text-muted)", fontWeight: 600 }}>Cohort:</span>
             <select
               value={filterClass}
               onChange={(e) => setFilterClass(e.target.value)}
               style={{
-                background: "#0f172a",
-                border: "1px solid #334155",
+                background: "var(--bg-input)",
+                border: "1px solid var(--border-subtle)",
                 borderRadius: "6px",
                 padding: "8px 12px",
-                color: "#f8fafc",
+                color: "var(--text-primary)",
                 fontSize: "13px",
               }}
             >
@@ -146,16 +146,16 @@ export function LearnerManagerView() {
                 {filteredLearners.map((learner) => (
                   <tr key={learner.id}>
                     <td>
-                      <strong style={{ color: "#f8fafc" }}>{learner.name}</strong>
-                      <div style={{ fontSize: "11px", color: "#64748b" }}>{learner.email}</div>
+                      <strong style={{ color: "var(--text-primary)" }}>{learner.name}</strong>
+                      <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>{learner.email}</div>
                     </td>
                     <td>
                       <span className="instructor-tag custom">{learner.className || "General"}</span>
                     </td>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <div style={{ flex: 1, height: "6px", background: "#0f172a", borderRadius: "3px", overflow: "hidden", minWidth: "60px" }}>
-                          <div style={{ height: "100%", width: `${learner.progressPercent}%`, background: "#38bdf8" }} />
+                        <div style={{ flex: 1, height: "6px", background: "var(--bg-track)", borderRadius: "3px", overflow: "hidden", minWidth: "60px" }}>
+                          <div style={{ height: "100%", width: `${learner.progressPercent}%`, background: "var(--accent-cyan)" }} />
                         </div>
                         <span style={{ fontSize: "11px" }}>{learner.completedLessons} / 31</span>
                       </div>
@@ -166,7 +166,7 @@ export function LearnerManagerView() {
                       </strong>
                     </td>
                     <td>
-                      <span style={{ fontSize: "12px", color: "#cbd5e1" }}>{learner.weakConcept}</span>
+                      <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>{learner.weakConcept}</span>
                     </td>
                     <td>
                       <span
@@ -205,8 +205,8 @@ export function LearnerManagerView() {
           <div className="preview-modal-box" onClick={(e) => e.stopPropagation()}>
             <div className="preview-modal-header">
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <Users size={18} style={{ color: "#38bdf8" }} />
-                <h3 style={{ margin: 0, fontSize: "16px", color: "#f8fafc" }}>
+                <Users size={18} style={{ color: "var(--accent-cyan)" }} />
+                <h3 style={{ margin: 0, fontSize: "16px", color: "var(--text-primary)" }}>
                   {learnerDetail?.student?.name || "Learner Profile"} — Detailed Performance
                 </h3>
               </div>
@@ -222,8 +222,8 @@ export function LearnerManagerView() {
 
             <div className="preview-modal-body">
               {isLoadingDetail || !learnerDetail ? (
-                <div style={{ textAlign: "center", padding: "40px", color: "#94a3b8" }}>
-                  <Clock size={28} className="spin-slow" style={{ margin: "0 auto 8px", color: "#38bdf8" }} />
+                <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+                  <Clock size={28} className="spin-slow" style={{ margin: "0 auto 8px", color: "var(--accent-cyan)" }} />
                   Loading learner metrics...
                 </div>
               ) : (
@@ -253,20 +253,20 @@ export function LearnerManagerView() {
                   </div>
 
                   {/* Misconceptions & AI Recommendations */}
-                  <div style={{ background: "rgba(14, 165, 233, 0.08)", border: "1px solid rgba(14, 165, 233, 0.3)", borderRadius: "8px", padding: "16px" }}>
-                    <h4 style={{ color: "#38bdf8", fontSize: "14px", margin: "0 0 8px 0", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <div style={{ background: "var(--accent-cyan-glow)", border: "1px solid var(--accent-cyan)", borderRadius: "8px", padding: "16px" }}>
+                    <h4 style={{ color: "var(--accent-cyan)", fontSize: "14px", margin: "0 0 8px 0", display: "flex", alignItems: "center", gap: "6px" }}>
                       <Lightbulb size={16} /> Automated Misconception Diagnostics & Recommendations
                     </h4>
                     {learnerDetail.progress?.recommendations && learnerDetail.progress.recommendations.length > 0 ? (
                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                         {learnerDetail.progress.recommendations.map((rec: any, idx: number) => (
-                          <div key={idx} style={{ fontSize: "13px", color: "#cbd5e1" }}>
+                          <div key={idx} style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
                             <strong>• {rec.title}:</strong> {rec.reason}
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p style={{ fontSize: "13px", color: "#cbd5e1", margin: 0 }}>
+                      <p style={{ fontSize: "13px", color: "var(--text-secondary)", margin: 0 }}>
                         Learner is progressing smoothly on fundamentals without detected recurring gate or phase errors.
                       </p>
                     )}
@@ -274,9 +274,9 @@ export function LearnerManagerView() {
 
                   {/* Submissions History */}
                   <div>
-                    <h4 style={{ color: "#f8fafc", fontSize: "15px", marginBottom: "10px" }}>Recent Assessment & Quiz Submissions</h4>
+                    <h4 style={{ color: "var(--text-primary)", fontSize: "15px", marginBottom: "10px" }}>Recent Assessment & Quiz Submissions</h4>
                     {(!learnerDetail.submissions || learnerDetail.submissions.length === 0) ? (
-                      <p style={{ fontSize: "13px", color: "#64748b", margin: 0 }}>No assessment submissions recorded yet.</p>
+                      <p style={{ fontSize: "13px", color: "var(--text-muted)", margin: 0 }}>No assessment submissions recorded yet.</p>
                     ) : (
                       <div className="instructor-table-container">
                         <table className="instructor-table">
@@ -294,7 +294,7 @@ export function LearnerManagerView() {
                                 <td>{sub.assessment_title || sub.assessment_id}</td>
                                 <td><strong>{sub.score}%</strong></td>
                                 <td>{sub.feedback || "Evaluated by automated test oracle"}</td>
-                                <td style={{ fontSize: "11px", color: "#64748b" }}>{sub.submitted_at ? sub.submitted_at.slice(0, 16) : ""}</td>
+                                <td style={{ fontSize: "11px", color: "var(--text-muted)" }}>{sub.submitted_at ? sub.submitted_at.slice(0, 16) : ""}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -305,9 +305,9 @@ export function LearnerManagerView() {
 
                   {/* Quantum Lab Submissions */}
                   <div>
-                    <h4 style={{ color: "#f8fafc", fontSize: "15px", marginBottom: "10px" }}>Quantum Lab Experiment Submissions</h4>
+                    <h4 style={{ color: "var(--text-primary)", fontSize: "15px", marginBottom: "10px" }}>Quantum Lab Experiment Submissions</h4>
                     {(!learnerDetail.labSubmissions || learnerDetail.labSubmissions.length === 0) ? (
-                      <p style={{ fontSize: "13px", color: "#64748b", margin: 0 }}>No lab submissions recorded yet.</p>
+                      <p style={{ fontSize: "13px", color: "var(--text-muted)", margin: 0 }}>No lab submissions recorded yet.</p>
                     ) : (
                       <div className="instructor-table-container">
                         <table className="instructor-table">

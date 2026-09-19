@@ -70,14 +70,14 @@ export function InstructorRoute({ children }: GuardProps) {
           alignItems: "center",
           justifyContent: "center",
           height: "100vh",
-          background: "#0b0f19",
-          color: "#38bdf8",
+          background: "var(--bg-page)",
+          color: "var(--accent-cyan)",
           fontFamily: "Inter, sans-serif",
           gap: "16px",
         }}
       >
         <Atom size={40} className="spin-slow" />
-        <span style={{ fontSize: "14px", color: "#94a3b8" }}>Verifying instructor privileges...</span>
+        <span style={{ fontSize: "14px", color: "var(--text-muted)" }}>Verifying instructor privileges...</span>
       </div>
     );
   }
@@ -86,7 +86,7 @@ export function InstructorRoute({ children }: GuardProps) {
     return null;
   }
 
-  if (user?.role !== "instructor" && user?.role !== "admin") {
+  if (user?.role !== "instructor") {
     return (
       <div
         style={{
@@ -95,8 +95,8 @@ export function InstructorRoute({ children }: GuardProps) {
           alignItems: "center",
           justifyContent: "center",
           height: "100vh",
-          background: "#0b0f19",
-          color: "#f8fafc",
+          background: "var(--bg-page)",
+          color: "var(--text-primary)",
           fontFamily: "Inter, sans-serif",
           padding: "24px",
           textAlign: "center",
@@ -105,24 +105,24 @@ export function InstructorRoute({ children }: GuardProps) {
         <div
           style={{
             maxWidth: "460px",
-            background: "#1e293b",
+            background: "var(--bg-card)",
             border: "1px solid #ef4444",
             borderRadius: "12px",
             padding: "32px",
-            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
+            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.2)",
           }}
         >
           <ShieldAlert size={48} style={{ color: "#ef4444", margin: "0 auto 16px" }} />
-          <h2 style={{ fontSize: "20px", marginBottom: "8px" }}>Instructor Portal Restricted</h2>
-          <p style={{ color: "#94a3b8", fontSize: "14px", lineHeight: "1.6", marginBottom: "24px" }}>
+          <h2 style={{ fontSize: "20px", marginBottom: "8px", color: "var(--text-primary)" }}>Instructor Portal Restricted</h2>
+          <p style={{ color: "var(--text-secondary)", fontSize: "14px", lineHeight: "1.6", marginBottom: "24px" }}>
             Your account (<strong>{user?.email}</strong>) has the <strong>student</strong> role. Instructor course authoring and classroom analytics require an authenticated instructor account.
           </p>
           <Link
             to="/dashboard"
             style={{
               display: "inline-block",
-              background: "#14b8a6",
-              color: "#0f172a",
+              background: "var(--accent-cyan)",
+              color: "#ffffff",
               fontWeight: "600",
               padding: "10px 20px",
               borderRadius: "8px",
@@ -138,3 +138,4 @@ export function InstructorRoute({ children }: GuardProps) {
 
   return children;
 }
+

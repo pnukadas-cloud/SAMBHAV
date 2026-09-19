@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { generateAIEducatorDraftApi } from "../../api/client";
+import { formatTutorText } from "../../utils/formatTutorText";
 import {
   Sparkles,
   BookOpen,
@@ -223,12 +224,12 @@ export const AIEducatorCopilotView: React.FC<AIEducatorCopilotViewProps> = ({
       {generatedResult && (
         <div className="instructor-panel-card" style={{ marginTop: "24px", border: "1.5px solid #0284c7" }}>
           {/* Result Header */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "14px", borderBottom: "1px solid #e2e8f0", marginBottom: "16px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "14px", borderBottom: "1px solid var(--border-subtle)", marginBottom: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <span className="badge-pill badge-pill-amber">
                 DRAFT PROPOSAL
               </span>
-              <span style={{ fontSize: "15px", fontWeight: 700, color: "#0f172a" }}>
+              <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)" }}>
                 {generatedResult.topic} ({generatedResult.level})
               </span>
             </div>
@@ -257,14 +258,14 @@ export const AIEducatorCopilotView: React.FC<AIEducatorCopilotViewProps> = ({
           </div>
 
           {/* Draft Watermark Banner */}
-          <div style={{ padding: "10px 14px", background: "rgba(217, 119, 6, 0.08)", borderRadius: "8px", border: "1px solid rgba(217, 119, 6, 0.2)", fontSize: "12px", color: "#92400e", display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-            <AlertTriangle size={16} color="#d97706" />
+          <div style={{ padding: "10px 14px", background: "rgba(217, 119, 6, 0.08)", borderRadius: "8px", border: "1px solid rgba(217, 119, 6, 0.2)", fontSize: "12px", color: "var(--accent-amber)", display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+            <AlertTriangle size={16} color="var(--accent-amber)" />
             <span>{generatedResult.disclaimer}</span>
           </div>
 
-          {/* Draft Content */}
-          <div style={{ background: "var(--bg-subtle)", padding: "18px", borderRadius: "10px", border: "1px solid var(--border-subtle)", color: "var(--text-primary)", fontSize: "14px", lineHeight: 1.65, whiteSpace: "pre-wrap", maxHeight: "550px", overflowY: "auto" }}>
-            {generatedResult.content}
+          {/* Draft Content with Markdown & KaTeX LaTeX math */}
+          <div style={{ background: "var(--bg-subtle)", padding: "20px 24px", borderRadius: "10px", border: "1px solid var(--border-subtle)", color: "var(--text-primary)", fontSize: "14px", lineHeight: 1.65, maxHeight: "550px", overflowY: "auto" }}>
+            {formatTutorText(generatedResult.content)}
           </div>
         </div>
       )}
