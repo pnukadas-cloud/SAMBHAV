@@ -1,8 +1,9 @@
 import os
 import re
+import urllib.parse
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import api_router
@@ -32,21 +33,42 @@ app = FastAPI(
 class VercelPathFixMiddleware:
     """
     Ensures Vercel serverless rewrites resolve correctly to target FastAPI routes.
-    When Vercel rewrites to /api/index.py, it passes the original request path in 'x-matched-path'.
+    Extracts the original request path from '__path__' query parameter (in vercel.json)
+    or from 'x-matched-path' header.
     """
     def __init__(self, app):
         self.app = app
 
     async def __call__(self, scope, receive, send):
         if scope.get("type") in ("http", "websocket"):
-            headers = dict(scope.get("headers", []))
-            matched_path = headers.get(b"x-matched-path", b"").decode("utf-8")
-            if matched_path:
-                scope["path"] = matched_path
-            elif scope.get("path", "").startswith("/api/index.py"):
-                scope["path"] = scope["path"][len("/api/index.py"):] or "/"
-            elif scope.get("path", "").startswith("/api/index"):
-                scope["path"] = scope["path"][len("/api/index"):] or "/"
+            query_bytes = scope.get("query_string", b"")
+            query_str = query_bytes.decode("utf-8", errors="ignore") if query_bytes else ""
+            
+            # Check if __path__ was captured by vercel rewrite rule
+            if "__path__=" in query_str:
+                parsed_qs = urllib.parse.parse_qs(query_str, keep_blank_values=True)
+                if "__path__" in parsed_qs and parsed_qs["__path__"]:
+                    raw_target = parsed_qs.pop("__path__")[0]
+                    # Normalize leading slash and strip duplicate slashes
+                    target_path = "/" + raw_target.lstrip("/") if raw_target else "/"
+                    scope["path"] = target_path
+                    
+                    # Reconstruct clean query string for endpoint consumption
+                    clean_pairs = []
+                    for k, v_list in parsed_qs.items():
+                        for v in v_list:
+                            clean_pairs.append(f"{urllib.parse.quote(k)}={urllib.parse.quote(v)}")
+                    scope["query_string"] = "&".join(clean_pairs).encode("utf-8")
+            else:
+                headers = dict(scope.get("headers", []))
+                matched_path = headers.get(b"x-matched-path", b"").decode("utf-8")
+                if matched_path and not matched_path.startswith("/api/index"):
+                    scope["path"] = matched_path
+                elif scope.get("path", "").startswith("/api/index.py"):
+                    scope["path"] = scope["path"][len("/api/index.py"):] or "/"
+                elif scope.get("path", "").startswith("/api/index"):
+                    scope["path"] = scope["path"][len("/api/index"):] or "/"
+
         await self.app(scope, receive, send)
 
 app.add_middleware(VercelPathFixMiddleware)
