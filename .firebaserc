@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "sambhav-quantum-app"
-  }
+  },
+  "targets": {
+    "synapse-pbp47": {
+      "hosting": {
+        "sambhav-site": [
+          "sambhav-quantum"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
