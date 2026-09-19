@@ -52,7 +52,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     return (await response.json()) as Promise<T>;
   } catch (err: any) {
     if (err.message && err.message.includes("Failed to fetch")) {
-      throw new Error("Cannot connect to backend server. Please ensure the backend is running at http://127.0.0.1:8000");
+      throw new Error("Cannot connect to backend server. Please verify your network connection or ensure the backend service is running.");
     }
     throw err;
   }

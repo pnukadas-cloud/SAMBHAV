@@ -2,27 +2,42 @@
 __pycache__/
 *.py[cod]
 .venv/
+venv/
 .pytest_cache/
 
 # Node
 node_modules/
 dist/
 .vite/
+.firebase/
+firebase-debug.log*
 
-# Environment
+# Environment & Secrets
 .env
-.env.local
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*service-account*.json
+*credentials*.json
+secrets/
 
-# OS/editor
+# OS / Editor
 .DS_Store
 Thumbs.db
 .idea/
+.vscode/
+
 # Databases
 *.db
+*.sqlite
 *.sqlite3
 
 # Temporary / build output
 tmp/
 output/
+scratch/
+
 
 
