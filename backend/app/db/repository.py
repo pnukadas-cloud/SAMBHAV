@@ -58,6 +58,20 @@ def update_user_profile(user_id: str, name: str) -> Optional[dict[str, Any]]:
     return get_user_by_id(user_id)
 
 
+def update_user_password(user_id: str, password_hash: str) -> bool:
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            UPDATE users
+            SET password_hash = ?
+            WHERE id = ?
+            """,
+            (password_hash, user_id),
+        )
+        return cursor.rowcount > 0
+
+
 def list_users_by_role(role: str) -> list[dict[str, Any]]:
     with get_db_connection() as conn:
         cursor = conn.cursor()

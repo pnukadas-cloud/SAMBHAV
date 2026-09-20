@@ -1,3 +1,4 @@
+import importlib
 import os
 import re
 import sqlite3
@@ -102,8 +103,8 @@ class PostgresConnectionWrapper:
     def cursor(self) -> PostgresCursorWrapper:
         # Request RealDictCursor if psycopg2 to get dictionary access
         try:
-            import psycopg2.extras
-            raw_cur = self._conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            psycopg2_extras = importlib.import_module("psycopg2.extras")
+            raw_cur = self._conn.cursor(cursor_factory=psycopg2_extras.RealDictCursor)
         except Exception:
             raw_cur = self._conn.cursor()
         return PostgresCursorWrapper(raw_cur)
@@ -125,30 +126,6 @@ class PostgresConnectionWrapper:
             cur.close()
 
 
-@contextmanager
-def get_db_connection() -> Generator[Any, None, None]:
-    """
-    Returns an active database connection with dictionary-like row access.
-    Supports:
-    1. Local SQLite (for local development, fast startup & automated tests)
-    2. Google Cloud SQL PostgreSQL (for production Cloud Run deployments)
-    """
-    if is_postgres():
-        db_url = get_database_url()
-        try:
-            import psycopg2
-            raw_conn = psycopg2.connect(db_url)
-            conn = PostgresConnectionWrapper(raw_conn)
-        except ImportError:
-            try:
-                import psycopg
-                raw_conn = psycopg.connect(db_url, row_factory=psycopg.rows.dict_row)
-                conn = PostgresConnectionWrapper(raw_conn)
-            except ImportError:
-                raise RuntimeError(
-                    "PostgreSQL DATABASE_URL provided but neither 'psycopg2' nor 'psycopg' is installed. "
-                    "Please install psycopg2-binary or psycopg."
-                )
 FALLBACK_SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
@@ -366,13 +343,14 @@ def get_db_connection() -> Generator[Any, None, None]:
     if is_postgres():
         db_url = get_database_url()
         try:
-            import psycopg2
+            psycopg2 = importlib.import_module("psycopg2")
             raw_conn = psycopg2.connect(db_url)
             conn = PostgresConnectionWrapper(raw_conn)
         except ImportError:
             try:
-                import psycopg
-                raw_conn = psycopg.connect(db_url, row_factory=psycopg.rows.dict_row)
+                psycopg = importlib.import_module("psycopg")
+                psycopg_rows = importlib.import_module("psycopg.rows")
+                raw_conn = psycopg.connect(db_url, row_factory=psycopg_rows.dict_row)
                 conn = PostgresConnectionWrapper(raw_conn)
             except ImportError:
                 raise RuntimeError(

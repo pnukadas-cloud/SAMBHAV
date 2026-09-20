@@ -78,23 +78,36 @@ class EmailService:
         """Returns True if valid SMTP credentials are configured."""
         return bool(self.smtp_host and self.smtp_user and self.smtp_password)
 
-    def send_otp_email(self, to_email: str, otp_code: str, user_name: Optional[str] = None) -> Tuple[bool, str]:
+    def send_otp_email(self, to_email: str, otp_code: str, user_name: Optional[str] = None, purpose: str = "login") -> Tuple[bool, str]:
         """
         Dispatches a 6-digit OTP email.
+        purpose can be 'login', 'registration', or 'password_reset'.
         Returns: (success: bool, delivery_info: str)
         """
         self.last_dispatched_code_for_test = otp_code
         greeting = f"Hello {user_name}," if user_name else "Hello Quantum Learner,"
-        subject = f"SAMBHAV Quantum Platform — Your Verification Code is {otp_code}"
+        
+        if purpose == "password_reset":
+            subject = f"SAMBHAV Quantum Platform — Password Reset Verification Code is {otp_code}"
+            header_title = "Password Reset Verification"
+            action_desc = "You requested to reset your password. Please enter the following 6-digit verification code to verify your identity and set a new password:"
+        elif purpose == "registration":
+            subject = f"SAMBHAV Quantum Platform — Welcome! Your Verification Code is {otp_code}"
+            header_title = "Account Verification"
+            action_desc = "Welcome to SAMBHAV! Please enter the following 6-digit verification code to activate your account:"
+        else:
+            subject = f"SAMBHAV Quantum Platform — Your Verification Code is {otp_code}"
+            header_title = "Two-Factor Verification"
+            action_desc = "Please enter the following 6-digit verification code to complete your login:"
         
         text_body = f"""{greeting}
 
-Your 6-digit verification code for SAMBHAV Quantum Platform is:
+{action_desc}
 
     {otp_code}
 
 This code is valid for 5 minutes and can only be used once.
-If you did not request this verification code, please ignore this email.
+If you did not request this code, please ignore this email or contact support.
 
 — The SAMBHAV Quantum Team
 """
@@ -115,14 +128,14 @@ If you did not request this verification code, please ignore this email.
 <body>
   <div class="card">
     <div class="logo">⚛️ SAMBHAV Quantum Platform</div>
-    <h2>Two-Factor Verification</h2>
+    <h2>{header_title}</h2>
     <p>{greeting}</p>
-    <p>Please enter the following 6-digit verification code to complete your login:</p>
+    <p>{action_desc}</p>
     <div class="otp-box">{otp_code}</div>
     <p style="font-size: 14px; color: #94a3b8;">This code is valid for <strong>5 minutes</strong> and can only be used once.</p>
     <div class="footer">
       SAMBHAV Quantum Intelligence Platform<br>
-      If you did not request this login, you can safely disregard this message.
+      If you did not initiate this request, you can safely disregard this message.
     </div>
   </div>
 </body>

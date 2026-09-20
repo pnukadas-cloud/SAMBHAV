@@ -15,13 +15,14 @@ OTP_SECRET = os.getenv("OTP_SECRET_KEY", os.getenv("JWT_SECRET_KEY", "sambhav_ot
 
 
 class OTPChallenge:
-    def __init__(self, email: str, otp_code: str, user_id: str, user_name: str, user_role: str):
+    def __init__(self, email: str, otp_code: str, user_id: str, user_name: str, user_role: str, purpose: str = "login"):
         self.email = email.lower().strip()
         self.salt = os.urandom(16).hex()
         self.otp_hash = self._hash_code(otp_code, self.salt)
         self.user_id = user_id
         self.user_name = user_name
         self.user_role = user_role
+        self.purpose = purpose
         self.created_at = time.time()
         self.expires_at = self.created_at + OTP_EXPIRY_SECONDS
         self.resend_available_at = self.created_at + RESEND_COOLDOWN_SECONDS
@@ -80,7 +81,7 @@ class OTPManager:
         for t in expired_tokens:
             del self._session_tokens[t]
 
-    def create_challenge(self, user_id: str, email: str, name: str, role: str) -> Tuple[str, str, Dict[str, Any]]:
+    def create_challenge(self, user_id: str, email: str, name: str, role: str, purpose: str = "login") -> Tuple[str, str, Dict[str, Any]]:
         """
         Generates a 6-digit OTP, registers challenge, dispatches email (or dev log),
         and returns (otp_session_token, otp_code, delivery_metadata).
@@ -97,6 +98,7 @@ class OTPManager:
             user_id=user_id,
             user_name=name,
             user_role=role,
+            purpose=purpose,
         )
         self._challenges[norm_email] = challenge
 
@@ -105,7 +107,7 @@ class OTPManager:
         self._session_tokens[session_token] = norm_email
 
         # Send email / log dev output
-        success, delivery_info = email_service.send_otp_email(norm_email, otp_code, name)
+        success, delivery_info = email_service.send_otp_email(norm_email, otp_code, name, purpose=purpose)
 
         metadata = {
             "email_sent": email_service.is_configured and success,
@@ -139,6 +141,7 @@ class OTPManager:
             email=norm_email,
             name=existing.user_name,
             role=existing.user_role,
+            purpose=getattr(existing, "purpose", "login"),
         )
 
     def verify_challenge(self, session_token: str, otp_code: str) -> Tuple[bool, Optional[Dict[str, Any]], str]:

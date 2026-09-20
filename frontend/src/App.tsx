@@ -9,6 +9,7 @@ import { ProtectedRoute, InstructorRoute } from "./router/RouteGuards";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { QuantumLabPage } from "./pages/QuantumLabPage";
@@ -34,7 +35,7 @@ export function App() {
           <Route path="/signin" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/verify-otp" element={<LoginPage />} />
-          <Route path="/forgot-password" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
           {/* Protected Onboarding */}
           <Route

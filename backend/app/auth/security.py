@@ -94,6 +94,32 @@ def decode_access_token(token: str) -> Optional[dict[str, Any]]:
         return None
 
 
+def create_reset_token(user_id: str, email: str) -> str:
+    """Creates a short-lived cryptographically signed token for password reset (15 minutes)."""
+    header = {"alg": "HS256", "typ": "JWT"}
+    payload = {
+        "sub": user_id,
+        "email": email,
+        "purpose": "password_reset",
+        "exp": int(time.time()) + 900,  # 15 minutes
+        "iat": int(time.time()),
+    }
+    header_b64 = _b64_encode(json.dumps(header, separators=(",", ":")).encode("utf-8"))
+    payload_b64 = _b64_encode(json.dumps(payload, separators=(",", ":")).encode("utf-8"))
+    message = f"{header_b64}.{payload_b64}".encode("utf-8")
+    signature = hmac.new(SECRET_KEY.encode("utf-8"), message, hashlib.sha256).digest()
+    signature_b64 = _b64_encode(signature)
+    return f"{header_b64}.{payload_b64}.{signature_b64}"
+
+
+def verify_reset_token(token: str) -> Optional[dict[str, Any]]:
+    """Decodes and validates a password reset token."""
+    payload = decode_access_token(token)
+    if not payload or payload.get("purpose") != "password_reset":
+        return None
+    return payload
+
+
 def get_optional_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Security(security_scheme),
 ) -> Optional[dict[str, Any]]:

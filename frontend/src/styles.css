@@ -2431,6 +2431,73 @@ a:hover {
   margin: 0;
 }
 
+.forgot-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 16px 0 20px;
+}
+
+.stepper-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stepper-bubble {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(30, 41, 59, 0.8);
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.stepper-step span {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.stepper-step.active .stepper-bubble {
+  border-color: #38bdf8;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+.stepper-step.active span {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.stepper-step.completed .stepper-bubble {
+  border-color: #10b981;
+  color: #ffffff;
+  background: #10b981;
+}
+
+.stepper-step.completed span {
+  color: #10b981;
+}
+
+.stepper-line {
+  flex: 1;
+  max-width: 36px;
+  height: 2px;
+  background: rgba(148, 163, 184, 0.2);
+  margin-bottom: 16px;
+}
+
 .demo-accounts-box {
   background: rgba(233, 180, 76, 0.08);
   border: 1px solid rgba(233, 180, 76, 0.25);

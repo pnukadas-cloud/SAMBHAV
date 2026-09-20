@@ -174,6 +174,93 @@ class TestAuthAndDatabase(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 401)
 
+    def test_forgot_password_nonexistent_email(self):
+        resp = self.client.post(
+            "/api/auth/forgot-password",
+            json={"email": "unknown.user.999@sambhav.edu"},
+        )
+        self.assertEqual(resp.status_code, 404)
+        self.assertIn("No account found", resp.json()["detail"])
+
+    def test_forgot_password_and_reset_flow(self):
+        test_email = "reset.tester@sambhav.edu"
+        old_password = "InitialPassword#2026"
+        new_password = "BrandNewQuantumPassword#2026"
+
+        # Create user if not present
+        if not repository.get_user_by_email(test_email):
+            repository.create_user(
+                name="Reset Tester",
+                email=test_email,
+                password_hash=hash_password(old_password),
+                role="student",
+            )
+
+        # Step 1: Request Password Reset OTP
+        forgot_resp = self.client.post(
+            "/api/auth/forgot-password",
+            json={"email": test_email},
+        )
+        self.assertEqual(forgot_resp.status_code, 200)
+        forgot_data = forgot_resp.json()
+        self.assertEqual(forgot_data["status"], "otp_required")
+        session_token = forgot_data["session_token"]
+        self.assertIsNotNone(session_token)
+
+        otp_code = email_service.last_dispatched_code_for_test
+        self.assertIsNotNone(otp_code)
+        self.assertEqual(len(otp_code), 6)
+
+        # Step 2: Test Invalid OTP code rejection
+        bad_verify = self.client.post(
+            "/api/auth/verify-reset-otp",
+            json={"session_token": session_token, "otp_code": "000000"},
+        )
+        self.assertEqual(bad_verify.status_code, 400)
+
+        # Step 3: Verify Valid OTP code
+        good_verify = self.client.post(
+            "/api/auth/verify-reset-otp",
+            json={"session_token": session_token, "otp_code": otp_code},
+        )
+        self.assertEqual(good_verify.status_code, 200)
+        verify_data = good_verify.json()
+        self.assertEqual(verify_data["status"], "otp_verified")
+        reset_token = verify_data["reset_token"]
+        self.assertIsNotNone(reset_token)
+
+        # Step 4: Invalid Reset Token Rejection
+        bad_reset = self.client.post(
+            "/api/auth/reset-password",
+            json={"reset_token": "invalid.jwt.token", "new_password": new_password},
+        )
+        self.assertEqual(bad_reset.status_code, 400)
+
+        # Step 5: Reset Password with Valid Token
+        reset_resp = self.client.post(
+            "/api/auth/reset-password",
+            json={"reset_token": reset_token, "new_password": new_password},
+        )
+        self.assertEqual(reset_resp.status_code, 200)
+        reset_result = reset_resp.json()
+        self.assertIn("token", reset_result)
+        self.assertEqual(reset_result["user"]["email"], test_email)
+
+        # Step 6: Verify old password is now rejected
+        old_login = self.client.post(
+            "/api/auth/login",
+            json={"email": test_email, "password": old_password},
+        )
+        self.assertEqual(old_login.status_code, 401)
+
+        # Step 7: Verify new password successfully initiates login
+        new_login = self.client.post(
+            "/api/auth/login",
+            json={"email": test_email, "password": new_password},
+        )
+        self.assertEqual(new_login.status_code, 200)
+        self.assertEqual(new_login.json()["status"], "otp_required")
+
 
     def test_get_me_with_valid_token(self):
         token = create_access_token(

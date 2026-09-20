@@ -3,7 +3,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
 from app.auth.otp_manager import otp_manager
-from app.auth.security import create_access_token, get_current_user, hash_password, verify_password
+from app.auth.security import (
+    create_access_token,
+    create_reset_token,
+    get_current_user,
+    hash_password,
+    verify_password,
+    verify_reset_token,
+)
 from app.db import repository
 
 
@@ -22,9 +29,23 @@ class LoginRequest(BaseModel):
     password: str = Field(..., min_length=1)
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: str = Field(..., min_length=3)
+
+
 class VerifyOTPRequest(BaseModel):
     session_token: str = Field(..., min_length=10)
     otp_code: str = Field(..., min_length=6, max_length=6)
+
+
+class VerifyResetOTPRequest(BaseModel):
+    session_token: str = Field(..., min_length=10)
+    otp_code: str = Field(..., min_length=6, max_length=6)
+
+
+class ResetPasswordRequest(BaseModel):
+    reset_token: str = Field(..., min_length=10)
+    new_password: str = Field(..., min_length=6)
 
 
 class ResendOTPRequest(BaseModel):
@@ -39,6 +60,12 @@ class LoginInitiatedResponse(BaseModel):
     resend_cooldown: int
     email_sent: bool
     delivery_info: str
+
+
+class VerifyResetOTPResponse(BaseModel):
+    status: str = "otp_verified"
+    reset_token: str
+    email: str
 
 
 class AuthSuccessResponse(BaseModel):
@@ -70,6 +97,7 @@ def register(payload: RegisterRequest) -> LoginInitiatedResponse:
             email=user["email"],
             name=user["name"],
             role=user["role"],
+            purpose="registration",
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=str(e))
@@ -106,6 +134,7 @@ def login(payload: LoginRequest) -> LoginInitiatedResponse:
             email=user_record["email"],
             name=user_record["name"],
             role=user_record["role"],
+            purpose="login",
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=str(e))
@@ -114,6 +143,37 @@ def login(payload: LoginRequest) -> LoginInitiatedResponse:
         status="otp_required",
         session_token=session_token,
         email=user_record["email"],
+        expires_in=meta["expires_in"],
+        resend_cooldown=meta["resend_cooldown"],
+        email_sent=meta["email_sent"],
+        delivery_info=meta["delivery_info"],
+    )
+
+
+@router.post("/forgot-password", response_model=LoginInitiatedResponse)
+def forgot_password(payload: ForgotPasswordRequest) -> LoginInitiatedResponse:
+    user = repository.get_user_by_email(payload.email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No account found with this email address. Please check your email or create a new account.",
+        )
+    
+    try:
+        session_token, otp_code, meta = otp_manager.create_challenge(
+            user_id=user["id"],
+            email=user["email"],
+            name=user["name"],
+            role=user["role"],
+            purpose="password_reset",
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=str(e))
+
+    return LoginInitiatedResponse(
+        status="otp_required",
+        session_token=session_token,
+        email=user["email"],
         expires_in=meta["expires_in"],
         resend_cooldown=meta["resend_cooldown"],
         email_sent=meta["email_sent"],
@@ -154,6 +214,66 @@ def verify_otp(payload: VerifyOTPRequest) -> AuthSuccessResponse:
     )
 
     return AuthSuccessResponse(token=token, user=safe_user)
+
+
+@router.post("/verify-reset-otp", response_model=VerifyResetOTPResponse)
+def verify_reset_otp(payload: VerifyResetOTPRequest) -> VerifyResetOTPResponse:
+    is_valid, user_data, error_msg = otp_manager.verify_challenge(
+        session_token=payload.session_token,
+        otp_code=payload.otp_code,
+    )
+
+    if not is_valid or not user_data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg or "Invalid or expired verification code.",
+        )
+
+    reset_token = create_reset_token(user_id=user_data["id"], email=user_data["email"])
+
+    return VerifyResetOTPResponse(
+        status="otp_verified",
+        reset_token=reset_token,
+        email=user_data["email"],
+    )
+
+
+@router.post("/reset-password", response_model=AuthSuccessResponse)
+def reset_password(payload: ResetPasswordRequest) -> AuthSuccessResponse:
+    token_data = verify_reset_token(payload.reset_token)
+    if not token_data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password reset session has expired or is invalid. Please request a new verification code.",
+        )
+
+    user_id = token_data["sub"]
+    user_record = repository.get_user_by_id(user_id)
+    if not user_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User account not found.")
+
+    new_hash = hash_password(payload.new_password)
+    updated = repository.update_user_password(user_id, new_hash)
+    if not updated:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update password.")
+
+    safe_user = {
+        "id": user_record["id"],
+        "name": user_record["name"],
+        "email": user_record["email"],
+        "role": user_record["role"],
+        "created_at": user_record.get("created_at"),
+    }
+
+    # Generate cryptographically signed JWT access token for instant authenticated login
+    auth_token = create_access_token(
+        user_id=safe_user["id"],
+        email=safe_user["email"],
+        role=safe_user["role"],
+        name=safe_user["name"],
+    )
+
+    return AuthSuccessResponse(token=auth_token, user=safe_user)
 
 
 @router.post("/resend-otp", response_model=LoginInitiatedResponse)

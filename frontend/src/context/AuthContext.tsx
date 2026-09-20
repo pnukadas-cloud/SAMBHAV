@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
+  forgotPasswordRequestOtpApi,
   getAuthToken,
   getMeApi,
   loginRequestOtpApi,
@@ -7,8 +8,10 @@ import {
   OtpInitiatedResponse,
   registerRequestOtpApi,
   resendOtpApi,
+  resetPasswordApi,
   setAuthToken,
   verifyOtpApi,
+  verifyResetOtpApi,
 } from "../api/client";
 
 export type UserRole = "student" | "instructor" | "admin";
@@ -36,6 +39,9 @@ type AuthContextType = {
   verifyOtp: (sessionToken: string, otpCode: string) => Promise<User>;
   resendOtp: (sessionToken: string) => Promise<OtpInitiatedResponse>;
   initiateSignup: (name: string, email: string, password: string, role?: UserRole) => Promise<OtpInitiatedResponse>;
+  initiateForgotPassword: (email: string) => Promise<OtpInitiatedResponse>;
+  verifyResetOtp: (sessionToken: string, otpCode: string) => Promise<{ reset_token: string; email: string }>;
+  completePasswordReset: (resetToken: string, newPassword: string) => Promise<User>;
   logout: () => void;
   updateUserPreferences: (prefs: Partial<User>) => void;
 };
@@ -48,6 +54,9 @@ const AuthContext = createContext<AuthContextType>({
   verifyOtp: async () => { throw new Error("AuthProvider not mounted"); },
   resendOtp: async () => { throw new Error("AuthProvider not mounted"); },
   initiateSignup: async () => { throw new Error("AuthProvider not mounted"); },
+  initiateForgotPassword: async () => { throw new Error("AuthProvider not mounted"); },
+  verifyResetOtp: async () => { throw new Error("AuthProvider not mounted"); },
+  completePasswordReset: async () => { throw new Error("AuthProvider not mounted"); },
   logout: () => {},
   updateUserPreferences: () => {},
 });
@@ -162,6 +171,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return resendOtpApi(sessionToken);
   };
 
+  const initiateForgotPassword = async (email: string): Promise<OtpInitiatedResponse> => {
+    return forgotPasswordRequestOtpApi(email);
+  };
+
+  const verifyResetOtp = async (sessionToken: string, otpCode: string): Promise<{ reset_token: string; email: string }> => {
+    return verifyResetOtpApi(sessionToken, otpCode);
+  };
+
+  const completePasswordReset = async (resetToken: string, newPassword: string): Promise<User> => {
+    setIsLoading(true);
+    try {
+      const res = await resetPasswordApi(resetToken, newPassword);
+      const authenticatedUser: User = {
+        id: res.user.id,
+        name: res.user.name,
+        email: res.user.email,
+        role: res.user.role,
+        xp: 0,
+        streakDays: 0,
+        level: 1,
+        experienceLevel: res.user.role === "instructor" ? "advanced" : "beginner",
+        interests: [],
+      };
+      setUser(authenticatedUser);
+      setIsLoading(false);
+      return authenticatedUser;
+    } catch (err) {
+      setIsLoading(false);
+      throw err;
+    }
+  };
+
   const logout = () => {
     logoutApi().catch(() => {});
     setAuthToken(null);
@@ -184,6 +225,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         verifyOtp,
         resendOtp,
         initiateSignup,
+        initiateForgotPassword,
+        verifyResetOtp,
+        completePasswordReset,
         logout,
         updateUserPreferences,
       }}

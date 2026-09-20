@@ -176,6 +176,32 @@ export async function resendOtpApi(sessionToken: string): Promise<OtpInitiatedRe
   });
 }
 
+export async function forgotPasswordRequestOtpApi(email: string): Promise<OtpInitiatedResponse> {
+  return request<OtpInitiatedResponse>("/api/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function verifyResetOtpApi(
+  sessionToken: string,
+  otpCode: string
+): Promise<{ status: string; reset_token: string; email: string }> {
+  return request<{ status: string; reset_token: string; email: string }>("/api/auth/verify-reset-otp", {
+    method: "POST",
+    body: JSON.stringify({ session_token: sessionToken, otp_code: otpCode }),
+  });
+}
+
+export async function resetPasswordApi(resetToken: string, newPassword: string): Promise<AuthSuccessResponse> {
+  const res = await request<AuthSuccessResponse>("/api/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ reset_token: resetToken, new_password: newPassword }),
+  });
+  setAuthToken(res.token);
+  return res;
+}
+
 export function getMeApi(): Promise<any> {
   return request("/api/auth/me");
 }
