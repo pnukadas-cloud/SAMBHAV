@@ -28,12 +28,22 @@ def get_sqlite_path() -> Path:
     # In Vercel serverless environment, use writable /tmp directory
     if os.getenv("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
         tmp_db = Path("/tmp/sambhav.db")
-        if not tmp_db.exists() and DEFAULT_SQLITE_PATH.exists():
-            import shutil
-            try:
-                shutil.copyfile(DEFAULT_SQLITE_PATH, tmp_db)
-            except Exception:
-                pass
+        if not tmp_db.exists():
+            for candidate in [
+                DEFAULT_SQLITE_PATH,
+                Path("sambhav.db"),
+                Path("backend/sambhav.db"),
+                Path(__file__).resolve().parent.parent.parent / "sambhav.db",
+                Path(__file__).resolve().parent.parent.parent.parent / "sambhav.db",
+                Path(__file__).resolve().parent.parent.parent.parent / "backend" / "sambhav.db",
+            ]:
+                if candidate.exists():
+                    import shutil
+                    try:
+                        shutil.copyfile(candidate, tmp_db)
+                        break
+                    except Exception:
+                        pass
         return tmp_db
 
     return DEFAULT_SQLITE_PATH

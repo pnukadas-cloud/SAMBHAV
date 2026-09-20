@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api.routes import api_router
 from app.db.seeds import seed_database
@@ -28,6 +29,17 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
+    tb = traceback.format_exc()
+    print(f"[UNHANDLED ERROR] {request.method} {request.url.path}: {exc}\n{tb}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc) if str(exc) else "Internal Server Error"},
+    )
 
 # Vercel Serverless Path Resolution Middleware
 class VercelPathFixMiddleware:

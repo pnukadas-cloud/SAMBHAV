@@ -10,6 +10,7 @@ from app.db.connection import get_db_connection
 
 def create_user(name: str, email: str, password_hash: str, role: str = "student") -> dict[str, Any]:
     user_id = str(uuid.uuid4())
+    norm_email = email.lower().strip()
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -17,9 +18,17 @@ def create_user(name: str, email: str, password_hash: str, role: str = "student"
             INSERT INTO users (id, name, email, password_hash, role)
             VALUES (?, ?, ?, ?, ?)
             """,
-            (user_id, name, email.lower().strip(), password_hash, role),
+            (user_id, name.strip(), norm_email, password_hash, role),
         )
-    return get_user_by_id(user_id)
+    user = get_user_by_id(user_id)
+    if not user:
+        return {
+            "id": user_id,
+            "name": name.strip(),
+            "email": norm_email,
+            "role": role,
+        }
+    return user
 
 
 def get_user_by_email(email: str) -> Optional[dict[str, Any]]:
