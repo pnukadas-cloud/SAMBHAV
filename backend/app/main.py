@@ -34,7 +34,7 @@ class VercelPathFixMiddleware:
     """
     Ensures Vercel serverless rewrites resolve correctly to target FastAPI routes.
     Extracts the original request path from '__path__' query parameter (in vercel.json)
-    or from 'x-matched-path' header.
+    or from Vercel headers ('x-matched-path', 'x-forwarded-uri', etc.).
     """
     def __init__(self, app):
         self.app = app
@@ -44,7 +44,7 @@ class VercelPathFixMiddleware:
             query_bytes = scope.get("query_string", b"")
             query_str = query_bytes.decode("utf-8", errors="ignore") if query_bytes else ""
             
-            # Check if __path__ was captured by vercel rewrite rule
+            # 1. Check if __path__ was captured by vercel rewrite rule
             if "__path__=" in query_str:
                 parsed_qs = urllib.parse.parse_qs(query_str, keep_blank_values=True)
                 if "__path__" in parsed_qs and parsed_qs["__path__"]:
@@ -60,14 +60,25 @@ class VercelPathFixMiddleware:
                             clean_pairs.append(f"{urllib.parse.quote(k)}={urllib.parse.quote(v)}")
                     scope["query_string"] = "&".join(clean_pairs).encode("utf-8")
             else:
+                # 2. Check headers
                 headers = dict(scope.get("headers", []))
                 matched_path = headers.get(b"x-matched-path", b"").decode("utf-8")
-                if matched_path and not matched_path.startswith("/api/index"):
-                    scope["path"] = matched_path
-                elif scope.get("path", "").startswith("/api/index.py"):
-                    scope["path"] = scope["path"][len("/api/index.py"):] or "/"
-                elif scope.get("path", "").startswith("/api/index"):
-                    scope["path"] = scope["path"][len("/api/index"):] or "/"
+                forwarded_uri = headers.get(b"x-forwarded-uri", b"").decode("utf-8")
+                
+                candidate = ""
+                if forwarded_uri and not forwarded_uri.startswith("/api/index"):
+                    candidate = forwarded_uri.split("?")[0]
+                elif matched_path and not matched_path.startswith("/api/index"):
+                    candidate = matched_path.split("?")[0]
+                
+                if candidate:
+                    scope["path"] = "/" + candidate.lstrip("/")
+                else:
+                    curr_path = scope.get("path", "")
+                    if curr_path.startswith("/api/index.py"):
+                        scope["path"] = curr_path[len("/api/index.py"):] or "/"
+                    elif curr_path.startswith("/api/index"):
+                        scope["path"] = curr_path[len("/api/index"):] or "/"
 
         await self.app(scope, receive, send)
 
