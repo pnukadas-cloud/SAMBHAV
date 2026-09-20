@@ -40,10 +40,19 @@ def get_sqlite_path() -> Path:
                 if candidate.exists():
                     import shutil
                     try:
-                        shutil.copyfile(candidate, tmp_db)
+                        shutil.copyfile(str(candidate), str(tmp_db))
+                        try:
+                            os.chmod(str(tmp_db), 0o666)
+                        except Exception:
+                            pass
                         break
                     except Exception:
                         pass
+        else:
+            try:
+                os.chmod(str(tmp_db), 0o666)
+            except Exception:
+                pass
         return tmp_db
 
     return DEFAULT_SQLITE_PATH
@@ -378,9 +387,18 @@ def get_db_connection() -> Generator[Any, None, None]:
     else:
         # SQLite Engine
         db_path = get_sqlite_path()
+        if str(db_path).startswith("/tmp") and db_path.exists():
+            try:
+                os.chmod(str(db_path), 0o666)
+            except Exception:
+                pass
         conn = sqlite3.connect(str(db_path), check_same_thread=False)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON;")
+        try:
+            conn.execute("PRAGMA journal_mode = MEMORY;")
+        except Exception:
+            pass
         try:
             yield conn
             conn.commit()
