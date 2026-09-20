@@ -20,14 +20,31 @@ def get_database_url() -> str:
 
 
 def get_sqlite_path() -> Path:
+    # On Serverless / Linux / Read-Only filesystems, always use /tmp
+    is_serverless_or_linux = (
+        os.getenv("VERCEL") is not None
+        or os.getenv("AWS_LAMBDA_FUNCTION_NAME") is not None
+        or os.name != "nt"
+        or os.path.exists("/tmp")
+    )
+
     url = get_database_url()
     if url.startswith("sqlite:///"):
-        path_str = url.replace("sqlite:///", "")
-        return Path(path_str)
+        path_str = url.replace("sqlite:///", "").strip()
+        target = Path(path_str)
+        if is_serverless_or_linux:
+            return Path(f"/tmp/{target.name}")
+        return target
     
-    # In Vercel serverless environment, use writable /tmp directory
-    if os.getenv("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+    if is_serverless_or_linux:
         tmp_db = Path("/tmp/sambhav.db")
+        # Check if existing tmp_db is read-only from previous run
+        if tmp_db.exists() and not os.access(str(tmp_db), os.W_OK):
+            try:
+                os.remove(str(tmp_db))
+            except Exception:
+                pass
+
         if not tmp_db.exists():
             for candidate in [
                 DEFAULT_SQLITE_PATH,
